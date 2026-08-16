@@ -30,11 +30,11 @@ export function PlaybackWorkspace({
 
   useEffect(() => {
     if (!playing) return;
-    if (index >= maxIndex) {
-      setPlaying(false);
-      return;
-    }
     const timer = window.setTimeout(() => {
+      if (index >= maxIndex) {
+        setPlaying(false);
+        return;
+      }
       setIndex((value) => Math.min(value + 1, maxIndex));
     }, 500);
     return () => window.clearTimeout(timer);
