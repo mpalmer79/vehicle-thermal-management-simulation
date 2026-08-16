@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import os
-from dataclasses import asdict
+from dataclasses import asdict, replace
+from math import isclose
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from vtms_v1.config import ModelMetadata
+from vtms_v1.scenario import Scenario
 from vtms_v1.scenarios import canonical_scenarios
 from vtms_v1.simulation import SimulationError, SimulationRunner
 
@@ -20,6 +22,39 @@ def _allowed_origins() -> list[str]:
         "http://localhost:3000,http://127.0.0.1:3000",
     )
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+def _resolve_scenario(payload: SimulationRequest) -> Scenario:
+    requested = payload.to_core()
+    canonical = canonical_scenarios().get(payload.scenario_id)
+    if canonical is None:
+        return requested
+
+    requested_op = requested.at(0.0)
+    canonical_op = canonical.at(0.0)
+    numeric_pairs = [
+        (requested.duration_s, canonical.duration_s),
+        (requested.initial_engine_temp_c, canonical.initial_engine_temp_c),
+        (requested.initial_coolant_temp_c, canonical.initial_coolant_temp_c),
+        (requested_op.ambient_temp_c, canonical_op.ambient_temp_c),
+        (requested_op.engine_speed_rpm, canonical_op.engine_speed_rpm),
+        (requested_op.effective_load, canonical_op.effective_load),
+        (requested_op.vehicle_speed_m_s, canonical_op.vehicle_speed_m_s),
+    ]
+    numeric_match = all(isclose(left, right, rel_tol=0.0, abs_tol=1.0e-9) for left, right in numeric_pairs)
+    override_match = requested_op.engine_heat_override_w == canonical_op.engine_heat_override_w
+    fault_match = requested.faults == canonical.faults
+
+    if not (numeric_match and override_match and fault_match):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"{payload.scenario_id} is a frozen canonical scenario. Altered physical inputs "
+                "must use a CUSTOM- scenario_id so canonical evidence remains reproducible."
+            ),
+        )
+
+    return replace(canonical, output_interval_s=payload.output_interval_s)
 
 
 app = FastAPI(
@@ -68,7 +103,7 @@ def scenario_catalog() -> list[dict[str, object]]:
 
 @app.post("/api/v1/simulations", response_model=SimulationResponse)
 def run_simulation(payload: SimulationRequest) -> SimulationResponse:
-    scenario = payload.to_core()
+    scenario = _resolve_scenario(payload)
     try:
         result = _runner.run(scenario)
     except ValueError as exc:
