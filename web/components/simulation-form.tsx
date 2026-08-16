@@ -17,7 +17,7 @@ export function SimulationForm() {
 
   return (
     <div className="simulation-layout">
-      <form className="simulation-form">
+      <form className="simulation-form" key={scenarioId}>
         <label className="field full"><span>Scenario preset</span><select value={scenarioId} onChange={(event) => selectScenario(event.target.value)}>{scenarios.map((item) => <option key={item.id} value={item.id}>{item.id} · {item.name}</option>)}</select></label>
         {custom && <div className="custom-note">Custom configuration based on {scenarioId}. UI-1 does not execute edited inputs yet.</div>}
         <fieldset><legend>Operating conditions</legend><div className="field-grid"><label className="field"><span>Ambient</span><div className="input-unit"><input defaultValue={scenario.ambient} type="number" onChange={() => setCustom(true)} /><em>°C</em></div></label><label className="field"><span>Engine speed</span><div className="input-unit"><input defaultValue={scenario.rpm} min="700" max="6500" type="number" onChange={() => setCustom(true)} /><em>rpm</em></div></label><label className="field"><span>Effective load</span><div className="input-unit"><input defaultValue={scenario.load} min="0" max="100" type="number" onChange={() => setCustom(true)} /><em>%</em></div></label><label className="field"><span>Vehicle speed</span><div className="input-unit"><input defaultValue={scenario.speedKmh} min="0" type="number" onChange={() => setCustom(true)} /><em>km/h</em></div></label><label className="field"><span>Duration</span><div className="input-unit"><input defaultValue={scenario.duration} min="1" type="number" onChange={() => setCustom(true)} /><em>s</em></div></label></div></fieldset>
