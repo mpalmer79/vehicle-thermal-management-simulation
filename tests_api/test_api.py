@@ -47,8 +47,9 @@ def test_simulation_endpoint_runs_authoritative_s03_model() -> None:
     assert result["energy_balance"]["normalized_residual"] <= 0.001
 
 
-def test_api_translates_kmh_and_load_percent_to_core_units() -> None:
+def test_api_translates_kmh_and_load_percent_to_core_units_for_custom_run() -> None:
     payload = s03_payload()
+    payload["scenario_id"] = "CUSTOM-S03"
     payload["vehicle_speed_kmh"] = 100
     payload["effective_load_percent"] = 45
     payload["duration_s"] = 10
@@ -59,8 +60,17 @@ def test_api_translates_kmh_and_load_percent_to_core_units() -> None:
     assert metadata["effective_load"] == 0.45
 
 
+def test_canonical_id_rejects_altered_physical_inputs() -> None:
+    payload = s03_payload()
+    payload["ambient_temp_c"] = 41
+    response = client.post("/api/v1/simulations", json=payload)
+    assert response.status_code == 422
+    assert "frozen canonical scenario" in response.json()["detail"]
+
+
 def test_invalid_reference_rpm_is_rejected_before_simulation() -> None:
     payload = s03_payload()
+    payload["scenario_id"] = "CUSTOM-S03"
     payload["engine_speed_rpm"] = 500
     response = client.post("/api/v1/simulations", json=payload)
     assert response.status_code == 422
@@ -68,6 +78,7 @@ def test_invalid_reference_rpm_is_rejected_before_simulation() -> None:
 
 def test_fault_request_changes_physical_result_without_frontend_physics() -> None:
     payload = s03_payload()
+    payload["scenario_id"] = "CUSTOM-S03"
     payload["faults"] = {"fan_failed": True}
     response = client.post("/api/v1/simulations", json=payload)
     assert response.status_code == 200
