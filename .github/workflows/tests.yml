@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  python-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,3 +26,30 @@ jobs:
 
       - name: Run VTMS test suite
         run: python -m pytest
+
+  web-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install web dependencies
+        run: npm install
+
+      - name: Lint web application
+        run: npm run lint
+
+      - name: Typecheck web application
+        run: npm run typecheck
+
+      - name: Build web application
+        run: npm run build
