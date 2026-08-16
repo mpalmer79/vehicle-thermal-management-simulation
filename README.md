@@ -25,20 +25,23 @@ The project is built around three questions:
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **30 passing** |
+| Automated Python/API tests | **41 passing** |
 | Engineering verification checks | **21 passing** |
 | Canonical scenario suite | S-01 through S-09 implemented |
 | Energy-conservation verification | Passing |
 | External real-world plausibility test | Complete using KIT OBD-II telemetry |
-| Controlled physical validation | Pending Argonne D3 raw data |
+| Controlled validation governance | Complete: manifests, role separation, file hashes, parameter hashes, holdout protection |
+| Argonne D3 controlled validation | Data and official signal mapping still pending |
 | UI/UX foundation | Complete |
 | UI-1 Next.js application shell | Complete |
 | UI-2 FastAPI simulation boundary | Complete |
 | Custom and fault Simulation Lab execution | Complete |
 | UI-3 production packaging and hardening | Complete |
+| UI-4 light production UX and browser QA | Complete |
 | Production dependency audit | Passing at high severity threshold |
 | API and web container smoke tests | Passing |
-| Public application deployment | Pending Railway service creation |
+| Public application deployment | Live at `https://vtms.up.railway.app` |
+| Public API deployment | Live at `https://vtms-api.up.railway.app` |
 | Vehicle-specific digital twin | Future maturity target |
 
 ## Architecture
@@ -76,7 +79,7 @@ Computed runs are currently stored only in browser session storage. A returned r
 
 Production packaging keeps the same boundary. The Next.js and FastAPI services are built as separate non-root containers, with independent health checks and Railway configuration files.
 
-For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For production setup and verification, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For validation controls, see [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md). For production setup and verification, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## VTMS-V1 thermal model
 
@@ -118,6 +121,7 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
 ├── pyproject.toml
 ├── docs/
 │   ├── DEPLOYMENT.md
+│   ├── VALIDATION_GOVERNANCE.md
 │   ├── UI_UX_PRODUCT_SPEC.md
 │   ├── INFORMATION_ARCHITECTURE.md
 │   ├── LOW_FIDELITY_WIREFRAMES.md
@@ -131,6 +135,7 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
 ├── tests/
 ├── tests_validation/
 ├── tests_api/
+├── validation_configs/
 ├── validation_data/
 ├── validation_outputs/
 └── web/
@@ -190,7 +195,7 @@ Verification answers a software and mathematics question:
 
 > Does the implementation solve the frozen VTMS-V1 equations consistently?
 
-The automated suite now contains **30 tests** across the engine, validation toolkit, API boundary, and production HTTP behavior. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, request validation, API unit translation, canonical scenario protection, authoritative API execution, runtime metadata, and production response headers.
+The automated suite now contains **41 tests** across the engine, validation toolkit, controlled-validation governance, API boundary, and production HTTP behavior. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, dataset hashing, calibration/holdout separation, parameter-snapshot locking, Argonne explicit signal mapping and unit normalization, formal heat-evidence restrictions, request validation, API unit translation, canonical scenario protection, authoritative API execution, runtime metadata, and production response headers.
 
 GitHub Actions now runs:
 
@@ -242,36 +247,52 @@ VTMS reaches a similar final operating-temperature region but warms substantiall
 
 This remains **external plausibility evidence**, not controlled physical validation.
 
-## Physical validation strategy
+## Controlled physical validation strategy
 
-Formal V1 validation remains designed around controlled Argonne National Laboratory D3 dynamometer data.
+Formal V1 validation remains designed around controlled Argonne National Laboratory D3 dynamometer data. The execution path is now governed in code before those files arrive.
+
+Every controlled run must carry an immutable manifest containing its dataset ID, raw-file SHA-256, validation role, evidence grade, model/equation identifiers, parameter-set identifier, parameter-snapshot SHA-256, acceptance criteria, and any preregistered fitted-parameter declaration.
+
+The only allowed calibration subset is:
+
+1. `wall_heat_fraction`
+2. `engine_thermal_capacitance_j_per_k`
+3. `engine_coolant_ua_w_per_k`
+4. `radiator_ua_nominal_w_per_k`
+
+Holdout and challenge manifests cannot authorize fitting. The controlled runner also refuses to execute if the normalized dataset's raw-file hash, dataset ID, or parameter snapshot does not match the manifest.
+
+Formal controlled evidence must use an explicit fuel-energy-rate channel or a direct fuel-rate channel with a declared lower heating value. The KIT-style MAF stoichiometric proxy is prohibited from calibration and holdout execution and remains limited to plausibility work.
 
 The preregistered sequence is:
 
-1. Obtain qualified 72 °F conventional gasoline vehicle runs and channel definitions.
-2. Select one calibration run.
-3. Permanently reserve separate runs as untouched holdouts.
-4. Calibrate only the preregistered uncertain parameters.
-5. Freeze the calibration.
-6. Execute blind holdout predictions.
-7. Report RMSE, MAE, bias, P90 error, maximum error, threshold timing, residuals, and limitations.
+1. Obtain qualified 72 °F conventional gasoline vehicle runs and the official channel definitions.
+2. Hash and archive each raw source file.
+3. Assign calibration, holdout, and challenge roles before fitting.
+4. Map official D3 channel names and units explicitly into the VTMS validation contract.
+5. Select one calibration run.
+6. Permanently reserve separate runs as untouched holdouts.
+7. Calibrate only the preregistered uncertain parameters.
+8. Freeze and hash the resulting parameter snapshot.
+9. Execute holdout predictions without retuning.
+10. Report RMSE, MAE, bias, P90 error, maximum error, threshold timing, residuals, and limitations.
 
-The Argonne adapter still refuses to guess the raw D3 schema until official channel names and units are available.
+`ArgonneD3Adapter` still refuses schema guessing. It can normalize explicitly mapped CSV data only after a reviewed `ArgonneSignalMap` names every source column and unit. If the received D3 package uses another format, a dedicated parser will be added only after that format is documented.
 
-See [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
+See [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md), [`validation_configs/argonne_d3_mapping.template.json`](validation_configs/argonne_d3_mapping.template.json), [`validation_configs/argonne_validation_plan.template.json`](validation_configs/argonne_validation_plan.template.json), and [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
 
 ## Production deployment
 
-UI-3 prepares two independently deployable Railway services from this repository:
+VTMS is publicly deployed as two Railway services from this repository:
 
 ```text
-vtms-web  -> Next.js standalone container
-vtms-api  -> FastAPI + authoritative VTMS-V1 engine
+https://vtms.up.railway.app      -> Next.js frontend
+https://vtms-api.up.railway.app  -> FastAPI + authoritative VTMS-V1 engine
 ```
 
-Both services have repository-controlled Dockerfiles, health endpoints, and `railway.json` configuration. Deployment-specific public domains and CORS values remain environment configuration rather than committed source code.
+The services have repository-controlled Dockerfiles, health endpoints, and `railway.json` configuration. Public domain and CORS settings remain environment configuration rather than committed source code.
 
-The application is production-packaged and smoke-tested, but a public Railway deployment is not claimed until the two services have actually been created and their public domains have passed the end-to-end verification checklist.
+The live application has completed an end-to-end S-03 execution from the browser through FastAPI into the Python `SimulationRunner`, plus a browser-rendered UI-4 QA pass at mobile and desktop viewport sizes.
 
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
@@ -339,9 +360,13 @@ High-temperature fault cases above the liquid-only caution boundary are therefor
 - [x] Execute custom and fault Simulation Lab runs through the Python engine
 - [x] Protect canonical scenario identities at the API boundary
 - [x] Complete UI-3 production packaging and hardening
+- [x] Deploy Railway API and web services
+- [x] Complete UI-4 light production UX and browser/device QA
 - [x] Add dependency audit and container smoke gates
-- [ ] Create the Railway API and web services
-- [ ] Complete browser/device UI QA on the deployed application
+- [x] Add controlled-validation manifests and evidence-role enforcement
+- [x] Add raw-data and parameter-snapshot provenance locks
+- [x] Add explicit Argonne signal-mapping and validation-plan templates
+- [ ] Receive and qualify Argonne D3 raw files and signal dictionary
 - [ ] Complete Argonne D3 calibration and blind holdout validation
 - [ ] Publish formal controlled validation results
 
@@ -356,6 +381,7 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 ## Documentation
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete engineering and software architecture
+- [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md): controlled evidence roles, provenance locks, calibration/holdout separation, and Argonne mapping policy
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): production topology, Railway configuration, health checks, verification, and rollback
 - [`docs/UI_UX_PRODUCT_SPEC.md`](docs/UI_UX_PRODUCT_SPEC.md): UI product principles and interaction contracts
 - [`docs/INFORMATION_ARCHITECTURE.md`](docs/INFORMATION_ARCHITECTURE.md): route hierarchy and user flows
