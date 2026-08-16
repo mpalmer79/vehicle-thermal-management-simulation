@@ -95,10 +95,9 @@ def evaluate_acceptance(
 ) -> AcceptanceEvaluation:
     """Evaluate a controlled comparison against the preregistered project criteria.
 
-    The numeric criteria can be evaluated for calibration, holdout, or challenge
-    runs, but only an independent holdout is eligible to produce a formal
-    validation pass claim. Challenge runs remain challenge evidence even when
-    every numeric threshold passes.
+    The numeric criteria can be evaluated for calibration, holdout, challenge,
+    and synthetic software exercises. A formal validation-pass claim additionally
+    requires an independent holdout manifest explicitly marked as physical evidence.
     """
 
     manifest.validate()
@@ -178,10 +177,18 @@ def evaluate_acceptance(
         check.status is AcceptanceStatus.PASS for check in required
     )
     formal_validation_pass = (
-        manifest.role is ValidationRole.HOLDOUT and overall_threshold_pass
+        manifest.role is ValidationRole.HOLDOUT
+        and manifest.physical_evidence
+        and overall_threshold_pass
     )
 
-    if manifest.role is ValidationRole.HOLDOUT:
+    if manifest.role is ValidationRole.HOLDOUT and not manifest.physical_evidence:
+        claim_label = (
+            "nonphysical_holdout_threshold_pass_not_validation"
+            if overall_threshold_pass
+            else "nonphysical_holdout_threshold_fail_not_validation"
+        )
+    elif manifest.role is ValidationRole.HOLDOUT:
         claim_label = (
             "formal_holdout_acceptance_pass"
             if formal_validation_pass
