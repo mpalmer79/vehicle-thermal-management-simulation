@@ -29,6 +29,18 @@ def test_health_reports_frozen_model_identity() -> None:
     assert body["status"] == "ok"
     assert body["model_id"] == "VTMS-V1"
     assert body["equation_set"] == "EM-V1"
+    assert body["runtime_environment"] in {"development", "test", "production"}
+    assert 1 <= body["max_concurrent_simulations"] <= 8
+
+
+def test_api_emits_production_safety_headers() -> None:
+    response = client.get("/health", headers={"X-Request-ID": "test-request-id"})
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["x-vtms-model-id"] == "VTMS-V1"
+    assert response.headers["x-request-id"] == "test-request-id"
 
 
 def test_simulation_endpoint_runs_authoritative_s03_model() -> None:
