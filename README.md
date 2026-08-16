@@ -31,7 +31,8 @@ The current work centers on three questions:
 | Energy-conservation verification | Passing |
 | External real-world plausibility test | Complete using KIT OBD-II telemetry |
 | Controlled physical validation | Pending Argonne D3 raw data |
-| FastAPI / web UI | Deferred until validation progresses |
+| UI/UX foundation | Product specification, information architecture, and low-fidelity wireframes defined |
+| FastAPI / Next.js implementation | Pending UI foundation approval |
 | Vehicle-specific digital twin | Future maturity target |
 
 ## Architecture
@@ -101,6 +102,9 @@ Radiator heat rejection is calculated with a crossflow effectiveness-NTU model. 
 ├── VALIDATION_TOOLKIT_README.md
 ├── pyproject.toml
 ├── docs/
+│   ├── UI_UX_PRODUCT_SPEC.md
+│   ├── INFORMATION_ARCHITECTURE.md
+│   ├── LOW_FIDELITY_WIREFRAMES.md
 │   ├── VTMS_V1_Engineering_Model_Specification.docx
 │   ├── VTMS_V1_Physical_Validation_Protocol.docx
 │   └── images/
@@ -171,6 +175,27 @@ The Argonne adapter currently refuses to guess the raw D3 schema. It will be imp
 
 The formal preregistered process is documented in [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
 
+## UI/UX foundation
+
+VTMS is being designed as a modern automotive engineering workstation rather than a generic SaaS dashboard. The central interaction connects an authoritative simulation run to a synchronized thermal-system schematic and transient engineering data.
+
+The first product architecture defines six primary destinations:
+
+- Overview
+- Simulation Lab
+- System Explorer
+- Scenarios
+- Validation
+- Model
+
+The web client will visualize authoritative results returned by the Python engine. It will not reproduce thermal equations in the browser. Simulation playback will be explicitly labeled as computed playback rather than live vehicle telemetry.
+
+See the UI foundation documents:
+
+- [`docs/UI_UX_PRODUCT_SPEC.md`](docs/UI_UX_PRODUCT_SPEC.md)
+- [`docs/INFORMATION_ARCHITECTURE.md`](docs/INFORMATION_ARCHITECTURE.md)
+- [`docs/LOW_FIDELITY_WIREFRAMES.md`](docs/LOW_FIDELITY_WIREFRAMES.md)
+
 ## Installation
 
 Requires **Python 3.11+**.
@@ -227,6 +252,9 @@ High-temperature fault cases that exceed the liquid-only caution boundary are th
 - [x] Add automated verification and regression tests
 - [x] Build dataset-independent validation toolkit
 - [x] Run first untouched real-world plausibility comparison
+- [x] Freeze UI/UX product foundation
+- [ ] Implement Next.js application shell
+- [ ] Implement FastAPI simulation boundary
 - [ ] Complete Argonne D3 calibration and blind holdout validation
 - [ ] Publish formal validation results
 
@@ -241,6 +269,9 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 ## Documentation
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete software and engineering architecture
+- [`docs/UI_UX_PRODUCT_SPEC.md`](docs/UI_UX_PRODUCT_SPEC.md): UI product principles, page responsibilities, interaction contracts, design direction, and implementation phases
+- [`docs/INFORMATION_ARCHITECTURE.md`](docs/INFORMATION_ARCHITECTURE.md): route hierarchy, user flows, page ownership, and responsive navigation
+- [`docs/LOW_FIDELITY_WIREFRAMES.md`](docs/LOW_FIDELITY_WIREFRAMES.md): desktop and mobile screen structures for the first web application
 - [`docs/VTMS_V1_Engineering_Model_Specification.docx`](docs/VTMS_V1_Engineering_Model_Specification.docx): frozen V1 physics and implementation contract
 - [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx): preregistered calibration and holdout validation plan
 - [`IMPLEMENTATION_AUDIT.md`](IMPLEMENTATION_AUDIT.md): implementation decisions and specification gaps
