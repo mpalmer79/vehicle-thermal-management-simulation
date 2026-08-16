@@ -10,7 +10,7 @@ from .manifest import (
     sha256_mapping,
 )
 from .metrics import ValidationMetrics, calculate_metrics
-from .runner import ComparisonResult, run_kit_plausibility
+from .runner import ComparisonResult, run_controlled_comparison, run_kit_plausibility
 
 __all__ = [
     "ValidationDataset",
@@ -19,6 +19,7 @@ __all__ = [
     "calculate_metrics",
     "ComparisonResult",
     "run_kit_plausibility",
+    "run_controlled_comparison",
     "ValidationRole",
     "EvidenceGrade",
     "DatasetFingerprint",
