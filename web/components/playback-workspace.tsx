@@ -7,10 +7,10 @@ import { c, flow, kw, pct } from "@/lib/format";
 import { ThermalLoop } from "@/components/thermal-loop";
 import { SignalChart } from "@/components/signal-chart";
 
-const fixture = fixtureJson as SimulationFixture;
+const fixture = fixtureJson as unknown as SimulationFixture;
 
 export function PlaybackWorkspace({ mode = "results" }: { mode?: "overview" | "results" | "system" }) {
-  const [index, setIndex] = useState(Math.min(22, fixture.timeSeries.length - 1));
+  const [index, setIndex] = useState(Math.min(6, fixture.timeSeries.length - 1));
   const point = fixture.timeSeries[index];
   const maxIndex = fixture.timeSeries.length - 1;
   const balancePass = fixture.energyBalance.normalized_residual <= 0.001;
