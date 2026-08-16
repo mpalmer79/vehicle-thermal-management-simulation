@@ -17,6 +17,8 @@ class ValidationDataset:
     ambient_temp_c: np.ndarray
     mass_air_flow_g_s: np.ndarray | None = None
     fuel_rate_kg_s: np.ndarray | None = None
+    fuel_energy_rate_w: np.ndarray | None = None
+    engine_torque_nm: np.ndarray | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def validate(self) -> None:
@@ -43,10 +45,13 @@ class ValidationDataset:
             raise ValueError("vehicle speed must be nonnegative")
         if np.any((self.engine_speed_rpm != 0.0) & ((self.engine_speed_rpm < 700.0) | (self.engine_speed_rpm > 6500.0))):
             raise ValueError("engine speed must be 0 or inside VTMS reference domain 700..6500 rpm")
-        for optional_name, optional_values in {
+
+        nonnegative_optional = {
             "mass_air_flow_g_s": self.mass_air_flow_g_s,
             "fuel_rate_kg_s": self.fuel_rate_kg_s,
-        }.items():
+            "fuel_energy_rate_w": self.fuel_energy_rate_w,
+        }
+        for optional_name, optional_values in nonnegative_optional.items():
             if optional_values is not None:
                 if len(optional_values) != n:
                     raise ValueError(f"{optional_name} length does not match time_s")
@@ -54,6 +59,12 @@ class ValidationDataset:
                     raise ValueError(f"{optional_name} contains non-finite values")
                 if np.any(optional_values < 0):
                     raise ValueError(f"{optional_name} must be nonnegative")
+
+        if self.engine_torque_nm is not None:
+            if len(self.engine_torque_nm) != n:
+                raise ValueError("engine_torque_nm length does not match time_s")
+            if not np.all(np.isfinite(self.engine_torque_nm)):
+                raise ValueError("engine_torque_nm contains non-finite values")
 
     @property
     def duration_s(self) -> float:
