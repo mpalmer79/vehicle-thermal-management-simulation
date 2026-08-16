@@ -7,9 +7,9 @@ export const metadata: Metadata = { title: "Simulation Lab" };
 export default function SimulationPage() {
   return <>
     <header className="page-header">
-      <span className="eyebrow">SCENARIO INPUT</span>
+      <span className="eyebrow">AUTHORITATIVE SIMULATION INPUT</span>
       <h1>Simulation Lab</h1>
-      <p>Configure the inputs that will be sent to the authoritative VTMS Python engine. UI-1 exposes the contract without reproducing the physics in React.</p>
+      <p>Configure operating conditions and supported fault states, then execute the frozen VTMS-V1 Python model through FastAPI. The browser performs no thermal calculations.</p>
     </header>
     <Suspense fallback={<div className="simulation-form">Loading scenario controls...</div>}>
       <SimulationForm />
