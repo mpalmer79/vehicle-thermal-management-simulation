@@ -93,6 +93,7 @@ class ValidationRunManifest:
     parameter_set: str = PARAMETER_SET
     calibration_parameters: tuple[str, ...] = ()
     acceptance_criteria: AcceptanceCriteria = field(default_factory=AcceptanceCriteria)
+    physical_evidence: bool = False
     notes: str = ""
 
     def validate(self) -> None:

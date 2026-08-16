@@ -25,12 +25,14 @@ The project is built around three questions:
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **41 passing** |
+| Automated Python/API tests | **47 passing** |
 | Engineering verification checks | **21 passing** |
 | Canonical scenario suite | S-01 through S-09 implemented |
 | Energy-conservation verification | Passing |
 | External real-world plausibility test | Complete using KIT OBD-II telemetry |
 | Controlled validation governance | Complete: manifests, role separation, file hashes, parameter hashes, holdout protection |
+| Formal acceptance evaluator | Complete: project metrics plus 60/80/90 degC timing decisions |
+| Synthetic bounded-calibration harness | Complete: calibration, freeze, untouched synthetic holdout, nonphysical acceptance test |
 | Argonne D3 controlled validation | Data and official signal mapping still pending |
 | UI/UX foundation | Complete |
 | UI-1 Next.js application shell | Complete |
@@ -79,7 +81,7 @@ Computed runs are currently stored only in browser session storage. A returned r
 
 Production packaging keeps the same boundary. The Next.js and FastAPI services are built as separate non-root containers, with independent health checks and Railway configuration files.
 
-For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For validation controls, see [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md). For production setup and verification, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For validation controls, see [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md). For the nonphysical calibration dry run, see [`docs/SYNTHETIC_CALIBRATION_HARNESS.md`](docs/SYNTHETIC_CALIBRATION_HARNESS.md). For production setup and verification, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## VTMS-V1 thermal model
 
@@ -119,9 +121,11 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
 ├── Dockerfile.api
 ├── railway.json
 ├── pyproject.toml
+├── run_synthetic_calibration.py
 ├── docs/
 │   ├── DEPLOYMENT.md
 │   ├── VALIDATION_GOVERNANCE.md
+│   ├── SYNTHETIC_CALIBRATION_HARNESS.md
 │   ├── UI_UX_PRODUCT_SPEC.md
 │   ├── INFORMATION_ARCHITECTURE.md
 │   ├── LOW_FIDELITY_WIREFRAMES.md
@@ -195,7 +199,7 @@ Verification answers a software and mathematics question:
 
 > Does the implementation solve the frozen VTMS-V1 equations consistently?
 
-The automated suite now contains **41 tests** across the engine, validation toolkit, controlled-validation governance, API boundary, and production HTTP behavior. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, dataset hashing, calibration/holdout separation, parameter-snapshot locking, Argonne explicit signal mapping and unit normalization, formal heat-evidence restrictions, request validation, API unit translation, canonical scenario protection, authoritative API execution, runtime metadata, and production response headers.
+The automated suite now contains **47 tests** across the engine, validation toolkit, controlled-validation governance, acceptance evaluator, bounded-calibration harness, API boundary, and production HTTP behavior. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, dataset hashing, calibration/holdout separation, parameter-snapshot locking, explicit physical-evidence declaration, Argonne signal mapping and unit normalization, formal heat-evidence restrictions, project acceptance decisions, synthetic bounded fitting, frozen synthetic holdout execution, request validation, API unit translation, canonical scenario protection, authoritative API execution, runtime metadata, and production response headers.
 
 GitHub Actions now runs:
 
@@ -251,7 +255,7 @@ This remains **external plausibility evidence**, not controlled physical validat
 
 Formal V1 validation remains designed around controlled Argonne National Laboratory D3 dynamometer data. The execution path is now governed in code before those files arrive.
 
-Every controlled run must carry an immutable manifest containing its dataset ID, raw-file SHA-256, validation role, evidence grade, model/equation identifiers, parameter-set identifier, parameter-snapshot SHA-256, acceptance criteria, and any preregistered fitted-parameter declaration.
+Every controlled run must carry an immutable manifest containing its dataset ID, raw-file SHA-256, validation role, evidence grade, model/equation identifiers, parameter-set identifier, parameter-snapshot SHA-256, acceptance criteria, an explicit physical-evidence flag, and any preregistered fitted-parameter declaration. `physical_evidence` defaults to false, so generated or synthetic traces cannot become formal validation claims by labeling them as holdouts.
 
 The only allowed calibration subset is:
 
@@ -264,22 +268,44 @@ Holdout and challenge manifests cannot authorize fitting. The controlled runner 
 
 Formal controlled evidence must use an explicit fuel-energy-rate channel or a direct fuel-rate channel with a declared lower heating value. The KIT-style MAF stoichiometric proxy is prohibited from calibration and holdout execution and remains limited to plausibility work.
 
+The formal acceptance evaluator applies the preregistered project thresholds: RMSE <= 5 degC, MAE <= 4 degC, absolute bias <= 3 degC, P90 absolute error <= 7 degC, and 60/80/90 degC timing error within the larger of 60 seconds or 10 percent of measured arrival time. Numeric threshold success alone is not enough for a validation claim. `formal_validation_pass` additionally requires an independent holdout role and `physical_evidence=true`.
+
 The preregistered sequence is:
 
 1. Obtain qualified 72 °F conventional gasoline vehicle runs and the official channel definitions.
 2. Hash and archive each raw source file.
 3. Assign calibration, holdout, and challenge roles before fitting.
 4. Map official D3 channel names and units explicitly into the VTMS validation contract.
-5. Select one calibration run.
-6. Permanently reserve separate runs as untouched holdouts.
-7. Calibrate only the preregistered uncertain parameters.
-8. Freeze and hash the resulting parameter snapshot.
-9. Execute holdout predictions without retuning.
-10. Report RMSE, MAE, bias, P90 error, maximum error, threshold timing, residuals, and limitations.
+5. Establish and preregister physically justified calibration bounds before fitting.
+6. Select one calibration run.
+7. Permanently reserve separate runs as untouched holdouts.
+8. Calibrate only the preregistered uncertain parameters within the approved bounds.
+9. Freeze and hash the resulting parameter snapshot.
+10. Execute holdout predictions without retuning.
+11. Evaluate the frozen holdout with the formal acceptance evaluator.
+12. Publish metrics, residuals, acceptance decisions, and limitations regardless of outcome.
 
 `ArgonneD3Adapter` still refuses schema guessing. It can normalize explicitly mapped CSV data only after a reviewed `ArgonneSignalMap` names every source column and unit. If the received D3 package uses another format, a dedicated parser will be added only after that format is documented.
 
-See [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md), [`validation_configs/argonne_d3_mapping.template.json`](validation_configs/argonne_d3_mapping.template.json), [`validation_configs/argonne_validation_plan.template.json`](validation_configs/argonne_validation_plan.template.json), and [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
+See [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md), [`docs/SYNTHETIC_CALIBRATION_HARNESS.md`](docs/SYNTHETIC_CALIBRATION_HARNESS.md), [`validation_configs/argonne_d3_mapping.template.json`](validation_configs/argonne_d3_mapping.template.json), [`validation_configs/argonne_validation_plan.template.json`](validation_configs/argonne_validation_plan.template.json), and [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
+
+## Synthetic calibration pipeline verification
+
+VTMS includes a deterministic software-only dry run for the future physical calibration workflow.
+
+`run_synthetic_calibration.py` generates a synthetic calibration trace from a known VTMS-V1 parameter set, begins from the generic parameter snapshot, and uses SciPy bounded nonlinear least squares to fit only the four manifest-authorized parameters. The harness then freezes the fitted snapshot and evaluates a separate synthetic holdout that was never seen by the optimizer.
+
+The harness proves that:
+
+- explicit bounds are enforced,
+- only manifest-authorized parameters can move,
+- the optimizer reduces the calibration residual,
+- the fitted parameter snapshot is frozen and hashed,
+- a separate holdout uses that frozen snapshot,
+- the acceptance evaluator executes end to end, and
+- synthetic success cannot become a formal physical-validation claim.
+
+The bounds in this synthetic exercise are test fixtures only. They are deliberately not approved for Argonne calibration. Real physical bounds remain unresolved until they can be justified and preregistered without reference to observed Argonne fit residuals.
 
 ## Production deployment
 
@@ -306,6 +332,12 @@ Requires Python 3.11+.
 python -m pip install -e ".[api,dev]"
 python -m pytest
 python -m uvicorn vtms_api.app:app --reload --port 8000
+```
+
+To exercise the nonphysical calibration/holdout pipeline:
+
+```text
+python run_synthetic_calibration.py
 ```
 
 Local API CORS defaults to the Next.js development origins. Deployment origins are configured with:
@@ -366,6 +398,9 @@ High-temperature fault cases above the liquid-only caution boundary are therefor
 - [x] Add controlled-validation manifests and evidence-role enforcement
 - [x] Add raw-data and parameter-snapshot provenance locks
 - [x] Add explicit Argonne signal-mapping and validation-plan templates
+- [x] Add formal project acceptance evaluator
+- [x] Add synthetic bounded-calibration and untouched-holdout harness
+- [ ] Establish physically justified Argonne calibration bounds before fitting
 - [ ] Receive and qualify Argonne D3 raw files and signal dictionary
 - [ ] Complete Argonne D3 calibration and blind holdout validation
 - [ ] Publish formal controlled validation results
@@ -382,6 +417,7 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete engineering and software architecture
 - [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md): controlled evidence roles, provenance locks, calibration/holdout separation, and Argonne mapping policy
+- [`docs/SYNTHETIC_CALIBRATION_HARNESS.md`](docs/SYNTHETIC_CALIBRATION_HARNESS.md): nonphysical bounded-fitting, freeze, holdout, and acceptance dry run
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): production topology, Railway configuration, health checks, verification, and rollback
 - [`docs/UI_UX_PRODUCT_SPEC.md`](docs/UI_UX_PRODUCT_SPEC.md): UI product principles and interaction contracts
 - [`docs/INFORMATION_ARCHITECTURE.md`](docs/INFORMATION_ARCHITECTURE.md): route hierarchy and user flows
