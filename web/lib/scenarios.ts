@@ -13,7 +13,7 @@ export type ScenarioCardData = {
 
 export const scenarios: ScenarioCardData[] = [
   { id: "S-01", name: "Cold Start / Fast Idle", category: "Baseline", ambient: 20, rpm: 1200, load: 25, speedKmh: 0, duration: 1200, purpose: "Warm-up transient and thermostat opening" },
-  { id: "S-02", name: "Warm Highway", category: "Baseline", ambient: 25, rpm: 2500, load: 45, speedKmh: 100, duration: 900, purpose: "Ram-air dominated heat rejection" },
+  { id: "S-02", name: "Warm Highway", category: "Baseline", ambient: 25, rpm: 2500, load: 45, speedKmh: 100.08, duration: 900, purpose: "Ram-air dominated heat rejection" },
   { id: "S-03", name: "Hot Ambient Idle", category: "Baseline", ambient: 40, rpm: 1000, load: 25, speedKmh: 0, duration: 1200, purpose: "Fan-assisted idle cooling in hot ambient" },
   { id: "S-04", name: "Sustained Higher Load", category: "Baseline", ambient: 35, rpm: 3000, load: 55, speedKmh: 54, duration: 1200, purpose: "High thermal input with moving airflow" },
   { id: "S-05", name: "Fan Failure", category: "Fault", ambient: 40, rpm: 1000, load: 25, speedKmh: 0, duration: 1200, purpose: "Loss of forced airflow at idle", basedOn: "S-03" },

@@ -13,12 +13,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+api = [
+    "fastapi>=0.110,<1",
+    "uvicorn>=0.29,<1",
+]
+dev = [
+    "pytest>=8.0",
+    "fastapi>=0.110,<1",
+    "httpx>=0.27,<1",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["tests", "tests_validation"]
+testpaths = ["tests", "tests_validation", "tests_api"]
 addopts = "-q"
