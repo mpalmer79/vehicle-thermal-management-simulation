@@ -14,7 +14,7 @@ from vtms_validation.metrics import calculate_metrics
 from vtms_validation.runner import ComparisonResult
 
 
-def _manifest(role: ValidationRole) -> ValidationRunManifest:
+def _manifest(role: ValidationRole, *, physical_evidence: bool = True) -> ValidationRunManifest:
     grade = {
         ValidationRole.CALIBRATION: EvidenceGrade.CONTROLLED_CALIBRATION,
         ValidationRole.HOLDOUT: EvidenceGrade.INDEPENDENT_HOLDOUT,
@@ -36,6 +36,7 @@ def _manifest(role: ValidationRole) -> ValidationRunManifest:
             if role is ValidationRole.CALIBRATION
             else ()
         ),
+        physical_evidence=physical_evidence,
     )
 
 
@@ -72,6 +73,19 @@ def test_holdout_pass_is_formal_validation_pass():
         for check in evaluation.checks
         if check.status is not AcceptanceStatus.NOT_EVALUABLE
     )
+
+
+def test_nonphysical_holdout_cannot_become_formal_validation_pass():
+    time_s = np.arange(0.0, 301.0, 10.0)
+    measured = 20.0 + 0.30 * time_s
+    evaluation = evaluate_acceptance(
+        _comparison(measured + 1.0),
+        _manifest(ValidationRole.HOLDOUT, physical_evidence=False),
+    )
+
+    assert evaluation.overall_threshold_pass is True
+    assert evaluation.formal_validation_pass is False
+    assert evaluation.claim_label == "nonphysical_holdout_threshold_pass_not_validation"
 
 
 def test_calibration_can_meet_thresholds_without_becoming_validation_pass():
