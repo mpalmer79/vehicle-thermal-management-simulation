@@ -138,7 +138,7 @@ def run_controlled_comparison(
 
     current_parameter_hash = sha256_mapping(parameters.snapshot())
     if current_parameter_hash != manifest.parameter_snapshot_sha256:
-        raise ValueError("current ModelParameters snapshot does not match validation manifest")
+        raise ValueError("current parameter snapshot does not match validation manifest")
 
     if dataset.fuel_energy_rate_w is not None:
         fuel_energy_rate_w = np.asarray(dataset.fuel_energy_rate_w, dtype=float)
