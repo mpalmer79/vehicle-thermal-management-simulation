@@ -41,9 +41,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
 
-      - name: Install web dependencies
-        run: npm install
+      - name: Install locked web dependencies
+        run: npm ci
+
+      - name: Audit production web dependencies
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Lint web application
         run: npm run lint
@@ -53,3 +58,51 @@ jobs:
 
       - name: Build web application
         run: npm run build
+
+  api-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build production API image
+        run: docker build -f Dockerfile.api -t vtms-api:ci .
+
+      - name: Boot API container
+        run: docker run -d --name vtms-api-ci -e VTMS_ENV=production -p 8000:8000 vtms-api:ci
+
+      - name: Verify API health
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8000/health | grep --quiet 'VTMS-V1'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs vtms-api-ci
+          exit 1
+
+  web-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build production web image
+        run: docker build -f web/Dockerfile --build-arg NEXT_PUBLIC_VTMS_API_URL=http://127.0.0.1:8000 -t vtms-web:ci web
+
+      - name: Boot web container
+        run: docker run -d --name vtms-web-ci -p 3000:3000 vtms-web:ci
+
+      - name: Verify web health
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000/api/health | grep --quiet 'vtms-web'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs vtms-web-ci
+          exit 1
