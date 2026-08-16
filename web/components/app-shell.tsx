@@ -60,11 +60,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
-        <Link className={pathname === "/" ? "active" : ""} href="/">Overview</Link>
-        <Link className={pathname.startsWith("/simulate") ? "active" : ""} href="/simulate">Simulate</Link>
-        <Link className={pathname.startsWith("/system") ? "active" : ""} href="/system">System</Link>
-        <Link className={pathname.startsWith("/scenarios") ? "active" : ""} href="/scenarios">Scenarios</Link>
-        <button className={moreOpen ? "active" : ""} onClick={() => setMoreOpen((value) => !value)} type="button">More</button>
+        <Link className={pathname === "/" ? "active" : ""} href="/"><span className="mobile-nav-icon">⌂</span><span>Overview</span></Link>
+        <Link className={pathname.startsWith("/simulate") ? "active" : ""} href="/simulate"><span className="mobile-nav-icon">▶</span><span>Simulate</span></Link>
+        <Link className={pathname.startsWith("/system") ? "active" : ""} href="/system"><span className="mobile-nav-icon">◎</span><span>System</span></Link>
+        <Link className={pathname.startsWith("/scenarios") ? "active" : ""} href="/scenarios"><span className="mobile-nav-icon">▦</span><span>Scenarios</span></Link>
+        <button className={moreOpen ? "active" : ""} onClick={() => setMoreOpen((value) => !value)} type="button"><span className="mobile-nav-icon">•••</span><span>More</span></button>
       </nav>
 
       {moreOpen && (
