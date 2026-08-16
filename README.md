@@ -4,7 +4,7 @@
 
 **VTMS-V1** is a physics-based automotive thermal-management simulation platform built around a deterministic Python/SciPy engineering model, numerical verification, external validation tooling, a FastAPI execution boundary, and a responsive Next.js engineering interface.
 
-The project is intentionally **engineering first**. Presentation, API transport, and future AI capabilities remain above the physics layer rather than replacing it.
+The project is intentionally **engineering first**. Presentation, API transport, deployment infrastructure, and future AI capabilities remain above the physics layer rather than replacing it.
 
 > **Current classification:** Generic physics-based lumped-parameter transient thermal simulation. VTMS-V1 is not an OEM-calibrated vehicle model and is not yet a synchronized digital twin.
 
@@ -25,7 +25,7 @@ The project is built around three questions:
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **29 passing** |
+| Automated Python/API tests | **30 passing** |
 | Engineering verification checks | **21 passing** |
 | Canonical scenario suite | S-01 through S-09 implemented |
 | Energy-conservation verification | Passing |
@@ -35,8 +35,10 @@ The project is built around three questions:
 | UI-1 Next.js application shell | Complete |
 | UI-2 FastAPI simulation boundary | Complete |
 | Custom and fault Simulation Lab execution | Complete |
-| Web lint / typecheck / production build | Enforced in GitHub Actions |
-| Public application deployment | Pending |
+| UI-3 production packaging and hardening | Complete |
+| Production dependency audit | Passing at high severity threshold |
+| API and web container smoke tests | Passing |
+| Public application deployment | Pending Railway service creation |
 | Vehicle-specific digital twin | Future maturity target |
 
 ## Architecture
@@ -70,9 +72,11 @@ flowchart LR
 
 The browser never calculates VTMS thermal physics. Simulation Lab sends a scenario request to FastAPI. The API validates and translates the public request into the existing Python `Scenario` contract, invokes `SimulationRunner`, and returns the authoritative serialized `SimulationResult`.
 
-Computed runs are currently stored only in browser session storage. A returned run is immutable and rendered through `/results/[runId]`. No database is required for UI-2.
+Computed runs are currently stored only in browser session storage. A returned run is immutable and rendered through `/results/[runId]`. No database is required for the current application layer.
 
-For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md).
+Production packaging keeps the same boundary. The Next.js and FastAPI services are built as separate non-root containers, with independent health checks and Railway configuration files.
+
+For the complete engineering and software map, see [`ARCHITECTURE.md`](ARCHITECTURE.md). For production setup and verification, see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## VTMS-V1 thermal model
 
@@ -109,8 +113,11 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
 ├── VERIFICATION_RESULTS.md
 ├── KIT_DATASET_AUDIT.md
 ├── VALIDATION_TOOLKIT_README.md
+├── Dockerfile.api
+├── railway.json
 ├── pyproject.toml
 ├── docs/
+│   ├── DEPLOYMENT.md
 │   ├── UI_UX_PRODUCT_SPEC.md
 │   ├── INFORMATION_ARCHITECTURE.md
 │   ├── LOW_FIDELITY_WIREFRAMES.md
@@ -127,6 +134,8 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
 ├── validation_data/
 ├── validation_outputs/
 └── web/
+    ├── Dockerfile
+    ├── railway.json
     ├── app/
     ├── components/
     ├── lib/
@@ -134,7 +143,7 @@ Radiator heat rejection uses a crossflow effectiveness-NTU formulation. Pump flo
     └── package.json
 ```
 
-## UI-2 simulation workflow
+## Simulation workflow
 
 ```text
 Simulation Lab
@@ -175,25 +184,34 @@ POST /api/v1/simulations
 
 The API exposes human-facing inputs such as km/h and load percent, then converts them once at the server boundary into the core SI/normalized units used by `Scenario`.
 
-## Verification and CI
+## Verification, security, and CI
 
 Verification answers a software and mathematics question:
 
 > Does the implementation solve the frozen VTMS-V1 equations consistently?
 
-The automated suite now contains **29 tests** across the engine, validation toolkit, and API boundary. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, request validation, API unit translation, canonical scenario protection, and authoritative API execution.
+The automated suite now contains **30 tests** across the engine, validation toolkit, API boundary, and production HTTP behavior. It covers energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, validation adapters, request validation, API unit translation, canonical scenario protection, authoritative API execution, runtime metadata, and production response headers.
 
-GitHub Actions runs:
+GitHub Actions now runs:
 
 ```text
 Python 3.11 test suite
 Python 3.12 test suite
 Python 3.13 test suite
 Web dependency install
+Production dependency audit
 Web ESLint
 Web TypeScript check
 Web production build
+API Docker image build + boot + /health smoke test
+Web Docker image build + boot + /api/health smoke test
 ```
+
+UI-3 also adds weekly Dependabot monitoring, standalone Next.js output, non-root containers, API response compression, bounded simulation concurrency, production security headers, explicit no-store API caching, configurable API documentation exposure, and Railway health-check configuration.
+
+The production dependency gate initially identified high-severity transitive issues in the web stack. Next.js was upgraded from 16.2.11 to 16.3.1, after which the high-severity production audit passed together with lint, typecheck, build, and both container smoke tests.
+
+The web repository does not currently commit a `package-lock.json`. Installation therefore uses the declared package ranges rather than claiming lockfile-based reproducibility. See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for that limitation and the recommended future improvement.
 
 See [`VERIFICATION_RESULTS.md`](VERIFICATION_RESULTS.md) and [`IMPLEMENTATION_AUDIT.md`](IMPLEMENTATION_AUDIT.md).
 
@@ -241,6 +259,21 @@ The preregistered sequence is:
 The Argonne adapter still refuses to guess the raw D3 schema until official channel names and units are available.
 
 See [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
+
+## Production deployment
+
+UI-3 prepares two independently deployable Railway services from this repository:
+
+```text
+vtms-web  -> Next.js standalone container
+vtms-api  -> FastAPI + authoritative VTMS-V1 engine
+```
+
+Both services have repository-controlled Dockerfiles, health endpoints, and `railway.json` configuration. Deployment-specific public domains and CORS values remain environment configuration rather than committed source code.
+
+The application is production-packaged and smoke-tested, but a public Railway deployment is not claimed until the two services have actually been created and their public domains have passed the end-to-end verification checklist.
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ## Local development
 
@@ -305,7 +338,9 @@ High-temperature fault cases above the liquid-only caution boundary are therefor
 - [x] Implement UI-2 FastAPI simulation boundary
 - [x] Execute custom and fault Simulation Lab runs through the Python engine
 - [x] Protect canonical scenario identities at the API boundary
-- [ ] Deploy the FastAPI and Next.js application
+- [x] Complete UI-3 production packaging and hardening
+- [x] Add dependency audit and container smoke gates
+- [ ] Create the Railway API and web services
 - [ ] Complete browser/device UI QA on the deployed application
 - [ ] Complete Argonne D3 calibration and blind holdout validation
 - [ ] Publish formal controlled validation results
@@ -321,6 +356,7 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 ## Documentation
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete engineering and software architecture
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): production topology, Railway configuration, health checks, verification, and rollback
 - [`docs/UI_UX_PRODUCT_SPEC.md`](docs/UI_UX_PRODUCT_SPEC.md): UI product principles and interaction contracts
 - [`docs/INFORMATION_ARCHITECTURE.md`](docs/INFORMATION_ARCHITECTURE.md): route hierarchy and user flows
 - [`docs/LOW_FIDELITY_WIREFRAMES.md`](docs/LOW_FIDELITY_WIREFRAMES.md): desktop and mobile screen structures
