@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from dataclasses import asdict, replace
 from math import isclose
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from starlette.concurrency import run_in_threadpool
 
 from vtms_v1.config import ModelMetadata
 from vtms_v1.scenario import Scenario
@@ -22,6 +25,17 @@ def _allowed_origins() -> list[str]:
         "http://localhost:3000,http://127.0.0.1:3000",
     )
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+def _positive_int_env(name: str, default: int, *, maximum: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return min(max(value, 1), maximum)
 
 
 def _resolve_scenario(payload: SimulationRequest) -> Scenario:
@@ -57,6 +71,11 @@ def _resolve_scenario(payload: SimulationRequest) -> Scenario:
     return replace(canonical, output_interval_s=payload.output_interval_s)
 
 
+_runtime_env = os.getenv("VTMS_ENV", "development").strip().lower()
+_docs_enabled = _runtime_env != "production" or os.getenv("VTMS_ENABLE_DOCS", "false").lower() == "true"
+_simulation_concurrency = _positive_int_env("VTMS_MAX_CONCURRENT_SIMULATIONS", 2, maximum=8)
+_simulation_slots = asyncio.Semaphore(_simulation_concurrency)
+
 app = FastAPI(
     title="VTMS API",
     version="1.0.0",
@@ -64,7 +83,11 @@ app = FastAPI(
         "Thin HTTP boundary over the deterministic VTMS-V1 Python simulation engine. "
         "The API does not implement independent thermal equations."
     ),
+    docs_url="/docs" if _docs_enabled else None,
+    redoc_url=None,
+    openapi_url="/openapi.json" if _docs_enabled else None,
 )
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins(),
@@ -76,14 +99,28 @@ app.add_middleware(
 _runner = SimulationRunner()
 
 
+@app.middleware("http")
+async def production_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-VTMS-Model-ID"] = _runner.metadata.model_id
+    response.headers["X-Request-ID"] = request.headers.get("X-Request-ID", uuid4().hex)
+    return response
+
+
 @app.get("/health")
-def health() -> dict[str, str]:
+def health() -> dict[str, str | int]:
     metadata = ModelMetadata().snapshot()
     return {
         "status": "ok",
         "model_id": metadata["model_id"],
         "equation_set": metadata["equation_set"],
         "validation_status": metadata["validation_status"],
+        "runtime_environment": _runtime_env,
+        "max_concurrent_simulations": _simulation_concurrency,
     }
 
 
@@ -102,10 +139,11 @@ def scenario_catalog() -> list[dict[str, object]]:
 
 
 @app.post("/api/v1/simulations", response_model=SimulationResponse)
-def run_simulation(payload: SimulationRequest) -> SimulationResponse:
+async def run_simulation(payload: SimulationRequest) -> SimulationResponse:
     scenario = _resolve_scenario(payload)
     try:
-        result = _runner.run(scenario)
+        async with _simulation_slots:
+            result = await run_in_threadpool(_runner.run, scenario)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except SimulationError as exc:
