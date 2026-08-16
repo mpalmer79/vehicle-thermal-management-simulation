@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Engineering Model" };
+
+export default function ModelPage() {
+  return <>
+    <header className="page-header"><span className="eyebrow">VTMS-V1 / EM-V1</span><h1>Engineering Model</h1><p>A deliberately constrained two-state lumped-parameter model that separates engine thermal storage, bulk coolant storage, radiator heat rejection, and control behavior.</p></header>
+    <section className="model-balance"><article><span className="equation-label">ENGINE STRUCTURE</span><code>Cₑ dTₑ/dt = Qengine - Qec - Qea</code><p>Effective engine thermal storage receives combustion-derived wall heat and rejects energy to coolant and ambient.</p></article><article><span className="equation-label">COOLANT</span><code>Cc dTc/dt = Qec - Qrad</code><p>Bulk engine-side coolant receives engine heat and rejects energy through the radiator model.</p></article></section>
+    <section className="model-grid"><article><span className="eyebrow">RADIATOR</span><h3>Crossflow effectiveness-NTU</h3><p>Single-pass, both-streams-unmixed effectiveness correlation. Radiator outlet temperature remains algebraic rather than a third state.</p></article><article><span className="eyebrow">CONTROLS</span><h3>Thermostat and fan</h3><p>Temperature-driven deterministic fractions route coolant and command forced airflow. Stuck-open and stuck-closed modes are explicit faults.</p></article><article><span className="eyebrow">FLOW</span><h3>Pump and air side</h3><p>Pump flow follows engine speed and health. Airflow combines calibrated ram-air contribution with electric-fan volume flow.</p></article><article><span className="eyebrow">NUMERICS</span><h3>SciPy RK45</h3><p>Adaptive integration uses frozen tolerances, one-second output, solver convergence checks, and numerical energy-conservation verification.</p></article></section>
+    <section className="boundary-panel"><div><span className="eyebrow">SYSTEM BOUNDARY</span><h2>What V1 intentionally excludes</h2></div><p>Oil thermal behavior, heater-core heat extraction, A/C condenser coupling, pressure and boiling physics, detailed hydraulic networks, local cylinder-head hot spots, CFD, and OEM-specific calibration are outside the current model.</p><a href="https://github.com/mpalmer79/vehicle-thermal-management-simulation/blob/main/docs/VTMS_V1_Engineering_Model_Specification.docx">Open formal Engineering Model Specification ↗</a></section>
+  </>;
+}
