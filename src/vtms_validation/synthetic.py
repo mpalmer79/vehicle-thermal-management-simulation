@@ -50,7 +50,7 @@ class SyntheticCase:
             raise ValueError("synthetic case requires at least one segment")
         if self.segment_edges_s[0] != 0.0 or self.segment_edges_s[-1] != self.duration_s:
             raise ValueError("synthetic segment edges must span exactly 0..duration_s")
-        if any(b <= a for a, b in zip(self.segment_edges_s, self.segment_edges_s[1:], strict=True)):
+        if any(b <= a for a, b in zip(self.segment_edges_s, self.segment_edges_s[1:])):
             raise ValueError("synthetic segment edges must be strictly increasing")
         expected = len(self.segment_edges_s) - 1
         for name, values in {
