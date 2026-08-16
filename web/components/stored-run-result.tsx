@@ -2,33 +2,36 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 import { PlaybackWorkspace } from "@/components/playback-workspace";
 import { StatusPill } from "@/components/status-pill";
 import { apiResponseToFixture } from "@/lib/api";
 import type { SimulationApiResponse } from "@/lib/vtms-types";
 
+const subscribe = () => () => {};
+const getServerSnapshot = () => null;
+
 export function StoredRunResult() {
   const params = useParams<{ runId: string }>();
   const runId = params.runId;
-  const [run, setRun] = useState<SimulationApiResponse | null>(null);
-  const [missing, setMissing] = useState(false);
+  const storageKey = `vtms:run:${runId}`;
+  const raw = useSyncExternalStore(
+    subscribe,
+    () => window.sessionStorage.getItem(storageKey),
+    getServerSnapshot,
+  );
 
-  useEffect(() => {
-    const raw = window.sessionStorage.getItem(`vtms:run:${runId}`);
-    if (!raw) {
-      setMissing(true);
-      return;
-    }
+  const run = useMemo(() => {
+    if (!raw) return null;
     try {
-      setRun(JSON.parse(raw) as SimulationApiResponse);
+      return JSON.parse(raw) as SimulationApiResponse;
     } catch {
-      setMissing(true);
+      return null;
     }
-  }, [runId]);
+  }, [raw]);
 
-  if (missing) {
+  if (!run) {
     return (
       <div className="run-empty-state">
         <span className="eyebrow">RUN NOT AVAILABLE IN THIS SESSION</span>
@@ -38,8 +41,6 @@ export function StoredRunResult() {
       </div>
     );
   }
-
-  if (!run) return <div className="run-empty-state">Loading computed VTMS result...</div>;
 
   const fixture = apiResponseToFixture(run);
   const result = run.result;
