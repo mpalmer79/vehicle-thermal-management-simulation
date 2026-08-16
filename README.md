@@ -100,6 +100,10 @@ Radiator heat rejection is calculated with a crossflow effectiveness-NTU model. 
 ├── KIT_DATASET_AUDIT.md
 ├── VALIDATION_TOOLKIT_README.md
 ├── pyproject.toml
+├── docs/
+│   ├── VTMS_V1_Engineering_Model_Specification.docx
+│   ├── VTMS_V1_Physical_Validation_Protocol.docx
+│   └── images/
 ├── example_run.py
 ├── run_verification.py
 ├── run_kit_plausibility.py
@@ -139,6 +143,14 @@ The result exposed an important transient-model question:
 
 VTMS reaches a similar final operating-temperature region but warms substantially too quickly relative to this trace. The model was deliberately **not recalibrated** in response.
 
+### Measured versus predicted coolant temperature
+
+![VTMS-V1 measured versus predicted KIT coolant temperature](docs/images/KIT_2018-02-20_measured_vs_predicted.svg)
+
+### Prediction residual
+
+![VTMS-V1 KIT residual plot](docs/images/KIT_2018-02-20_residual.svg)
+
 This is classified as an **external plausibility check**, not formal vehicle validation. See [`KIT_DATASET_AUDIT.md`](KIT_DATASET_AUDIT.md) and [`validation_outputs/FIRST_COMPARISON_FINDINGS.md`](validation_outputs/FIRST_COMPARISON_FINDINGS.md).
 
 ## Physical validation strategy
@@ -156,6 +168,8 @@ The preregistered process is:
 7. Report RMSE, MAE, bias, P90 error, maximum error, warm-up threshold timing, residuals, and limitations.
 
 The Argonne adapter currently refuses to guess the raw D3 schema. It will be implemented only after the official channel names and units are available.
+
+The formal preregistered process is documented in [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx).
 
 ## Installation
 
@@ -227,6 +241,8 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 ## Documentation
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): complete software and engineering architecture
+- [`docs/VTMS_V1_Engineering_Model_Specification.docx`](docs/VTMS_V1_Engineering_Model_Specification.docx): frozen V1 physics and implementation contract
+- [`docs/VTMS_V1_Physical_Validation_Protocol.docx`](docs/VTMS_V1_Physical_Validation_Protocol.docx): preregistered calibration and holdout validation plan
 - [`IMPLEMENTATION_AUDIT.md`](IMPLEMENTATION_AUDIT.md): implementation decisions and specification gaps
 - [`VERIFICATION_RESULTS.md`](VERIFICATION_RESULTS.md): numerical verification results
 - [`KIT_DATASET_AUDIT.md`](KIT_DATASET_AUDIT.md): external dataset qualification and limitations
