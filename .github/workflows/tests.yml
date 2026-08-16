@@ -41,11 +41,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: web/package-lock.json
 
-      - name: Install locked web dependencies
-        run: npm ci
+      - name: Install web dependencies
+        run: npm install
 
       - name: Audit production web dependencies
         run: npm audit --omit=dev --audit-level=high
