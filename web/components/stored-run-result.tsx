@@ -12,6 +12,13 @@ import type { SimulationApiResponse } from "@/lib/vtms-types";
 const subscribe = () => () => {};
 const getServerSnapshot = () => null;
 
+function humanizeValidationStatus(status: string) {
+  if (status === "numerical_verified_generic_uncalibrated") {
+    return "Numerically verified · Generic · Uncalibrated";
+  }
+  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 export function StoredRunResult() {
   const params = useParams<{ runId: string }>();
   const runId = params.runId;
@@ -36,7 +43,7 @@ export function StoredRunResult() {
       <div className="run-empty-state">
         <span className="eyebrow">RUN NOT AVAILABLE IN THIS SESSION</span>
         <h1>Simulation result not found</h1>
-        <p>UI-2 keeps computed results in browser session storage only. Run the simulation again to recreate this result.</p>
+        <p>Computed results are stored in browser session storage only. Run the simulation again to recreate this result.</p>
         <Link className="button primary" href="/simulate">Open Simulation Lab</Link>
       </div>
     );
@@ -82,7 +89,7 @@ export function StoredRunResult() {
         <article>
           <span className="eyebrow">PARAMETER SET</span>
           <strong>{result.model_metadata.parameter_set}</strong>
-          <small>{result.model_metadata.validation_status}</small>
+          <small className="validation-status-human">{humanizeValidationStatus(result.model_metadata.validation_status)}</small>
         </article>
         <article>
           <span className="eyebrow">SOLVER</span>
