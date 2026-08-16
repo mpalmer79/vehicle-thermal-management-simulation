@@ -46,7 +46,13 @@ The evaluator applies the project thresholds recorded in `AcceptanceCriteria`:
 
 If a measured trace never reaches one of the temperature thresholds, that timing check is recorded as `not_evaluable` rather than silently treated as a pass or failure. If the measured trace reaches a threshold but the prediction never does, that check fails.
 
-A calibration or challenge run can numerically satisfy every threshold, but it still cannot produce a formal validation-pass claim. `formal_validation_pass` can only be true for a manifest whose role is `holdout`.
+A calibration or challenge run can numerically satisfy every threshold, but it still cannot produce a formal validation-pass claim. `formal_validation_pass` can only be true when all three conditions are met:
+
+1. the manifest role is `holdout`,
+2. every applicable project threshold passes, and
+3. the manifest explicitly sets `physical_evidence=true`.
+
+`physical_evidence` defaults to `false`. This is a fail-safe so synthetic, generated, or otherwise non-physical evidence cannot become a validation claim simply because it was labeled as a holdout. The synthetic harness therefore expects its holdout to pass the numeric thresholds while `formal_validation_pass` remains false.
 
 ## Running the harness
 
@@ -72,6 +78,7 @@ When Argonne D3 data arrive, this harness is not converted into evidence. Instea
 - exact source-file hash
 - declared calibration or holdout role
 - reviewed signal mapping
+- explicit confirmation that the qualified source is physical evidence
 - explicit physical calibration bounds established before fitting
 - frozen post-calibration parameter snapshot
 - untouched holdout execution
