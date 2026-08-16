@@ -17,6 +17,10 @@ def test_synthetic_bounded_calibration_and_holdout_pipeline():
         assert bounds[fitted.name]["lower"] <= fitted.fitted <= bounds[fitted.name]["upper"]
 
     assert result.holdout_acceptance.overall_threshold_pass is True
-    assert result.holdout_acceptance.formal_validation_pass is True
+    assert result.holdout_acceptance.formal_validation_pass is False
+    assert (
+        result.holdout_acceptance.claim_label
+        == "nonphysical_holdout_threshold_pass_not_validation"
+    )
     assert "not physical validation" in result.disclaimer.lower()
     assert "must not be reused for argonne" in result.disclaimer.lower()
