@@ -1,0 +1,19 @@
+time_s,clock_time,measured_coolant_temp_c,engine_speed_rpm,vehicle_speed_kmh,ambient_temp_c,mass_air_flow_g_s,source_note
+0,19:24:00,18,1040,18,8,20.05,Representative row near minute mark from source CSV
+60,19:25:00,25,941,8,5,16.58,Representative row near minute mark from source CSV
+120,19:26:00,32,1041,0,4,18.63,Representative row near minute mark from source CSV
+180,19:27:00,37,1039,0,3,18.61,Representative row near minute mark from source CSV
+240,19:28:00,40,1395,37,3,25.36,Representative row near minute mark from source CSV
+300,19:29:00,45,1844,50,3,39.08,Representative row near minute mark from source CSV
+360,19:30:00,49,1249,11,2,13.49,Representative row near minute mark from source CSV
+420,19:31:00,53,1489,58,2,15.27,Representative row near minute mark from source CSV
+480,19:32:00,59,1389,54,2,29.16,Representative row near minute mark from source CSV
+540,19:33:00,62,1601,61,2,14.44,Representative row near minute mark from source CSV
+600,19:34:00,65,2041,80,2,34.11,Representative row near minute mark from source CSV
+660,19:35:00,70,1613,63,2,58.02,Representative row near minute mark from source CSV
+720,19:36:00,75,1035,26,2,12.55,Representative row near minute mark from source CSV
+780,19:37:00,79,1729,46,1,18.19,Representative row near minute mark from source CSV
+840,19:38:00,86,876,44,1,12.13,Representative row near minute mark from source CSV
+900,19:39:00,90,1533,26,1,13.05,Representative row near minute mark from source CSV
+960,19:40:00,91,967,1,0,9.74,Representative row near minute mark from source CSV
+1020,19:41:00,90,770,4,1,7.19,Representative row near minute mark from source CSV

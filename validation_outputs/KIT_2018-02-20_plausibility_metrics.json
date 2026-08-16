@@ -1,0 +1,91 @@
+{
+  "evidence_label": "external_plausibility_not_formal_validation",
+  "dataset": {
+    "dataset_id": "KIT-2018-02-20-KA-KA-FREI-60S",
+    "source_name": "KIT Automotive OBD-II Dataset",
+    "duration_s": 1020.0,
+    "samples": 18,
+    "metadata": {
+      "source_file": "KIT_2018-02-20_Seat_Leon_KA_KA_Frei_sample_60s.csv",
+      "sampling": "60-second representative samples extracted from a real KIT CSV",
+      "evidence_grade": "coarse_external_plausibility_only",
+      "raw_pid_behavior": "source rows are asynchronous OBD PID updates"
+    }
+  },
+  "model": {
+    "model_id": "VTMS-V1",
+    "model_version": "1.0.0",
+    "equation_set": "EM-V1",
+    "reference_vehicle": "GRV-V1",
+    "coolant_property_set": "EG50-CONST-V1",
+    "parameter_set": "GRV-V1-PARAMS-1",
+    "validation_status": "numerical_verified_generic_uncalibrated",
+    "classification": "physics-based lumped-parameter transient thermal simulation",
+    "digital_twin_status": "not_a_digital_twin_in_v1"
+  },
+  "parameter_snapshot": {
+    "coolant_cp_j_per_kg_k": 3690.0,
+    "coolant_density_kg_per_m3": 1020.0,
+    "coolant_volume_m3": 0.0065,
+    "engine_thermal_capacitance_j_per_k": 50000.0,
+    "engine_coolant_ua_w_per_k": 1000.0,
+    "engine_ambient_ua_w_per_k": 12.0,
+    "wall_heat_fraction": 0.28,
+    "peak_torque_nm": 250.0,
+    "thermostat_open_c": 88.0,
+    "thermostat_full_c": 98.0,
+    "fan_start_c": 96.0,
+    "fan_full_c": 104.0,
+    "radiator_ua_nominal_w_per_k": 1100.0,
+    "radiator_face_area_m2": 0.45,
+    "ram_capture_coefficient": 0.33,
+    "fan_max_vol_flow_m3_s": 1.15,
+    "air_cp_j_per_kg_k": 1006.0,
+    "atmospheric_pressure_pa": 101325.0,
+    "air_gas_constant_j_per_kg_k": 287.05,
+    "pump_base_flow_kg_s": 0.18,
+    "pump_slope_kg_s_per_rpm": 0.00022,
+    "pump_max_flow_kg_s": 1.4,
+    "solver_rtol": 1e-06,
+    "solver_atol": 1e-08,
+    "solver_max_step_s": 1.0,
+    "coolant_mass_kg": 6.63,
+    "coolant_thermal_capacitance_j_per_k": 24464.7
+  },
+  "heat_input": {
+    "method": "MAF_STOICHIOMETRIC_HEAT_ESTIMATE",
+    "evidence_level": "secondary_plausibility_only",
+    "stoich_air_fuel_mass_ratio": 14.7,
+    "gasoline_lhv_j_per_kg": 43700000.0,
+    "wall_heat_fraction": 0.28,
+    "fuel_rate_status": "derived_not_measured",
+    "limitations": [
+      "assumes near-stoichiometric gasoline combustion",
+      "does not observe commanded equivalence ratio or enrichment",
+      "does not account for EGR or unmeasured air-path effects",
+      "must not be reported as measured fuel consumption"
+    ]
+  },
+  "metrics": {
+    "n": 18,
+    "rmse_c": 21.40097831540373,
+    "mae_c": 16.49556346584381,
+    "bias_c": 16.12978266753133,
+    "max_abs_error_c": 40.462522108963924,
+    "p90_abs_error_c": 36.49813618682252,
+    "final_error_c": -0.7912388403365327,
+    "measured_final_c": 90.0,
+    "predicted_final_c": 89.20876115966347,
+    "threshold_arrival_error_s": {
+      "60C": -276.46644334983773,
+      "80C": -496.2444710131209,
+      "90C": -273.3571827760827
+    }
+  },
+  "interpretation_rules": {
+    "formal_validation": false,
+    "parameters_recalibrated": false,
+    "acceptance_criteria_applied": false,
+    "reason": "KIT run is a coarse external plausibility check using 60-second samples and MAF-derived heat input, not controlled dynamometer validation."
+  }
+}
