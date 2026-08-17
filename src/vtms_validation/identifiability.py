@@ -15,6 +15,7 @@ from .runner import _run_comparison
 
 _HIGH_COSINE_SIMILARITY = 0.95
 _ILL_CONDITIONED_THRESHOLD = 100.0
+_WEAK_RELATIVE_RMS_THRESHOLD = 0.02
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,7 @@ class ParameterSensitivity:
     rms_c_per_fractional_change: float
     max_abs_c_per_fractional_change: float
     l2_norm_c_per_fractional_change: float
+    relative_rms_to_strongest: float
 
 
 @dataclass(frozen=True)
@@ -200,8 +202,9 @@ def analyze_synthetic_identifiability(
     diagnostic intentionally refuses physical datasets so this pre-fit work cannot
     inspect Argonne model residuals or influence role selection before bounds are frozen.
 
-    The 0.95 pairwise cosine and condition-number 100 flags are VTMS diagnostic
-    heuristics, not published validation standards or acceptance criteria.
+    The pairwise cosine 0.95, normalized condition-number 100, and relative RMS
+    sensitivity 0.02 flags are VTMS diagnostic heuristics. They are not published
+    validation standards or formal acceptance criteria.
     """
 
     if isinstance(datasets, ValidationDataset):
@@ -237,17 +240,20 @@ def analyze_synthetic_identifiability(
         for name in parameter_names
     ]
     sensitivity_matrix = np.column_stack(columns)
+    rms_values = [float(np.sqrt(np.mean(column**2))) for column in columns]
+    strongest_rms = max(rms_values, default=0.0)
 
     sensitivities = tuple(
         ParameterSensitivity(
             name=name,
             baseline_value=float(getattr(model_parameters, name)),
             relative_step=relative_step,
-            rms_c_per_fractional_change=float(np.sqrt(np.mean(column**2))),
+            rms_c_per_fractional_change=rms,
             max_abs_c_per_fractional_change=float(np.max(np.abs(column))),
             l2_norm_c_per_fractional_change=float(np.linalg.norm(column)),
+            relative_rms_to_strongest=(0.0 if strongest_rms == 0.0 else float(rms / strongest_rms)),
         )
-        for name, column in zip(parameter_names, columns, strict=True)
+        for name, column, rms in zip(parameter_names, columns, rms_values, strict=True)
     )
 
     pairwise = _pairwise_diagnostics(sensitivity_matrix, parameter_names)
@@ -276,6 +282,12 @@ def analyze_synthetic_identifiability(
     zero_columns = [name for name, active in zip(parameter_names, nonzero, strict=True) if not active]
     for name in zero_columns:
         flags.append(f"zero_local_sensitivity:{name}")
+    for sensitivity in sensitivities:
+        if 0.0 < sensitivity.relative_rms_to_strongest < _WEAK_RELATIVE_RMS_THRESHOLD:
+            flags.append(
+                "weak_relative_sensitivity:"
+                f"{sensitivity.name}:{sensitivity.relative_rms_to_strongest:.4f}"
+            )
     if numerical_rank < len(parameter_names):
         flags.append(
             f"rank_deficient_normalized_jacobian:{numerical_rank}_of_{len(parameter_names)}"
@@ -292,9 +304,9 @@ def analyze_synthetic_identifiability(
             )
 
     assessment = (
-        "diagnostic_confounding_detected"
+        "practical_identifiability_concern_detected"
         if flags
-        else "no_strong_confounding_detected_at_local_synthetic_point"
+        else "no_strong_practical_identifiability_concern_at_local_synthetic_point"
     )
     return IdentifiabilityDiagnostics(
         dataset_ids=tuple(dataset.dataset_id for dataset in dataset_sequence),
