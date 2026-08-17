@@ -18,7 +18,8 @@ const STATUS_OVERRIDES: Record<string, Pick<KnowledgeTopic, "shortAnswer" | "det
       "CAL-01 may fit only wall_heat_fraction, engine_thermal_capacitance_j_per_k, and engine_coolant_ua_w_per_k within their frozen physical bounds.",
       "CAL-RAD-01 may fit only radiator_ua_nominal_w_per_k after the CAL-01 snapshot is frozen. Test 71207057 was selected from source ECT and speed conditions before any VTMS residual was inspected.",
       "Hot-start test 71207063 remains the primary clean holdout, and 55 mph warm-up test 71207052 remains a secondary holdout. Neither was repurposed for fitting.",
-      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature. No Argonne calibration or validation result exists yet.",
+      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature.",
+      "No Argonne results exist yet, and VTMS-V1 is not physically validated.",
     ],
   },
   "validation-status": {
