@@ -14,7 +14,7 @@
     },
     "parameter_snapshot_sha256": "f5ee79e90565136c77f60b1dec429e24a6693aefc475fe2469e25b0d6d9e30d4",
     "preprocessing_snapshot_sha256": "838e8a9c4280785a8a1715bccec25c97fcafbb457005c73c6a09d26bcf23970f",
-    "calibration_bounds_sha256": "2d32b4b3514205001f7fc984b1c68dbbdb78d3a4f7de19fe816eb9433b33aa",
+    "calibration_bounds_sha256": "2d32b4b3514205001f7fc984b1c68dbbdbdb78d3a4f7de19fe816eb9433b33aa",
     "calibration_parameters": [
       "wall_heat_fraction",
       "engine_thermal_capacitance_j_per_k",
