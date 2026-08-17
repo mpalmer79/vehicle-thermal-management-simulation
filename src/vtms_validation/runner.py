@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -12,6 +12,10 @@ from .dataset import ValidationDataset
 from .heat_input import MafStoichiometricHeatEstimator
 from .manifest import ValidationRole, ValidationRunManifest, sha256_mapping
 from .metrics import ValidationMetrics, calculate_metrics
+
+
+_REFERENCE_MIN_NONZERO_RPM = 700.0
+_REFERENCE_MAX_RPM = 6500.0
 
 
 @dataclass(frozen=True)
@@ -26,10 +30,46 @@ class ComparisonResult:
     heat_input_metadata: dict[str, object]
     evidence_label: str
     validation_manifest: dict[str, object] | None = None
+    input_preprocessing_metadata: dict[str, object] = field(default_factory=dict)
 
 
 def _profile(dataset: ValidationDataset, values: np.ndarray):
     return lambda time_s: dataset.interp(values, time_s)
+
+
+def _project_engine_speed_to_reference_domain(
+    engine_speed_rpm: np.ndarray,
+) -> tuple[np.ndarray, dict[str, object]]:
+    """Project measured RPM only at the Scenario boundary.
+
+    ValidationDataset retains the measured source values. The frozen VTMS-V1
+    Scenario contract accepts 0 rpm or 700..6500 rpm. Controlled validation
+    supplies engine heat through an independent heat override, so this projection
+    is used only for component-model compatibility and does not replace the raw
+    evidence stored in the dataset.
+    """
+
+    raw = np.asarray(engine_speed_rpm, dtype=float)
+    projected = raw.copy()
+    low_mask = (projected > 0.0) & (projected < _REFERENCE_MIN_NONZERO_RPM)
+    high_mask = projected > _REFERENCE_MAX_RPM
+    projected[low_mask] = _REFERENCE_MIN_NONZERO_RPM
+    projected[high_mask] = _REFERENCE_MAX_RPM
+
+    changed_mask = low_mask | high_mask
+    metadata: dict[str, object] = {
+        "policy": "project_measured_rpm_at_frozen_vtms_v1_scenario_boundary",
+        "reference_nonzero_rpm_min": _REFERENCE_MIN_NONZERO_RPM,
+        "reference_rpm_max": _REFERENCE_MAX_RPM,
+        "raw_min_rpm": float(np.min(raw)),
+        "raw_max_rpm": float(np.max(raw)),
+        "projected_sample_count": int(np.count_nonzero(changed_mask)),
+        "projected_low_sample_count": int(np.count_nonzero(low_mask)),
+        "projected_high_sample_count": int(np.count_nonzero(high_mask)),
+        "raw_dataset_values_preserved": True,
+        "engine_heat_uses_rpm_load_estimator": False,
+    }
+    return projected, metadata
 
 
 def _run_comparison(
@@ -46,12 +86,13 @@ def _run_comparison(
         if initial_engine_temp_c is None
         else float(initial_engine_temp_c)
     )
+    reference_rpm, _ = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
     scenario = Scenario(
         scenario_id=scenario_id,
         name=scenario_name,
         duration_s=dataset.duration_s,
         ambient_temp_c=_profile(dataset, dataset.ambient_temp_c),
-        engine_speed_rpm=_profile(dataset, dataset.engine_speed_rpm),
+        engine_speed_rpm=_profile(dataset, reference_rpm),
         effective_load=0.0,
         vehicle_speed_m_s=_profile(dataset, dataset.vehicle_speed_m_s),
         initial_engine_temp_c=te0,
@@ -83,6 +124,8 @@ def run_kit_plausibility(
         wall_heat_fraction=parameters.wall_heat_fraction
     )
     q_engine = np.asarray(estimator.engine_heat_w(dataset.mass_air_flow_g_s), dtype=float)
+    _, rpm_metadata = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
+    preprocessing = {"engine_speed_rpm": rpm_metadata}
     result, measured, predicted, metrics = _run_comparison(
         dataset,
         parameters,
@@ -101,6 +144,7 @@ def run_kit_plausibility(
         simulation_result=result,
         heat_input_metadata=estimator.metadata(),
         evidence_label="external_plausibility_not_formal_validation",
+        input_preprocessing_metadata=preprocessing,
     )
 
 
@@ -168,6 +212,8 @@ def run_controlled_comparison(
         )
 
     q_engine = fuel_energy_rate_w * parameters.wall_heat_fraction
+    _, rpm_metadata = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
+    preprocessing = {"engine_speed_rpm": rpm_metadata}
     result, measured, predicted, metrics = _run_comparison(
         dataset,
         parameters,
@@ -189,4 +235,5 @@ def run_controlled_comparison(
         heat_input_metadata=heat_metadata,
         evidence_label=manifest.evidence_grade.value,
         validation_manifest=manifest.to_dict(),
+        input_preprocessing_metadata=preprocessing,
     )

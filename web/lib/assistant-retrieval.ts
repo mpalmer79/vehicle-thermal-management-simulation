@@ -1,13 +1,11 @@
 /**
- * VTMS Knowledge Assistant — local deterministic retrieval.
+ * VTMS Knowledge Assistant local deterministic retrieval.
  *
- * This module contains the entire "intelligence" of the assistant: a question is
- * normalized, tokenized, and scored against the bundled knowledge base. The highest
- * scoring topic wins if it clears a confidence floor; otherwise the assistant says it
- * does not know.
+ * A question is normalized, tokenized, and scored against the bundled knowledge
+ * base. The highest scoring topic wins if it clears a confidence floor; otherwise
+ * the assistant says it does not know.
  *
- * There is no model, no generation, and no network access. Every answer is a verbatim
- * knowledge-base entry from `assistant-knowledge.ts`.
+ * There is no model, no generation, and no network access.
  */
 
 import {
@@ -16,6 +14,7 @@ import {
   type KnowledgeTopic,
   knowledgeTopics,
 } from "./assistant-knowledge";
+import { withCurrentProjectStatus } from "./assistant-status-overrides";
 
 /* -------------------------------------------------------------- normalization */
 
@@ -206,10 +205,10 @@ function fallback(): RetrievalFallback {
 /**
  * Resolve a visitor question against the bundled knowledge base.
  *
- * `context.lastTopicId` supports short conversational follow-ups ("what about
- * airflow?") by giving a small boost to the previously matched topic and the topics it
- * declares as related. The boost is deliberately small: it can break a tie, but it can
- * never promote an unrelated topic past the confidence floor on its own.
+ * `context.lastTopicId` supports short conversational follow-ups by giving a small
+ * boost to the previously matched topic and the topics it declares as related. The
+ * boost can break a tie but cannot promote an unrelated topic past the confidence
+ * floor on its own.
  */
 export function retrieveAnswer(question: string, context: RetrievalContext = {}): RetrievalResult {
   const canonicalQuery = canonicalize(question);
@@ -240,10 +239,11 @@ export function retrieveAnswer(question: string, context: RetrievalContext = {})
 
   if (!best || best.score < MIN_CONFIDENCE) return fallback();
 
+  const topic = withCurrentProjectStatus(best.entry.topic);
   return {
     kind: "match",
-    topic: best.entry.topic,
+    topic,
     score: best.score,
-    suggestions: best.entry.topic.followUpQuestions.slice(0, 3),
+    suggestions: topic.followUpQuestions.slice(0, 3),
   };
 }
