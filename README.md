@@ -2,26 +2,26 @@
 
 ## Vehicle Thermal Management Simulation Platform
 
-**VTMS-V1** is a physics-based automotive thermal-management simulation platform built around a deterministic Python/SciPy engineering model, numerical verification, controlled validation governance, a FastAPI execution boundary, and a responsive Next.js engineering interface.
+**VTMS-V1** is a physics-based automotive thermal-management simulation platform built around a deterministic Python/SciPy engineering model, numerical verification, controlled physical-validation governance, a FastAPI execution boundary, and a responsive Next.js interface.
 
-> **Current classification:** Generic physics-based lumped-parameter transient thermal simulation. VTMS-V1 is numerically verified, remains generically parameterized and uncalibrated, is not an OEM vehicle model, and is not a synchronized digital twin.
+> **Current standing:** VTMS-V1 is numerically verified but did **not** pass its preregistered controlled physical-validation criteria. The production/default parameter set remains the generic V1 set. Controlled Argonne calibration artifacts are preserved separately and are not silently promoted into the production model. VTMS-V1 is not an OEM vehicle model and is not a synchronized digital twin.
 
 ## Live project
 
-- Web application: `https://vtms.up.railway.app`
+- Web: `https://vtms.up.railway.app`
 - API: `https://vtms-api.up.railway.app`
 - Creator: Michael Palmer
-- Local VTMS knowledge assistant: available in the web application with no external AI API
+- Local VTMS knowledge assistant: included in the web app with no external AI API
 
-## Why this project exists
+## What VTMS is testing
 
-VTMS explores the intersection of automotive systems, mechanical engineering, scientific computing, validation practice, software engineering, and AI-assisted development. Calculated quantities must come from governing equations, sourced properties, measured inputs, calibrated parameters, or explicitly identified assumptions.
+VTMS asks three questions:
 
-The project is built around three questions:
-
-1. Can the frozen thermal model be implemented consistently and conserve energy numerically?
-2. Can predictions be compared against independent physical evidence without contaminating the model through premature tuning?
+1. Can the frozen thermal equations be implemented consistently and conserve energy numerically?
+2. Can the model be compared against independent physical evidence without contaminating holdouts through post-hoc tuning?
 3. Can a modern web application expose the engineering model without moving thermal calculations into the browser or overstating model maturity?
+
+The first answer is **yes**. The controlled physical-validation program has now answered the second question more critically: the current V1 model form is **not accurate enough to pass the preregistered Argonne holdout criteria**.
 
 ## Current status
 
@@ -30,25 +30,20 @@ The project is built around three questions:
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **67 passing expected on this branch** |
+| Automated Python/API tests | **80 passing** on Python 3.11, 3.12, and 3.13 |
 | Engineering verification checks | **21 passing** |
 | Canonical scenarios | S-01 through S-09 frozen and implemented |
 | Energy-conservation verification | Passing |
-| External KIT plausibility comparison | Complete, mismatch preserved without tuning |
-| Controlled validation governance | Complete |
-| Formal acceptance evaluator | Complete |
-| Synthetic bounded-calibration harness | Complete, software-only evidence |
-| Physical Argonne calibration bounds | **Frozen before Argonne residual inspection** |
-| Broad synthetic identifiability preflight | Complete |
-| Warm-up-stage practical-identifiability gate | **Complete, four-parameter CAL-01 blocked** |
-| Argonne calibration role freeze | **Complete: CAL-01 plus CAL-RAD-01** |
-| Argonne D3 data acquisition | **Complete, received 2026-08-17** |
-| Argonne source fingerprinting | **Complete** |
-| Argonne signal mapping and qualification | **In progress** |
-| Argonne physical calibration | **Not started** |
-| Argonne blind holdout validation | **Not started** |
+| KIT external plausibility | Complete, mismatch preserved without tuning |
+| Argonne D3 acquisition / hashing / mapping | Complete |
+| Physical calibration bounds | Frozen before Argonne residual inspection |
+| Synthetic identifiability preflight | Complete |
+| CAL-01 cold-start calibration | Complete, project calibration-stage thresholds met with boundary cautions |
+| CAL-RAD-01 radiator calibration | Complete, **outside project thresholds** |
+| VAL-HOT-01 primary independent holdout | Complete, **formal holdout acceptance failed** |
+| Holdout-driven retuning | Prohibited |
 | UI-5 visual productization | Complete |
-| Creator / About page | Complete |
+| About / creator page | Complete |
 | Local VTMS knowledge assistant | Complete, no external AI service |
 | Production dependency audit | Passing at high severity threshold |
 | API and web container smoke tests | Passing |
@@ -81,13 +76,13 @@ flowchart LR
     Reports --> UI
 ```
 
-The browser never calculates VTMS thermal physics. Simulation Lab sends a scenario request to FastAPI. The API validates and translates the request into the Python `Scenario` contract, invokes `SimulationRunner`, and returns the authoritative `SimulationResult`.
+The browser does not calculate governing thermal physics. Simulation Lab sends a scenario request to FastAPI. FastAPI validates the request, invokes the authoritative Python `SimulationRunner`, and returns the resulting simulation record.
 
-The validation layer remains separate from both FastAPI and the presentation layer. External data are normalized through explicit adapters and governed manifests before comparison with the frozen model.
+The validation toolkit remains separate from both the transport boundary and presentation layer. External data are normalized through explicit adapters, fingerprints, reviewed mappings, immutable manifests, and evidence-role controls.
 
 ## VTMS-V1 thermal model
 
-VTMS-V1 has two transient state temperatures:
+The model has two transient state temperatures:
 
 - `T_e`: effective engine-structure temperature
 - `T_c`: bulk engine-side coolant temperature
@@ -102,7 +97,7 @@ Q_ec = UA_ec (T_e - T_c)
 Q_ea = UA_ea (T_e - T_a)
 ```
 
-Radiator rejection uses a crossflow effectiveness-NTU formulation. Pump flow, thermostat and bypass behavior, fan airflow, ram airflow, radiator degradation, pump degradation, airflow degradation, and supported faults are deterministic component models.
+Radiator rejection uses a crossflow effectiveness-NTU formulation. Pump flow, thermostat/bypass behavior, fan airflow, ram airflow, and the supported degradation/fault controls are deterministic component models.
 
 Frozen V1 numerics:
 
@@ -113,151 +108,114 @@ Frozen V1 numerics:
 - maximum internal step `1 s`
 - approximately `1 s` output interval
 
-## Verification
+## Verification is not validation
 
-Verification asks whether the implementation solves the frozen VTMS-V1 equations consistently. It does not establish vehicle-specific physical accuracy.
+Numerical verification asks whether the implementation solves the frozen VTMS-V1 equations consistently. The suite covers conservation, convergence, component invariants, canonical regression behavior, API translation, evidence-role enforcement, provenance hashes, bounded calibration, identifiability controls, and holdout protections.
 
-CI covers Python 3.11, 3.12, and 3.13, the pre-Argonne identifiability preflight, web dependency audit, ESLint, TypeScript, web unit tests, Next.js production build, and API/web container smoke tests.
+CI also runs the web dependency audit, ESLint, TypeScript, local-assistant tests, Next.js production build, and API/web container smoke tests.
 
-Coverage includes energy conservation, solver convergence, component invariants, canonical regression behavior, fault direction, API unit translation, validation hashing, evidence-role enforcement, calibration/holdout separation, formal acceptance decisions, synthetic bounded fitting, frozen physical-bound governance, staged calibration-bound subsets, Argonne mapping/provenance, and practical-identifiability regression protection.
+Passing these checks does **not** establish vehicle-specific physical accuracy.
 
-## First external plausibility comparison
+## External plausibility: KIT
 
-The first untouched external comparison used the KIT Automotive OBD-II Dataset. No VTMS parameters were changed.
-
-Results:
+The first untouched external comparison used the KIT Automotive OBD-II Dataset with no parameter tuning.
 
 - RMSE: **21.40 °C**
 - MAE: **16.50 °C**
 - mean bias: **+16.13 °C**
-- 60 °C arrival: approximately **276 s early**
-- 80 °C arrival: approximately **496 s early**
+- 60 °C arrival: about **276 s early**
+- 80 °C arrival: about **496 s early**
 - final error after 1020 s: **-0.79 °C**
 
-VTMS reached a similar final operating-temperature region but warmed substantially too quickly. The mismatch is preserved as evidence. This is **external plausibility evidence, not controlled physical validation**.
+The generic model reached a similar final operating region but warmed too quickly. This remains `external_plausibility_not_formal_validation`.
 
-## Argonne D3 controlled data
+## Controlled Argonne D3 program
 
-Argonne National Laboratory supplied two 2012 Ford Focus D3 archives on **2026-08-17**. Both archives passed integrity checks and were SHA-256 fingerprinted.
+Argonne National Laboratory supplied controlled 2012 Ford Focus dynamometer data on **2026-08-17**. The received files include ECT, engine speed, dyno speed, cell temperature, direct bench fuel flow, MAF, load, and additional instrumentation.
 
-The comprehensive archive contains **18 test files** with the channels needed for controlled thermal comparison, including:
+Raw Argonne attachments are not redistributed in this repository. VTMS stores source fingerprints, reviewed mappings, role decisions, manifests, and derived result records.
 
-- `Time [s]`
-- `EngineCoolantTemp[C]`
-- `Eng_Spd[RPM]`
-- `Dyno_Spd[mph]`
-- `Cell_Temp[C]`
-- `Eng_FuelFlow_Direct[cc/s]`
-- `MAF[g/s]`
-- `Load[%]`
+### Frozen physical calibration bounds
 
-The source summary identifies the vehicle as a 2012 Ford Focus 2.0 L Ti-VCT GDI inline-four with a six-speed automatic transmission and 2WD configuration. It reports Tier II EEE HF437 fuel density of **0.743 g/mL** and net heating value of **18,344 BTU/lbm**, converted to **42,668,144 J/kg** when explicitly declared for controlled execution.
+These effective-model bounds were frozen before any VTMS-vs-Argonne residual was inspected:
 
-Raw Argonne attachments are not committed. The repository stores fingerprints, reviewed mappings, role decisions, and qualification findings.
-
-Detailed qualification: [`docs/ARGONNE_D3_DATA_QUALIFICATION.md`](docs/ARGONNE_D3_DATA_QUALIFICATION.md)
-
-## Frozen physical bounds
-
-The complete governed physical bound set was frozen **before any VTMS-vs-Argonne residual inspection**:
-
-| Parameter | Lower | Upper | Generic value |
+| Parameter | Lower | Upper | Generic V1 |
 |---|---:|---:|---:|
 | `wall_heat_fraction` | 0.20 | 0.50 | 0.28 |
 | `engine_thermal_capacitance_j_per_k` | 25,000 J/K | 100,000 J/K | 50,000 J/K |
 | `engine_coolant_ua_w_per_k` | 400 W/K | 2,200 W/K | 1,000 W/K |
 | `radiator_ua_nominal_w_per_k` | 400 W/K | 2,200 W/K | 1,100 W/K |
 
-These are effective bounds for the frozen VTMS-V1 topology, not direct measurements of Ford component properties. The complete four-bound set is an audit record for the governed calibration universe. It does not authorize all four parameters to move in one optimizer stage.
+Synthetic pre-fit analysis showed that radiator UA was weakly excited by the warm-up profiles, so all four parameters were prohibited from moving in one cold-start optimizer stage.
 
-See [`docs/ARGONNE_CALIBRATION_BOUNDS_AND_IDENTIFIABILITY.md`](docs/ARGONNE_CALIBRATION_BOUNDS_AND_IDENTIFIABILITY.md).
+### CAL-01: cold-start UDDS #1, test 71207062
 
-## Two identifiability questions
+CAL-01 fitted only wall heat fraction, effective engine capacitance, and engine-to-coolant UA.
 
-VTMS now performs two complementary synthetic checks before physical fitting.
+- RMSE: **3.716 °C**
+- MAE: **3.285 °C**
+- mean bias: **-2.414 °C**
+- P90 absolute error: **5.907 °C**
 
-The **broad excitation preflight** deliberately exercises warm-up, thermostat/radiator, speed, and fuel-rate regimes. It asks whether the model can produce locally distinct parameter signatures under rich excitation.
+The stage met its numerical calibration thresholds, but two effective parameters pressed against their frozen upper bounds:
 
-The **warm-up-stage diagnostic** reuses the existing synthetic calibration and holdout warm-up profiles. It asks whether all four parameters belong in one cold-start CAL-01 optimizer.
+- `wall_heat_fraction` = **0.4999228433**
+- `engine_coolant_ua_w_per_k` = **2198.4326 W/K**
 
-The combined warm-up profiles are numerically full-rank with a normalized-matrix condition number of approximately **8.12**, but radiator-UA RMS coolant sensitivity is only about **0.94% of the strongest parameter sensitivity**. The strongest combined sensitivity-shape relationship is wall heat fraction versus effective engine capacitance, cosine approximately **-0.88**.
+Effective engine capacitance fitted to **52393.9078 J/K**.
 
-The 2 percent weak-relative-sensitivity threshold is a VTMS engineering heuristic, not a formal statistical or validation criterion.
+Frozen CAL-01 snapshot:
+`8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2`
 
-**Decision: a four-parameter simultaneous CAL-01 fit is prohibited.**
+This is calibration evidence, not validation.
 
-## Frozen staged calibration roles
+### CAL-RAD-01: radiator-active highway, test 71207057
 
-Roles were selected from test documentation, measurement quality, source operating conditions, and synthetic pre-fit analysis before any Argonne model residual was inspected.
+Only radiator UA was allowed to move. All CAL-01 parameters stayed frozen.
 
-### CAL-01
+- fitted radiator UA: **400.8325 W/K**, within 1% of the frozen lower bound
+- RMSE: **5.733 °C**
+- MAE: **5.344 °C**
+- mean bias: **-5.272 °C**
+- P90 absolute error: **8.124 °C**
 
-Source: test `71207062`, UDDS #1 cold start.
+This stage failed all four core project criteria. The radiator bound was not widened and CAL-01 parameters were not reopened.
 
-Allowed fitted parameters:
+Final staged snapshot:
+`ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287`
 
-- `wall_heat_fraction`, 0.20 to 0.50
-- `engine_thermal_capacitance_j_per_k`, 25,000 to 100,000 J/K
-- `engine_coolant_ua_w_per_k`, 400 to 2,200 W/K
+### VAL-HOT-01: primary blind holdout, test 71207063
 
-`radiator_ua_nominal_w_per_k` is fixed during CAL-01.
+The hot-start holdout was reserved before fitting and opened only after the final staged snapshot, source fingerprint, preprocessing map, and holdout manifest were frozen. **No parameter fitting was performed on the holdout.**
 
-The mapping starts after the invalid ECT initialization period and contains only explicitly reviewed source-time ECT exclusions. The adapter does not automatically repair ECT.
+Results:
 
-### CAL-RAD-01
+- RMSE: **8.587 °C**, limit 5 °C, FAIL
+- MAE: **8.069 °C**, limit 4 °C, FAIL
+- absolute mean bias: **8.037 °C**, limit 3 °C, FAIL
+- P90 absolute error: **10.051 °C**, limit 7 °C, FAIL
+- final measured coolant: **99.0 °C**
+- final predicted coolant: **90.47 °C**
+- final error: **-8.53 °C**
+- 60 °C timing: NOT_EVALUABLE, trace begins above threshold
+- 80 °C timing: NOT_EVALUABLE, trace begins above threshold
+- 90 °C arrival error: **125.6 s late**, limit 60 s, FAIL
 
-Source: test `71207057`, 1.2 highway x2.
+Formal decision:
 
-Allowed fitted parameter:
+> **`formal_holdout_acceptance_fail`**
 
-- `radiator_ua_nominal_w_per_k`, 400 to 2,200 W/K
+VTMS-V1 therefore **did not pass controlled physical validation**.
 
-This run was selected from source measurements before any VTMS prediction or residual inspection. From source time zero it has complete ECT at **91 to 99 °C**, mean dyno speed about **57.31 mph**, maximum speed **71.742 mph**, and about **92.65%** of samples at or above 40 mph while ECT is at or above 88 °C.
+The failure is preserved. The holdout cannot be reused for fitting, and its result does not authorize bound expansion or post-hoc retuning.
 
-CAL-RAD-01 must use the frozen CAL-01 output snapshot for all non-radiator parameters. It may not reopen them.
+## What the failed holdout means
 
-### Holdouts
+The result does not mean the numerical implementation is broken. It means the current two-state V1 model plus its frozen component/control topology is not sufficient to reproduce the independent Ford Focus thermal response within the project criteria after the governed calibration sequence.
 
-- **VAL-HOT-01:** test `71207063`, UDDS #2 hot start, primary clean independent holdout
-- **VAL-SSS-01:** test `71207052`, 55 mph warm-up, secondary independent holdout
-- **VAL-CS-01:** no separate clean cold-start UDDS replicate was identified
-- **VAL-HWY-01:** test `71207065` is not qualified for full-cycle ECT validation
-- **VAL-US06-01:** test `71207066` is not qualified for full-cycle ECT validation
-- **CHALLENGE-IDLE-CS-01:** test `71207072` is challenge-only
+The boundary-hugging calibration parameters and failed blind holdout point toward **model-form limitations**, potentially including omitted thermal states, simplified coolant/control behavior, or other dynamics that parameter fitting alone should not hide.
 
-The two existing holdouts were preserved when CAL-RAD-01 was introduced.
-
-Machine-readable plan: [`validation_configs/argonne_validation_plan.json`](validation_configs/argonne_validation_plan.json)
-
-## Controlled validation workflow
-
-```text
-Acquire    COMPLETE
-   ↓
-Hash       COMPLETE
-   ↓
-Bounds     COMPLETE / FROZEN
-   ↓
-Identify   COMPLETE
-   ↓
-Stage      COMPLETE
-   ↓
-Map        ACTIVE
-   ↓
-Calibrate  QUEUED
-   ↓
-Freeze     QUEUED
-   ↓
-Holdout    QUEUED
-   ↓
-Report     QUEUED
-```
-
-Before CAL-01 can run, VTMS must still freeze the exact normalized mapping/preprocessing hash, baseline parameter snapshot hash, and immutable three-parameter calibration manifest.
-
-Before CAL-RAD-01 can run, VTMS must freeze the CAL-01 output snapshot, exact 71207057 preprocessing hash, and immutable radiator-only calibration manifest.
-
-Only after both calibration stages are frozen may untouched holdouts be executed.
+The correct next step is a governed model revision, not more tuning of VTMS-V1 against the failed holdout.
 
 ## Formal acceptance criteria
 
@@ -266,97 +224,65 @@ These are VTMS project criteria, not Argonne or SAE standards:
 - RMSE <= 5 °C
 - MAE <= 4 °C
 - absolute mean bias <= 3 °C
-- 90th percentile absolute error <= 7 °C
-- 60/80/90 °C arrival-time error <= the larger of 60 s or 10% of measured arrival time
+- P90 absolute error <= 7 °C
+- 60/80/90 °C arrival error <= the larger of 60 s or 10% of measured arrival time, when the measured threshold crossing occurs inside the observation window
 
-Numeric threshold success alone cannot create a formal validation claim. Formal pass additionally requires an independent holdout and `physical_evidence=true`.
-
-## Current evidence statement
-
-> **Argonne D3 controlled data have been acquired and fingerprinted. Physical calibration bounds and staged calibration roles are frozen before residual inspection. CAL-01 is a three-parameter cold-start warm-up stage and CAL-RAD-01 is a radiator-UA-only highway stage. Exact preprocessing/manifests are not yet frozen, controlled calibration has not started, and physical holdout validation has not been executed.**
-
-VTMS-V1 therefore remains `numerical_verified_generic_uncalibrated`.
-
-## Repository layout
-
-```text
-.
-├── README.md
-├── ARCHITECTURE.md
-├── run_identifiability_preflight.py
-├── docs/
-│   ├── ARGONNE_D3_DATA_QUALIFICATION.md
-│   ├── ARGONNE_CALIBRATION_BOUNDS_AND_IDENTIFIABILITY.md
-│   ├── VALIDATION_GOVERNANCE.md
-│   ├── SYNTHETIC_CALIBRATION_HARNESS.md
-│   └── VTMS_V1_Physical_Validation_Protocol.docx
-├── validation_configs/
-│   ├── argonne_2012_focus_inventory.json
-│   ├── argonne_2012_focus_71207062_calibration.json
-│   ├── argonne_2012_focus_71207057_radiator_calibration.json
-│   ├── argonne_2012_focus_71207063_holdout.json
-│   └── argonne_validation_plan.json
-├── src/
-│   ├── vtms_v1/
-│   ├── vtms_validation/
-│   └── vtms_api/
-├── tests/
-├── tests_validation/
-├── tests_api/
-└── web/
-```
+A formal pass additionally requires an independent physical holdout with `physical_evidence=true` and no fitting to that holdout.
 
 ## Engineering boundaries
 
 VTMS-V1 intentionally does not model coolant pressure/boiling, two-phase flow, detailed coolant-jacket hydraulics, oil as a separate thermal state, heater-core extraction, cabin HVAC loads, A/C condenser coupling, transmission cooling, local cylinder-head hot spots, underhood CFD, OEM-specific control strategies, or live OBD-II/CAN synchronization.
 
-High-temperature fault cases above the liquid-only caution boundary are treated qualitatively rather than as predictions of boiling or mechanical damage.
+High-temperature fault cases above the liquid-only caution boundary are qualitative rather than predictions of boiling or mechanical damage.
+
+## Key validation records
+
+- [`docs/ARGONNE_D3_DATA_QUALIFICATION.md`](docs/ARGONNE_D3_DATA_QUALIFICATION.md)
+- [`docs/ARGONNE_CALIBRATION_BOUNDS_AND_IDENTIFIABILITY.md`](docs/ARGONNE_CALIBRATION_BOUNDS_AND_IDENTIFIABILITY.md)
+- [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md)
+- [`validation_configs/argonne_validation_plan.json`](validation_configs/argonne_validation_plan.json)
+- [`validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json)
+- [`validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json)
+- [`validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json)
 
 ## Roadmap
 
 ### VTMS-V1
 
-- [x] Freeze V1 physics specification
-- [x] Implement standalone engine and component models
-- [x] Add numerical verification and canonical regression tests
-- [x] Build dataset-independent validation toolkit
-- [x] Run untouched KIT plausibility comparison
-- [x] Add controlled-validation manifests and evidence-role enforcement
-- [x] Add formal acceptance evaluator
-- [x] Add synthetic bounded-calibration and untouched-holdout harness
-- [x] Deploy FastAPI and Next.js services
-- [x] Complete UI-5 visual productization
-- [x] Add creator page and local knowledge assistant
-- [x] Receive and fingerprint Argonne D3 2012 Ford Focus data
-- [x] Extend adapter for received TSV/direct-fuel schema
-- [x] Freeze physical Argonne bounds before residual inspection
-- [x] Add broad synthetic identifiability preflight
-- [x] Add warm-up-stage practical-identifiability gate
-- [x] Freeze CAL-01 to three warm-up-sensitive parameters
-- [x] Preregister CAL-RAD-01 test 71207057 for radiator UA only
-- [x] Preserve 71207063 and 71207052 as untouched holdouts
-- [ ] Freeze exact CAL-01 preprocessing and immutable manifest
-- [ ] Execute CAL-01 bounded calibration
-- [ ] Freeze CAL-01 parameter snapshot
-- [ ] Freeze exact CAL-RAD-01 preprocessing and immutable manifest
-- [ ] Execute CAL-RAD-01 radiator-only calibration
-- [ ] Freeze final staged parameter snapshot
-- [ ] Execute untouched physical holdouts
-- [ ] Publish controlled validation metrics, residuals, decisions, and limitations
+Completed:
+
+- frozen physics specification and deterministic simulation engine
+- numerical verification and canonical regression suite
+- FastAPI + Next.js deployment
+- UI-5 visual productization
+- local knowledge assistant
+- dataset-independent validation toolkit
+- KIT external plausibility comparison
+- Argonne D3 acquisition, hashing, mapping, and qualification
+- pre-fit physical bounds and identifiability controls
+- staged CAL-01 and CAL-RAD-01 physical calibration
+- primary untouched Argonne holdout
+- formal failure preservation without retuning
+
+Remaining V1 work:
+
+- publish the final controlled-validation report and residual interpretation
+- optionally execute the already-reserved secondary holdout as confirmatory evidence, without retuning
+- document the specific model-form changes proposed for a future revision
 
 ### VTMS-V2
 
-Vehicle-specific calibrated parameter sets, direct OBD-II/CAN replay, justified model extensions based on controlled residual analysis, and stronger uncertainty and sensitivity analysis.
+A governed model revision may add justified thermal states or control/topology improvements based on the preserved residual evidence, followed by a new preregistered calibration/validation program. Vehicle-specific OBD-II/CAN replay and stronger uncertainty/sensitivity treatment also belong here.
 
 ### Future connected model / digital twin
 
-Synchronized physical-vehicle telemetry, state estimation, continuous calibration, vehicle-specific prediction, and AI-assisted interpretation above the deterministic physics layer.
+A digital-twin maturity path would require synchronized physical-vehicle telemetry, vehicle-specific state estimation, continuous data synchronization, governed calibration/update logic, and validated predictive behavior. VTMS-V1 does not provide those capabilities.
 
 ## Data attribution
 
 The reduced KIT sample is derived from the **KIT Automotive OBD-II Dataset**, DOI `10.35097/1130`, licensed under CC BY 4.0.
 
-Controlled Ford Focus data were supplied from the **Argonne National Laboratory Downloadable Dynamometer Database (D3)**. VTMS records and references that provenance. Raw Argonne attachments are not redistributed in this repository.
+Controlled Ford Focus data were supplied from the **Argonne National Laboratory Downloadable Dynamometer Database (D3)**. VTMS records and references that provenance and will continue to acknowledge the dataset in published work. Raw Argonne attachments are not redistributed in this repository.
 
 ## License
 
