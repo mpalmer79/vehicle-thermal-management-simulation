@@ -1,0 +1,38 @@
+{
+  "lock_id": "VTMS-V1-ARGONNE-VAL-SSS-01-LOCK-1",
+  "lock_status": "ready_for_confirmatory_holdout_execution",
+  "upstream_calibration_result": "validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json",
+  "primary_holdout_result": "validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json",
+  "manifest": {
+    "run_id": "VAL-SSS-01",
+    "dataset_id": "ARGONNE-D3-71207052",
+    "role": "holdout",
+    "evidence_grade": "independent_holdout",
+    "dataset_fingerprint": {
+      "file_name": "71207052 Test Data.txt",
+      "sha256_hex": "b5a837449f824ad76b00a6ab7da7ae92486b4feec0b4e3a81eb126bac14b0f02",
+      "size_bytes": 1301807
+    },
+    "parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+    "preprocessing_snapshot_sha256": "4099b937418f78b393b536f59528d00ac8dd301339a43aa9b190b4e420391137",
+    "calibration_parameters": [],
+    "physical_evidence": true,
+    "notes": "Secondary independent 55 mph warm-up holdout reserved before physical fitting. No fitting is permitted. This confirmatory run cannot overturn the already-failed primary VAL-HOT-01 formal validation decision."
+  },
+  "execution": {
+    "signal_map_file": "validation_configs/argonne_2012_focus_71207052_secondary_holdout.json",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "acceptance_policy": "project_acceptance_evaluator_with_pre_observation_arrivals_not_evaluable"
+  },
+  "audit": {
+    "holdout_role_reserved_before_calibration": true,
+    "source_fingerprint_recorded_from_pre_fit_inventory": true,
+    "source_mapping_frozen_before_secondary_holdout_residual_inspection": true,
+    "final_staged_parameter_snapshot_locked": true,
+    "parameter_fitting_prohibited": true,
+    "primary_holdout_failure_already_frozen": true,
+    "secondary_result_may_not_trigger_retuning": true,
+    "secondary_result_may_not_overturn_primary_formal_failure": true
+  }
+}
