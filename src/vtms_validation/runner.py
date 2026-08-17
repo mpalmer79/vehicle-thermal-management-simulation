@@ -180,6 +180,11 @@ def run_controlled_comparison(
     if source_sha != manifest.dataset_fingerprint.sha256_hex:
         raise ValueError("normalized dataset source SHA-256 does not match validation manifest")
 
+    if manifest.preprocessing_snapshot_sha256 is not None:
+        preprocessing_sha = dataset.metadata.get("signal_map_sha256")
+        if preprocessing_sha != manifest.preprocessing_snapshot_sha256:
+            raise ValueError("controlled comparison preprocessing snapshot does not match validation manifest")
+
     current_parameter_hash = sha256_mapping(parameters.snapshot())
     if current_parameter_hash != manifest.parameter_snapshot_sha256:
         raise ValueError("current parameter snapshot does not match validation manifest")
