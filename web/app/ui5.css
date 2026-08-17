@@ -1,0 +1,1121 @@
+/* ==========================================================================
+   VTMS UI-5 visual system
+   Engineering visuals, scenario media, schematic circuit, gauges, evidence
+   hierarchy, and purposeful motion. Foundation tokens live in globals.css.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Motion primitives
+   -------------------------------------------------------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+}
+
+.reveal.revealed { opacity: 1; transform: none }
+
+@keyframes flow-dash { to { stroke-dashoffset: -34 } }
+@keyframes air-dash { to { stroke-dashoffset: -30 } }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes heat-pulse {
+  0%, 100% { opacity: .5; transform: scale(1) }
+  50% { opacity: .85; transform: scale(1.05) }
+}
+@keyframes heat-rise {
+  0% { opacity: 0; transform: translateY(4px) }
+  40% { opacity: 1 }
+  100% { opacity: 0; transform: translateY(-9px) }
+}
+@keyframes wave-slide { to { transform: translateX(10px) } }
+@keyframes knob-shift {
+  0%, 100% { transform: translateX(0) }
+  50% { transform: translateX(7px) }
+}
+
+/* --------------------------------------------------------------------------
+   Hero composition
+   -------------------------------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  grid-template-areas: "lede visual" "tail visual";
+  align-content: center;
+  gap: 20px 46px;
+  padding: 18px 0 42px;
+}
+
+.hero-lede { grid-area: lede; align-self: end }
+.hero-tail { grid-area: tail; align-self: start }
+.thermal-hero { grid-area: visual }
+
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 0 }
+
+.spec-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 26px 0 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 253, 250, .8);
+  overflow: hidden;
+}
+
+.spec-strip div {
+  flex: 1 1 auto;
+  min-width: 92px;
+  padding: 11px 14px;
+  border-right: 1px solid var(--soft);
+}
+
+.spec-strip div:last-child { border-right: 0 }
+.spec-strip dt { font-size: 9px; letter-spacing: .12em; font-weight: 800; color: var(--muted2) }
+.spec-strip dd { margin-top: 4px; font-size: 13px; font-weight: 750; color: var(--ink-strong) }
+
+.hero-standing {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.hero-standing a { color: var(--coolant-deep); font-weight: 700; margin-left: auto }
+.standing-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block }
+.standing-dot.verified { background: var(--verified); box-shadow: 0 0 0 3px rgba(46, 170, 104, .16) }
+.standing-dot.pending { background: var(--pending); box-shadow: 0 0 0 3px rgba(200, 132, 31, .16) }
+
+/* --------------------------------------------------------------------------
+   Thermal circuit visuals (hero anatomy + interactive schematic)
+   -------------------------------------------------------------------------- */
+
+.thermal-hero { margin: 0; display: grid; gap: 10px }
+
+/* Landscape and portrait circuits are both rendered; CSS decides which is shown so the
+   diagram stays legible from 360 px upward without a client-side measurement pass. */
+.narrow-only { display: none }
+
+@media (max-width: 900px) {
+  .wide-only { display: none }
+  .narrow-only { display: block }
+}
+
+.thermal-hero-stage,
+.schematic-stage {
+  position: relative;
+  border: 1px solid #dbe6e3;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(239, 138, 47, .07), transparent 42%),
+    radial-gradient(circle at 86% 58%, rgba(18, 159, 171, .07), transparent 44%),
+    linear-gradient(160deg, #fffdfa, #f4f8f6);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.circuit-svg { display: block; width: 100%; height: auto }
+.circuit-grid { pointer-events: none }
+
+.heat-glow { animation: heat-pulse 5.5s ease-in-out infinite }
+
+/* Static pipe bed */
+.pipe {
+  fill: none;
+  stroke: #dde5e3;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pipe-engineHeat { stroke: #f6ded0 }
+.pipe-bypassFlow { stroke: #e6dcf5 }
+
+/* Animated directional flow */
+.flow {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 11 23;
+  animation: flow-dash 1.5s linear infinite;
+}
+
+.flow-engineHeat { stroke: var(--thermal); animation-duration: 1.15s }
+.flow-pumpFlow { stroke: var(--coolant) }
+.flow-radiatorFlow { stroke: var(--coolant) }
+.flow-bypassFlow { stroke: var(--purple) }
+
+.air-lane {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-dasharray: 16 20;
+  stroke-opacity: .5;
+  animation: air-dash 1.5s linear infinite;
+}
+
+.air-lane.exhaust { stroke: var(--air); stroke-opacity: .62; stroke-dasharray: 9 14 }
+
+.block { stroke: #cfdcd9; stroke-width: 1.5 }
+.engine-block { stroke: #efc7b4 }
+.coolant-block { stroke: #b9e0e4 }
+.radiator-block { stroke: #b7e2cd }
+.thermostat-block { fill: #fff4e2; stroke: #ecc98c; stroke-width: 1.6 }
+.thermostat-gate { stroke: var(--pending); stroke-width: 3.4; stroke-linecap: round }
+
+.engine-fin { fill: #fbd7c3; opacity: .72 }
+.coolant-wave { fill: none; stroke: var(--coolant); stroke-width: 2.6; stroke-opacity: .55; stroke-linecap: round; animation: wave-slide 2.6s ease-in-out infinite alternate }
+.radiator-tube { stroke: var(--air); stroke-width: 2.2; stroke-opacity: .42 }
+
+.fan-shroud { fill: #f2f8f8; stroke: #c6dbdb; stroke-width: 1.6 }
+.fan-blade { fill: none; stroke: var(--blue); stroke-width: 3.6; stroke-linecap: round; stroke-opacity: .75 }
+.fan-blades { animation: spin 3.4s linear infinite }
+.fan-hub { fill: var(--blue); opacity: .85 }
+
+.pump-body { fill: #f1f8f8; stroke: #bcd9db; stroke-width: 1.6 }
+.pump-impeller line { stroke: var(--coolant); stroke-width: 3; stroke-linecap: round }
+.pump-impeller { animation: spin 2.4s linear infinite }
+
+/* HTML label overlay keeps type legible at every viewport width */
+.circuit-labels { position: absolute; inset: 0; pointer-events: none }
+
+.circuit-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.circuit-label b {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--ink-strong);
+}
+
+.circuit-label i { font-style: normal; font-size: 9px; color: var(--muted2); letter-spacing: .08em; text-transform: uppercase }
+.circuit-label.label-bypass b { color: var(--purple-deep) }
+.circuit-label.label-ambient b { color: var(--air-deep) }
+.circuit-label.label-pump b, .circuit-label.label-fan b { font-size: 10px }
+
+.thermal-hero figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.flow-key { display: inline-flex; align-items: center; gap: 7px }
+.flow-key:before { content: ""; width: 16px; height: 3px; border-radius: 2px; background: currentColor }
+.flow-key.coolant { color: var(--coolant-deep) }
+.flow-key.heat { color: #cf6f22 }
+.flow-key.bypass { color: var(--purple-deep) }
+.flow-key.air { color: var(--blue) }
+.thermal-hero figcaption em { margin-left: auto; font-style: normal; color: var(--muted2) }
+
+/* --------------------------------------------------------------------------
+   Product path
+   -------------------------------------------------------------------------- */
+
+.product-path { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 26px }
+
+.path-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 20px 20px 22px;
+  border: 1px solid #dbe3e2;
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.path-step:before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+}
+
+.step-configure:before { background: linear-gradient(90deg, var(--coolant), #7fd4d8) }
+.step-observe:before { background: linear-gradient(90deg, var(--thermal), var(--purple)) }
+.step-evidence:before { background: linear-gradient(90deg, var(--verified), var(--pending)) }
+
+.path-step-visual {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.path-glyph { width: 118px; height: 74px }
+.path-step-index { font-family: ui-monospace, monospace; font-size: 22px; color: #dbe3e2; font-weight: 700 }
+.path-step h3 { margin: 2px 0 0; font-size: 17px; letter-spacing: -.015em }
+.path-step p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.55 }
+
+.path-step-cta {
+  margin-top: 10px;
+  color: var(--coolant-deep);
+  font-size: 12.5px;
+  font-weight: 750;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.path-step-cta span { transition: transform .2s var(--ease) }
+.path-step:hover .path-step-cta span { transform: translateX(4px) }
+
+/* Path glyph internals */
+.pg-track { stroke: #e2eae8; stroke-width: 5; stroke-linecap: round }
+.pg-fill { stroke: var(--coolant); stroke-width: 5; stroke-linecap: round; stroke-opacity: .55 }
+.pg-knob { fill: #fff; stroke: var(--coolant-deep); stroke-width: 2.6; animation: knob-shift 4.5s ease-in-out infinite }
+.pg-block { fill: #ffe9dd; stroke: #efc0a6; stroke-width: 1.6 }
+.pg-exchanger { fill: #dff2e8; stroke: #a9dcc3; stroke-width: 1.6 }
+.pg-loop { fill: none; stroke: #cfdcda; stroke-width: 4; stroke-linecap: round }
+.pg-travel { fill: var(--coolant) }
+.pg-axis { stroke: #cbd6d5; stroke-width: 2 }
+.pg-measured { fill: none; stroke: var(--muted2); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 5 5 }
+.pg-predicted { fill: none; stroke: var(--verified); stroke-width: 3; stroke-linecap: round }
+.pg-step { fill: #e2eae8 }
+.pg-step.done { fill: var(--verified) }
+
+/* --------------------------------------------------------------------------
+   Scenario library
+   -------------------------------------------------------------------------- */
+
+.scenario-section { margin-top: 26px }
+.scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px }
+
+.scenario-card-v2 {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dbe3e2;
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+
+.scenario-card-v2:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(35, 52, 62, .1) }
+
+.scenario-media { position: relative; border-bottom: 1px solid var(--soft) }
+.scenario-visual { display: block; width: 100%; height: auto }
+
+.scenario-id-chip {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: rgba(255, 253, 250, .92);
+  border: 1px solid var(--line);
+  color: var(--coolant-deep);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.scenario-media .scenario-type { position: absolute; top: 10px; right: 12px }
+
+.scenario-type {
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 250, .92);
+  color: var(--muted);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.scenario-type.fault { background: #fff1ef; border-color: #efc7c1; color: #b8413a }
+.scenario-type.degradation { background: #fff7ea; border-color: #ecd4aa; color: #a96b13 }
+
+.scenario-behavior {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(12, 39, 66, .88);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+.scenario-body { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 18px; gap: 12px }
+.scenario-body h3 { margin: 0; font-size: 17px; letter-spacing: -.018em }
+
+.scenario-conditions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 }
+.scenario-conditions div { display: grid; gap: 2px }
+.scenario-conditions dt { font-size: 8.5px; letter-spacing: .09em; font-weight: 800; text-transform: uppercase; color: var(--muted2) }
+.scenario-conditions dd { font-size: 12px; font-weight: 700; color: var(--ink-strong) }
+
+.scenario-outcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--soft);
+  border-radius: 12px;
+  background: var(--panel2);
+}
+
+.scenario-outcome-trace { display: grid; gap: 3px; min-width: 0 }
+.scenario-outcome-trace .spark { width: 100%; height: auto }
+.scenario-outcome-label { font-size: 9px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted2); font-weight: 700 }
+.scenario-outcome-values { display: grid; gap: 3px; text-align: right; font-size: 10px; color: var(--muted) }
+.scenario-outcome-values b { font-size: 14px; font-weight: 780 }
+.scenario-outcome-values .engine b { color: var(--hot-deep) }
+.scenario-outcome-values .coolant b { color: var(--coolant-deep) }
+
+.spark-line { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke }
+.spark-line.engine { stroke: var(--hot) }
+.spark-line.coolant { stroke: var(--coolant) }
+.spark-line.radiator { stroke: #ef9c36 }
+.spark-area { opacity: .12 }
+.spark-area.engine { fill: var(--hot) }
+.spark-area.coolant { fill: var(--coolant) }
+.spark-area.radiator { fill: #ef9c36 }
+.spark-dot.engine { fill: var(--hot) }
+.spark-dot.coolant { fill: var(--coolant) }
+.spark-dot.radiator { fill: #ef9c36 }
+
+.scenario-caution {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #ead3ad;
+  border-radius: 10px;
+  background: #fff7e9;
+  color: #9c661a;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.scenario-caution span {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--pending);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.scenario-cta { display: flex; gap: 9px; margin-top: auto; padding-top: 2px; flex-wrap: wrap }
+.scenario-cta .button { flex: 1 1 auto; min-height: 42px; font-size: 12px }
+.scenario-cta .button.ghost { flex: 0 1 auto }
+
+/* Scenario visual internals */
+.sv-air {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 13 15;
+  stroke-opacity: .55;
+  animation: air-dash 1.6s linear infinite;
+}
+
+.sv-air.weak { stroke-opacity: .3; stroke-dasharray: 5 13; animation-duration: 3s }
+.sv-engine { fill: #ffe6d8; stroke: #eeb99c; stroke-width: 1.6 }
+.sv-heat { fill: none; stroke: var(--thermal); stroke-width: 2.4; stroke-linecap: round; animation: heat-rise 2.6s ease-out infinite }
+.sv-input-bar { fill: #e6ded6 }
+.sv-input-fill { fill: var(--thermal); opacity: .8 }
+.sv-gate polygon { fill: #fff4e2; stroke: #e6bd7e; stroke-width: 1.6 }
+.sv-gate.closed polygon { fill: #f2e7e5; stroke: #d8a9a3 }
+.sv-gate-bar { stroke: var(--danger); stroke-width: 3; stroke-linecap: round }
+.sv-gate-bar.open { stroke: var(--air-deep) }
+.sv-gate.warming .sv-gate-bar.open { stroke: var(--blue) }
+.sv-branch { fill: none; stroke: var(--coolant); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 9 10; animation: flow-dash 1.7s linear infinite }
+.sv-branch.throttled { stroke-width: 2.4; stroke-dasharray: 4 16; animation-duration: 3.4s }
+.sv-branch.blocked { stroke: #cdd7d6; stroke-dasharray: 3 7; animation: none }
+.sv-block { stroke: var(--danger); stroke-width: 3; stroke-linecap: round }
+.sv-radiator { fill: #e4f5ec; stroke: #a8d9c2; stroke-width: 1.6 }
+.sv-radiator.degraded { fill: #eceeed; stroke: #c3cdcb }
+.sv-tube { stroke: var(--air); stroke-width: 2; stroke-opacity: .45 }
+.sv-derate path { fill: none; stroke: var(--pending); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round }
+.sv-fan circle { fill: #eef6f8; stroke: #bfd8dd; stroke-width: 1.5 }
+.sv-fan line { stroke: var(--blue); stroke-width: 2.6; stroke-linecap: round }
+.sv-fan-blades { animation: spin 2.6s linear infinite }
+.sv-fan.failed circle { fill: #f7eceb; stroke: #dfb3ae }
+.sv-fan.failed line { stroke: #c9b4b1 }
+.sv-fan.failed .sv-fan-blades { animation: none }
+.sv-fan-cross { stroke: var(--danger); stroke-width: 3; stroke-linecap: round }
+
+/* --------------------------------------------------------------------------
+   Interactive schematic
+   -------------------------------------------------------------------------- */
+
+.schematic { display: grid; gap: 14px }
+.schematic-stage { padding: 4px }
+.schematic-stage .circuit-svg { border-radius: 20px }
+
+.schematic-inspector {
+  padding: 18px 20px 20px;
+  border: 1px solid var(--soft);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.node-selected { stroke: var(--coolant); stroke-width: 3 }
+.fan-group.idle .fan-blades { animation: none }
+.fan-group.idle .fan-blade { stroke-opacity: .3 }
+
+.schematic-nodes { position: absolute; inset: 0 }
+
+.node-button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  min-width: 62px;
+  min-height: 44px;
+  padding: 5px 9px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: rgba(255, 253, 250, .82);
+  color: var(--ink-strong);
+  cursor: pointer;
+  text-align: center;
+  transition: background .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+
+.node-button b { font-size: 10.5px; font-weight: 800; letter-spacing: .03em; white-space: nowrap }
+.node-button i { font-style: normal; font-size: 12px; font-weight: 750; color: var(--coolant-deep); font-variant-numeric: tabular-nums }
+.node-button:hover { background: #fff; border-color: var(--line-strong) }
+
+.node-button.selected {
+  background: #fff;
+  border-color: var(--coolant);
+  box-shadow: 0 0 0 4px rgba(18, 159, 171, .14), var(--shadow-soft);
+}
+
+.node-button.selected:after {
+  content: "";
+  position: absolute;
+  inset: auto auto -7px 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--coolant);
+}
+
+.node-button.tone-engine i { color: var(--hot-deep) }
+.node-button.tone-bypass i { color: var(--purple-deep) }
+.node-button.tone-air i { color: var(--blue) }
+.node-button.tone-ambient i { color: var(--air-deep) }
+
+.node-outline { fill: none; stroke: var(--coolant); stroke-width: 3; stroke-dasharray: 7 6; opacity: 0 }
+.node-outline.active { opacity: 1 }
+
+.system-workspace { display: grid; grid-template-columns: minmax(0, 1fr) 318px; gap: 16px; align-items: start }
+.system-stage, .schematic, .results-workspace, .schematic-stage { min-width: 0 }
+.system-stage { display: grid; gap: 14px }
+
+.inspector-head { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+.inspector-role { color: var(--muted); font-size: 12px; line-height: 1.55; margin: 10px 0 4px }
+.component-inspector h3 { margin: 6px 0 0; font-size: 18px }
+
+.inspector-values { display: grid; gap: 0; margin: 12px 0 0 }
+.inspector-values div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--soft); font-size: 12px }
+.inspector-values dd { font-variant-numeric: tabular-nums }
+
+.magnitude-bar { height: 5px; border-radius: 3px; background: #e8eeec; overflow: hidden; margin-top: 10px }
+.magnitude-fill { height: 100%; border-radius: 3px; background: var(--coolant); transition: width .4s var(--ease) }
+.magnitude-fill.engine { background: var(--thermal) }
+.magnitude-fill.bypass { background: var(--purple) }
+.magnitude-fill.air { background: var(--blue) }
+
+/* --------------------------------------------------------------------------
+   Playback
+   -------------------------------------------------------------------------- */
+
+.playback-control {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid #dde5e3;
+  border-radius: 16px;
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 11px;
+  box-shadow: 0 7px 20px rgba(35, 52, 62, .04);
+}
+
+.playback-button {
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #19b3bc, #087f8d);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(18, 159, 171, .22);
+}
+
+.playback-time { font-weight: 800; color: #173149; font-variant-numeric: tabular-nums; font-size: 12.5px }
+
+.playback-control input[type=range] {
+  width: 100%;
+  height: 32px;
+  accent-color: var(--coolant-deep);
+  cursor: pointer;
+}
+
+.metric-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px }
+
+.metric-strip div {
+  padding: 13px 15px;
+  border: 1px solid var(--soft);
+  border-radius: 12px;
+  background: var(--panel2);
+}
+
+.metric-strip span { display: block; color: var(--muted2); font-size: 9px; letter-spacing: .09em; text-transform: uppercase; font-weight: 800 }
+.metric-strip strong { display: block; margin-top: 5px; font-size: 16px; color: #173149; font-variant-numeric: tabular-nums }
+
+.overview-preview { margin-top: 8px }
+
+.overview-playback {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid #d6e0df;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 253, 250, .94);
+  box-shadow: var(--shadow);
+}
+
+.overview-playback-body { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 16px; align-items: stretch }
+.overview-gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+
+.overview-playback-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: var(--muted2);
+  font-size: 10.5px;
+}
+
+.component-inspector .overview-gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 14px }
+
+/* In the narrow right-hand column the gauges stack so their readouts do not wrap. */
+@media (min-width: 1181px) {
+  .overview-playback-body .overview-gauges { grid-template-columns: minmax(0, 1fr) }
+}
+
+/* --------------------------------------------------------------------------
+   Gauges
+   -------------------------------------------------------------------------- */
+
+.gauge {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  align-content: start;
+  padding: 14px 15px 13px;
+  border: 1px solid var(--soft);
+  border-radius: 14px;
+  background: var(--panel2);
+}
+
+.gauge-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; min-width: 0; flex-wrap: wrap }
+.gauge-head .gauge-label { min-width: 0 }
+.gauge-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800; color: var(--muted2) }
+.gauge-head strong { font-size: 25px; font-weight: 760; color: var(--ink-strong); font-variant-numeric: tabular-nums; letter-spacing: -.025em; line-height: 1 }
+.gauge-head strong em { font-style: normal; font-size: 12px; color: var(--muted); margin-left: 3px }
+
+.gauge-track {
+  position: relative;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--soft);
+  background: linear-gradient(90deg, #eaefed, #f4f8f6);
+  overflow: hidden;
+}
+
+.gauge-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f6a08f, var(--hot));
+  transition: width .45s var(--ease);
+}
+
+.gauge.coolant .gauge-fill { background: linear-gradient(90deg, #7fd2d9, var(--coolant)) }
+.gauge.radiator .gauge-fill { background: linear-gradient(90deg, #f6c68a, #ef9c36) }
+
+.gauge-mark { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed rgba(12, 39, 66, .38) }
+.gauge-peak { position: absolute; top: -1px; bottom: -1px; width: 3px; border-radius: 2px; background: rgba(12, 39, 66, .5); transform: translateX(-1px) }
+
+.gauge-scale { display: flex; justify-content: space-between; gap: 10px; font-size: 9.5px; color: var(--muted2); font-variant-numeric: tabular-nums }
+.gauge-peak-value { font-weight: 700; color: var(--muted) }
+.gauge-marks-note { margin: 0; font-size: 9px; color: var(--muted2); letter-spacing: .02em }
+
+/* --------------------------------------------------------------------------
+   Results
+   -------------------------------------------------------------------------- */
+
+.results-workspace { display: grid; gap: 16px }
+
+.result-header { align-items: center; padding-bottom: 20px; border-bottom: 1px solid #e1e7e6; margin-bottom: 18px }
+.result-header h1 { font-size: clamp(30px, 3.6vw, 46px) }
+.result-status { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px }
+
+.result-hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, 1.5fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.result-hero-facts {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--soft);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.result-fact { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; font-size: 12px }
+.result-fact span { color: var(--muted2); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 800 }
+.result-fact strong { color: var(--ink-strong); font-size: 13px; font-variant-numeric: tabular-nums }
+.result-fact strong.pass { color: #218b53 }
+.result-fact strong.check { color: #9c661a }
+
+.snapshot { display: grid; gap: 10px; margin-top: 2px }
+
+.snapshot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px }
+
+.snapshot-item {
+  display: grid;
+  gap: 4px;
+  padding: 13px 14px;
+  border: 1px solid var(--soft);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.snapshot-item span { color: var(--muted2); font-size: 9px; letter-spacing: .09em; text-transform: uppercase; font-weight: 800 }
+.snapshot-item strong { color: var(--ink-strong); font-size: 15px; font-variant-numeric: tabular-nums }
+.snapshot-item small { color: var(--muted); font-size: 10.5px }
+.snapshot-item.state-yes strong { color: #218b53 }
+.snapshot-item.state-no strong { color: var(--muted) }
+
+.results-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start }
+
+.energy-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+  box-shadow: var(--shadow-soft);
+}
+
+.energy-banner.pass { background: #effaf3; border-color: #c6e8d1; color: #228a52 }
+.energy-banner.warn { background: #fff7e9; border-color: #ead3ad; color: #9c661a }
+.energy-banner span { color: var(--muted) }
+
+.selected-values dl { margin: 12px 0 0 }
+.selected-values dl div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--soft); font-size: 12px }
+
+/* --------------------------------------------------------------------------
+   Simulation Lab workspace
+   -------------------------------------------------------------------------- */
+
+.simulation-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .7fr); gap: 16px; align-items: start }
+.scenario-preview { position: sticky; top: 76px; padding: 20px; display: grid; gap: 12px }
+.scenario-preview h2 { font-size: 20px; margin: 4px 0 0; letter-spacing: -.02em }
+.scenario-preview > p { color: var(--muted); font-size: 12.5px; line-height: 1.55; margin: 0 }
+
+.config-preview-stage {
+  position: relative;
+  border: 1px solid var(--soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel2);
+}
+
+.config-preview-stage svg { display: block; width: 100%; height: auto }
+
+.config-preview-note {
+  margin: 0;
+  color: var(--muted2);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.config-states { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px }
+
+.config-state {
+  display: grid;
+  gap: 2px;
+  padding: 9px 10px;
+  border: 1px solid var(--soft);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.config-state span { font-size: 8.5px; letter-spacing: .09em; text-transform: uppercase; font-weight: 800; color: var(--muted2) }
+.config-state strong { font-size: 11.5px; color: var(--ink-strong) }
+.config-state.alert { background: #fff7e9; border-color: #ead3ad }
+.config-state.alert strong { color: #9c661a }
+.config-state.fault { background: #fff1ef; border-color: #efc7c1 }
+.config-state.fault strong { color: #b8413a }
+
+.run-dock { display: none }
+
+/* Configuration preview internals */
+.cp-ambient-cold { fill: #e6f1fa }
+.cp-ambient-mild { fill: #ecf5f1 }
+.cp-ambient-warm { fill: #fdf2e7 }
+.cp-ambient-hot { fill: #fce7db }
+.cp-body { fill: #fffdfa; stroke: #d3dedc; stroke-width: 1.6 }
+.cp-engine { fill: #ffe6d8; stroke: #eeb99c; stroke-width: 1.6 }
+.cp-engine-fill { fill: var(--thermal); opacity: .78 }
+.cp-rad { fill: #e4f5ec; stroke: #a8d9c2; stroke-width: 1.6 }
+.cp-rad.degraded { fill: #eceeed; stroke: #c3cdcb }
+.cp-tube { stroke: var(--air); stroke-width: 2; stroke-opacity: .45 }
+.cp-air { fill: none; stroke: var(--blue); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 12 14; animation: air-dash 1.6s linear infinite }
+.cp-air.reduced { stroke-opacity: .35; animation-duration: 3.2s }
+.cp-loop { fill: none; stroke: var(--coolant); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 10 12; animation: flow-dash 1.8s linear infinite }
+.cp-loop.reduced { stroke-width: 2.6; stroke-dasharray: 5 17; animation-duration: 3.6s }
+.cp-loop.blocked { stroke: #cdd7d6; stroke-dasharray: 3 7; animation: none }
+.cp-fan circle { fill: #eef6f8; stroke: #bfd8dd; stroke-width: 1.5 }
+.cp-fan line { stroke: var(--blue); stroke-width: 2.6; stroke-linecap: round }
+.cp-fan-blades { animation: spin 2.6s linear infinite }
+.cp-fan.failed circle { fill: #f7eceb; stroke: #dfb3ae }
+.cp-fan.failed line { stroke: #c9b4b1 }
+.cp-fan.failed .cp-fan-blades { animation: none }
+.cp-cross { stroke: var(--danger); stroke-width: 3; stroke-linecap: round }
+.cp-label { fill: var(--muted2); font-size: 9px; font-weight: 700; letter-spacing: .05em }
+.cp-thermostat { fill: #fff4e2; stroke: #e6bd7e; stroke-width: 1.6 }
+.cp-thermostat.fault { fill: #f2e7e5; stroke: #d8a9a3 }
+
+/* --------------------------------------------------------------------------
+   Validation evidence
+   -------------------------------------------------------------------------- */
+
+.evidence-timeline { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px }
+
+.evidence-timeline:before {
+  content: "";
+  position: absolute;
+  top: 21px;
+  left: 6%;
+  right: 6%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--verified) 0%, var(--verified) 50%, var(--pending) 50%, #dbe3e2 62%, #dbe3e2 100%);
+  border-radius: 2px;
+}
+
+.evidence-step { position: relative; display: grid; gap: 6px; padding-top: 0 }
+
+.evidence-marker {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid #dbe3e2;
+  background: var(--panel);
+  color: var(--muted2);
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--shadow-soft);
+}
+
+.evidence-step.complete .evidence-marker { border-color: var(--verified); color: var(--verified); background: #f1fbf5 }
+.evidence-step.active .evidence-marker { border-color: var(--pending); color: #a96b13; background: #fff8ec }
+
+.evidence-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted2);
+}
+
+.evidence-state:before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor }
+.evidence-step.complete .evidence-state { color: #18864d }
+.evidence-step.active .evidence-state { color: #a96b13 }
+.evidence-step h3 { margin: 2px 0 0; font-size: 14px; letter-spacing: -.01em }
+.evidence-step p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.5 }
+
+.validation-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(240px, .5fr); gap: 16px; align-items: start }
+
+.validation-chart,
+.residual-chart {
+  padding: 6px;
+  border: 1px solid #dfe6e4;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(35, 52, 62, .05);
+}
+
+.validation-chart img, .residual-chart img { width: 100%; height: auto; display: block }
+.residual-chart { margin-top: 16px; max-width: 66% }
+
+.validation-side { display: grid; gap: 12px }
+
+.takeaway {
+  display: grid;
+  gap: 8px;
+  padding: 16px 17px;
+  border: 1px solid #cde8e3;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #eef9f7, #fffdfa);
+}
+
+.takeaway-headline { font-size: 16px; font-weight: 760; color: var(--ink-strong); letter-spacing: -.015em; line-height: 1.3 }
+.takeaway p { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.55 }
+
+.takeaway-shape { display: grid; gap: 5px; margin-top: 2px }
+.takeaway-shape svg { width: 100%; height: auto; display: block }
+.tk-measured { fill: none; stroke: var(--muted2); stroke-width: 2.6; stroke-dasharray: 5 5; stroke-linecap: round }
+.tk-predicted { fill: none; stroke: var(--coolant); stroke-width: 2.8; stroke-linecap: round }
+.tk-gap { fill: var(--pending); opacity: .16 }
+.tk-key { display: flex; gap: 14px; font-size: 9.5px; color: var(--muted) }
+.tk-key span { display: inline-flex; align-items: center; gap: 6px }
+.tk-key i { width: 14px; height: 2.5px; border-radius: 2px; display: inline-block }
+.tk-key .measured { background: var(--muted2) }
+.tk-key .predicted { background: var(--coolant) }
+
+.validation-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px }
+
+.validation-metrics div {
+  padding: 13px 14px;
+  border: 1px solid #dbe3e2;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 5px 14px rgba(35, 52, 62, .04);
+}
+
+.validation-metrics span { display: block; color: var(--muted2); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; font-weight: 800 }
+.validation-metrics strong { display: block; margin-top: 4px; font-size: 17px; color: #173149; font-variant-numeric: tabular-nums }
+
+.pipeline {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pipeline li {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  padding: 12px 6px 11px;
+  border: 1px solid var(--soft);
+  border-radius: 12px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.pipeline li:not(:last-child):after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-top: 1.5px solid var(--line-strong);
+  border-right: 1.5px solid var(--line-strong);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.pipeline b { font-size: 11px; font-weight: 750; color: var(--ink-strong) }
+.pipeline small { font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 800; color: var(--muted2) }
+.pipeline .stage-dot { width: 9px; height: 9px; border-radius: 50%; background: #dbe3e2 }
+.pipeline li.awaiting { border-color: #ead3ad; background: #fff8ec }
+.pipeline li.awaiting .stage-dot { background: var(--pending) }
+.pipeline li.awaiting small { color: #a96b13 }
+
+.controlled-panel { margin-top: 18px }
+.controlled-panel .hero-actions { margin-top: 18px }
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "lede" "visual" "tail"; gap: 22px }
+  .thermal-hero-stage { max-width: 760px }
+  .scenario-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .system-workspace { grid-template-columns: minmax(0, 1fr) }
+  .overview-playback-body { grid-template-columns: minmax(0, 1fr) }
+  .overview-gauges { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+}
+
+@media (max-width: 1000px) {
+  .result-hero { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .result-hero-facts { grid-column: 1 / -1 }
+  .snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .results-grid { grid-template-columns: minmax(0, 1fr) }
+  .simulation-layout { grid-template-columns: minmax(0, 1fr) }
+  .scenario-preview { position: static; order: -1 }
+  .evidence-timeline { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .evidence-timeline:before { display: none }
+  .validation-grid { grid-template-columns: minmax(0, 1fr) }
+  .residual-chart { max-width: 100% }
+  .product-path { grid-template-columns: minmax(0, 1fr) }
+  .path-step { grid-template-columns: minmax(0, 1fr) }
+  .pipeline { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .pipeline li:not(:last-child):after { display: none }
+}
+
+@media (max-width: 780px) {
+  .hero { padding: 6px 0 26px }
+  .hero-actions { display: grid; grid-template-columns: 1fr; margin-top: 20px }
+  .hero-actions .button { width: 100%; min-height: 50px }
+  .spec-strip { margin-top: 18px }
+  .spec-strip div { min-width: 33%; flex: 1 1 33%; border-bottom: 1px solid var(--soft) }
+  .hero-standing a { margin-left: 0; width: 100% }
+
+  .circuit-label i { display: none }
+  .circuit-label b { font-size: 9.5px }
+  .circuit-label.label-pump, .circuit-label.label-ambient { display: none }
+
+  .scenario-conditions { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px }
+  .scenario-cta .button { width: 100%; flex: 1 1 100% }
+
+  .overview-playback { padding: 16px; border-radius: 16px }
+  .overview-gauges { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+
+  .playback-control { grid-template-columns: auto 1fr; grid-template-areas: "button slider" "time duration"; gap: 8px 12px; padding: 10px 12px }
+  .playback-control .playback-button { grid-area: button }
+  .playback-control .playback-time { grid-area: time }
+  .playback-control input[type=range] { grid-area: slider }
+  .playback-control .playback-duration { grid-area: duration; text-align: right }
+
+  .result-header { align-items: flex-start }
+  .result-hero { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .evidence-timeline { grid-template-columns: minmax(0, 1fr); gap: 10px }
+  .evidence-step { grid-template-columns: 42px minmax(0, 1fr); align-items: start; column-gap: 12px }
+  .evidence-marker { grid-row: 1 / span 3 }
+  .validation-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .pipeline { grid-template-columns: minmax(0, 1fr) }
+  .gauge { padding: 12px 13px }
+  .gauge-head { flex-direction: column; align-items: flex-start; gap: 4px }
+  .gauge-head strong { font-size: 21px }
+
+  .simulation-layout { gap: 14px }
+  .run-dock {
+    position: sticky;
+    bottom: 78px;
+    z-index: 30;
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    border: 1px solid #dde5e3;
+    border-radius: 16px;
+    background: rgba(255, 253, 250, .96);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -6px 24px rgba(35, 52, 62, .1);
+  }
+  .run-dock .button { width: 100%; min-height: 50px }
+  .run-dock span { color: var(--muted2); font-size: 10px; text-align: center }
+  .form-action { display: none }
+}
+
+/* Scenario cards stay two-up on tablets: a single full-width card stretches the
+   preview geometry far past its useful size. */
+@media (max-width: 620px) {
+  .scenario-grid { grid-template-columns: minmax(0, 1fr) }
+}
+
+@media (max-width: 430px) {
+  .scenario-conditions { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .scenario-outcome { grid-template-columns: 1fr; gap: 8px }
+  .scenario-outcome-values { text-align: left; display: flex; gap: 14px }
+  .result-hero { grid-template-columns: minmax(0, 1fr) }
+  .metric-strip { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none }
+
+  .flow,
+  .air-lane,
+  .sv-air,
+  .sv-branch,
+  .sv-heat,
+  .cp-air,
+  .cp-loop,
+  .coolant-wave,
+  .fan-blades,
+  .sv-fan-blades,
+  .cp-fan-blades,
+  .pump-impeller,
+  .heat-glow,
+  .pg-knob {
+    animation: none !important;
+  }
+
+  .pg-travel { display: none }
+  .gauge-fill, .magnitude-fill { transition: none }
+  .button:hover, .scenario-card-v2:hover { transform: none }
+  .path-step:hover .path-step-cta span { transform: none }
+  html { scroll-behavior: auto }
+}

@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# The Python build ignore for lib/ above also matches the Next.js source
+# directory, which must stay tracked.
+!web/lib/
+!web/lib/**

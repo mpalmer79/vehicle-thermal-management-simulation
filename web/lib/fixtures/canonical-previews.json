@@ -1,0 +1,1152 @@
+{
+ "fixtureId": "canonical-previews-ui5",
+ "generatedBy": "VTMS-V1 Python physics engine via generate_ui_previews.py",
+ "samplingNote": "Canonical scenarios re-executed with a 60 second result output interval for scenario preview rendering. Governing equations, parameters, solver settings, and canonical inputs are unchanged.",
+ "model": {
+  "modelId": "VTMS-V1",
+  "equationSet": "EM-V1",
+  "status": "numerical_verified_generic_uncalibrated"
+ },
+ "scenarios": [
+  {
+   "scenarioId": "S-01",
+   "name": "Cold start / fast idle",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 20.0,
+     "coolantC": 20.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 26.5289,
+     "coolantC": 24.2405
+    },
+    {
+     "t": 120.0,
+     "engineC": 32.2608,
+     "coolantC": 29.9353
+    },
+    {
+     "t": 180.0,
+     "engineC": 37.9186,
+     "coolantC": 35.6139
+    },
+    {
+     "t": 240.0,
+     "engineC": 43.5215,
+     "coolantC": 41.2389
+    },
+    {
+     "t": 300.0,
+     "engineC": 49.0706,
+     "coolantC": 46.81
+    },
+    {
+     "t": 360.0,
+     "engineC": 54.5663,
+     "coolantC": 52.3274
+    },
+    {
+     "t": 420.0,
+     "engineC": 60.0092,
+     "coolantC": 57.7919
+    },
+    {
+     "t": 480.0,
+     "engineC": 65.3999,
+     "coolantC": 63.2038
+    },
+    {
+     "t": 540.0,
+     "engineC": 70.7387,
+     "coolantC": 68.5637
+    },
+    {
+     "t": 600.0,
+     "engineC": 76.0262,
+     "coolantC": 73.8721
+    },
+    {
+     "t": 660.0,
+     "engineC": 81.2629,
+     "coolantC": 79.1296
+    },
+    {
+     "t": 720.0,
+     "engineC": 86.4493,
+     "coolantC": 84.3364
+    },
+    {
+     "t": 780.0,
+     "engineC": 91.5858,
+     "coolantC": 89.4933
+    },
+    {
+     "t": 840.0,
+     "engineC": 96.673,
+     "coolantC": 94.6006
+    },
+    {
+     "t": 900.0,
+     "engineC": 100.6436,
+     "coolantC": 96.3202
+    },
+    {
+     "t": 960.0,
+     "engineC": 102.0252,
+     "coolantC": 96.4196
+    },
+    {
+     "t": 1020.0,
+     "engineC": 102.4723,
+     "coolantC": 96.4517
+    },
+    {
+     "t": 1080.0,
+     "engineC": 102.617,
+     "coolantC": 96.4621
+    },
+    {
+     "t": 1140.0,
+     "engineC": 102.6638,
+     "coolantC": 96.4655
+    },
+    {
+     "t": 1200.0,
+     "engineC": 102.679,
+     "coolantC": 96.4666
+    }
+   ],
+   "endState": {
+    "engineC": 102.679,
+    "coolantC": 96.4666,
+    "thermostatFraction": 0.8467,
+    "fanFraction": 0.0583,
+    "radiatorHeatW": 6212.1797,
+    "airFlowKgS": 0.0808,
+    "pumpFlowKgS": 0.268
+   },
+   "peak": {
+    "engineC": 102.679,
+    "coolantC": 96.4666
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0022
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-02",
+   "name": "Warm highway cruise",
+   "durationS": 900.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 116.5859,
+     "coolantC": 90.1939
+    },
+    {
+     "t": 120.0,
+     "engineC": 120.4199,
+     "coolantC": 90.6166
+    },
+    {
+     "t": 180.0,
+     "engineC": 121.7291,
+     "coolantC": 90.7754
+    },
+    {
+     "t": 240.0,
+     "engineC": 122.18,
+     "coolantC": 90.832
+    },
+    {
+     "t": 300.0,
+     "engineC": 122.3358,
+     "coolantC": 90.8518
+    },
+    {
+     "t": 360.0,
+     "engineC": 122.3897,
+     "coolantC": 90.8587
+    },
+    {
+     "t": 420.0,
+     "engineC": 122.4084,
+     "coolantC": 90.8611
+    },
+    {
+     "t": 480.0,
+     "engineC": 122.4149,
+     "coolantC": 90.8619
+    },
+    {
+     "t": 540.0,
+     "engineC": 122.4171,
+     "coolantC": 90.8622
+    },
+    {
+     "t": 600.0,
+     "engineC": 122.4179,
+     "coolantC": 90.8623
+    },
+    {
+     "t": 660.0,
+     "engineC": 122.4181,
+     "coolantC": 90.8624
+    },
+    {
+     "t": 720.0,
+     "engineC": 122.4182,
+     "coolantC": 90.8624
+    },
+    {
+     "t": 780.0,
+     "engineC": 122.4183,
+     "coolantC": 90.8624
+    },
+    {
+     "t": 840.0,
+     "engineC": 122.4183,
+     "coolantC": 90.8624
+    },
+    {
+     "t": 900.0,
+     "engineC": 122.4183,
+     "coolantC": 90.8624
+    }
+   ],
+   "endState": {
+    "engineC": 122.4183,
+    "coolantC": 90.8624,
+    "thermostatFraction": 0.2862,
+    "fanFraction": 0.0,
+    "radiatorHeatW": 31555.9023,
+    "airFlowKgS": 4.8876,
+    "pumpFlowKgS": 0.554
+   },
+   "peak": {
+    "engineC": 122.4183,
+    "coolantC": 92.0
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0184
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-03",
+   "name": "Hot ambient idle",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 102.1818,
+     "coolantC": 96.6098
+    },
+    {
+     "t": 120.0,
+     "engineC": 101.4351,
+     "coolantC": 96.5338
+    },
+    {
+     "t": 180.0,
+     "engineC": 101.1847,
+     "coolantC": 96.5084
+    },
+    {
+     "t": 240.0,
+     "engineC": 101.1007,
+     "coolantC": 96.4998
+    },
+    {
+     "t": 300.0,
+     "engineC": 101.0725,
+     "coolantC": 96.497
+    },
+    {
+     "t": 360.0,
+     "engineC": 101.0631,
+     "coolantC": 96.496
+    },
+    {
+     "t": 420.0,
+     "engineC": 101.0599,
+     "coolantC": 96.4957
+    },
+    {
+     "t": 480.0,
+     "engineC": 101.0588,
+     "coolantC": 96.4956
+    },
+    {
+     "t": 540.0,
+     "engineC": 101.0585,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 600.0,
+     "engineC": 101.0584,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 660.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 720.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 780.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 840.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 900.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 960.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 1020.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 1080.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 1140.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    },
+    {
+     "t": 1200.0,
+     "engineC": 101.0583,
+     "coolantC": 96.4955
+    }
+   ],
+   "endState": {
+    "engineC": 101.0583,
+    "coolantC": 96.4955,
+    "thermostatFraction": 0.8496,
+    "fanFraction": 0.0619,
+    "radiatorHeatW": 4562.788,
+    "airFlowKgS": 0.0803,
+    "pumpFlowKgS": 0.224
+   },
+   "peak": {
+    "engineC": 105.0,
+    "coolantC": 96.6098
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0198
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-04",
+   "name": "Sustained higher load",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 125.6135,
+     "coolantC": 91.8029
+    },
+    {
+     "t": 120.0,
+     "engineC": 133.3103,
+     "coolantC": 93.8451
+    },
+    {
+     "t": 180.0,
+     "engineC": 136.6521,
+     "coolantC": 95.0419
+    },
+    {
+     "t": 240.0,
+     "engineC": 138.224,
+     "coolantC": 95.6756
+    },
+    {
+     "t": 300.0,
+     "engineC": 138.9918,
+     "coolantC": 96.0012
+    },
+    {
+     "t": 360.0,
+     "engineC": 139.3735,
+     "coolantC": 96.1668
+    },
+    {
+     "t": 420.0,
+     "engineC": 139.5648,
+     "coolantC": 96.2506
+    },
+    {
+     "t": 480.0,
+     "engineC": 139.661,
+     "coolantC": 96.2929
+    },
+    {
+     "t": 540.0,
+     "engineC": 139.7094,
+     "coolantC": 96.3142
+    },
+    {
+     "t": 600.0,
+     "engineC": 139.7338,
+     "coolantC": 96.325
+    },
+    {
+     "t": 660.0,
+     "engineC": 139.7461,
+     "coolantC": 96.3305
+    },
+    {
+     "t": 720.0,
+     "engineC": 139.7523,
+     "coolantC": 96.3332
+    },
+    {
+     "t": 780.0,
+     "engineC": 139.7555,
+     "coolantC": 96.3346
+    },
+    {
+     "t": 840.0,
+     "engineC": 139.7571,
+     "coolantC": 96.3353
+    },
+    {
+     "t": 900.0,
+     "engineC": 139.7579,
+     "coolantC": 96.3356
+    },
+    {
+     "t": 960.0,
+     "engineC": 139.7583,
+     "coolantC": 96.3358
+    },
+    {
+     "t": 1020.0,
+     "engineC": 139.7585,
+     "coolantC": 96.3359
+    },
+    {
+     "t": 1080.0,
+     "engineC": 139.7586,
+     "coolantC": 96.3359
+    },
+    {
+     "t": 1140.0,
+     "engineC": 139.7586,
+     "coolantC": 96.336
+    },
+    {
+     "t": 1200.0,
+     "engineC": 139.7586,
+     "coolantC": 96.336
+    }
+   ],
+   "endState": {
+    "engineC": 139.7586,
+    "coolantC": 96.336,
+    "thermostatFraction": 0.8336,
+    "fanFraction": 0.042,
+    "radiatorHeatW": 43422.6555,
+    "airFlowKgS": 2.5522,
+    "pumpFlowKgS": 0.664
+   },
+   "peak": {
+    "engineC": 139.7586,
+    "coolantC": 96.336
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0065
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-05",
+   "name": "Fan failure at hot idle",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 104.9628,
+     "coolantC": 103.1782
+    },
+    {
+     "t": 120.0,
+     "engineC": 108.4851,
+     "coolantC": 107.0037
+    },
+    {
+     "t": 180.0,
+     "engineC": 112.0653,
+     "coolantC": 110.6056
+    },
+    {
+     "t": 240.0,
+     "engineC": 115.6135,
+     "coolantC": 114.168
+    },
+    {
+     "t": 300.0,
+     "engineC": 119.1277,
+     "coolantC": 117.696
+    },
+    {
+     "t": 360.0,
+     "engineC": 122.608,
+     "coolantC": 121.1902
+    },
+    {
+     "t": 420.0,
+     "engineC": 126.055,
+     "coolantC": 124.6508
+    },
+    {
+     "t": 480.0,
+     "engineC": 129.4688,
+     "coolantC": 128.0781
+    },
+    {
+     "t": 540.0,
+     "engineC": 132.8498,
+     "coolantC": 131.4724
+    },
+    {
+     "t": 600.0,
+     "engineC": 136.1983,
+     "coolantC": 134.8342
+    },
+    {
+     "t": 660.0,
+     "engineC": 139.5146,
+     "coolantC": 138.1636
+    },
+    {
+     "t": 720.0,
+     "engineC": 142.7991,
+     "coolantC": 141.4611
+    },
+    {
+     "t": 780.0,
+     "engineC": 146.052,
+     "coolantC": 144.7268
+    },
+    {
+     "t": 840.0,
+     "engineC": 149.2737,
+     "coolantC": 147.9612
+    },
+    {
+     "t": 900.0,
+     "engineC": 152.4643,
+     "coolantC": 151.1645
+    },
+    {
+     "t": 960.0,
+     "engineC": 155.6244,
+     "coolantC": 154.337
+    },
+    {
+     "t": 1020.0,
+     "engineC": 158.754,
+     "coolantC": 157.479
+    },
+    {
+     "t": 1080.0,
+     "engineC": 161.8536,
+     "coolantC": 160.5909
+    },
+    {
+     "t": 1140.0,
+     "engineC": 164.9234,
+     "coolantC": 163.6728
+    },
+    {
+     "t": 1200.0,
+     "engineC": 167.9637,
+     "coolantC": 166.7251
+    }
+   ],
+   "endState": {
+    "engineC": 167.9637,
+    "coolantC": 166.7251,
+    "thermostatFraction": 1.0,
+    "fanFraction": 0.0,
+    "radiatorHeatW": 0.0,
+    "airFlowKgS": 0.0,
+    "pumpFlowKgS": 0.224
+   },
+   "peak": {
+    "engineC": 167.9637,
+    "coolantC": 166.7251
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0001
+   },
+   "warnings": [
+    "Simulated coolant temperature reached or exceeded 120 C. This is an implementation caution boundary only. VTMS-V1 does not model coolant pressure, boiling, two-phase flow, or engine damage; results above this boundary are qualitative."
+   ]
+  },
+  {
+   "scenarioId": "S-06",
+   "name": "Thermostat stuck closed",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 104.9628,
+     "coolantC": 103.1782
+    },
+    {
+     "t": 120.0,
+     "engineC": 108.4851,
+     "coolantC": 107.0037
+    },
+    {
+     "t": 180.0,
+     "engineC": 112.0653,
+     "coolantC": 110.6056
+    },
+    {
+     "t": 240.0,
+     "engineC": 115.6135,
+     "coolantC": 114.168
+    },
+    {
+     "t": 300.0,
+     "engineC": 119.1277,
+     "coolantC": 117.696
+    },
+    {
+     "t": 360.0,
+     "engineC": 122.608,
+     "coolantC": 121.1902
+    },
+    {
+     "t": 420.0,
+     "engineC": 126.055,
+     "coolantC": 124.6508
+    },
+    {
+     "t": 480.0,
+     "engineC": 129.4688,
+     "coolantC": 128.0781
+    },
+    {
+     "t": 540.0,
+     "engineC": 132.8498,
+     "coolantC": 131.4724
+    },
+    {
+     "t": 600.0,
+     "engineC": 136.1983,
+     "coolantC": 134.8342
+    },
+    {
+     "t": 660.0,
+     "engineC": 139.5146,
+     "coolantC": 138.1636
+    },
+    {
+     "t": 720.0,
+     "engineC": 142.7991,
+     "coolantC": 141.4611
+    },
+    {
+     "t": 780.0,
+     "engineC": 146.052,
+     "coolantC": 144.7268
+    },
+    {
+     "t": 840.0,
+     "engineC": 149.2737,
+     "coolantC": 147.9612
+    },
+    {
+     "t": 900.0,
+     "engineC": 152.4643,
+     "coolantC": 151.1645
+    },
+    {
+     "t": 960.0,
+     "engineC": 155.6244,
+     "coolantC": 154.337
+    },
+    {
+     "t": 1020.0,
+     "engineC": 158.754,
+     "coolantC": 157.479
+    },
+    {
+     "t": 1080.0,
+     "engineC": 161.8536,
+     "coolantC": 160.5909
+    },
+    {
+     "t": 1140.0,
+     "engineC": 164.9234,
+     "coolantC": 163.6728
+    },
+    {
+     "t": 1200.0,
+     "engineC": 167.9637,
+     "coolantC": 166.7251
+    }
+   ],
+   "endState": {
+    "engineC": 167.9637,
+    "coolantC": 166.7251,
+    "thermostatFraction": 0.0,
+    "fanFraction": 1.0,
+    "radiatorHeatW": 0.0,
+    "airFlowKgS": 1.2963,
+    "pumpFlowKgS": 0.224
+   },
+   "peak": {
+    "engineC": 167.9637,
+    "coolantC": 166.7251
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0001
+   },
+   "warnings": [
+    "Simulated coolant temperature reached or exceeded 120 C. This is an implementation caution boundary only. VTMS-V1 does not model coolant pressure, boiling, two-phase flow, or engine damage; results above this boundary are qualitative."
+   ]
+  },
+  {
+   "scenarioId": "S-07",
+   "name": "50% pump degradation",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 126.8897,
+     "coolantC": 94.1694
+    },
+    {
+     "t": 120.0,
+     "engineC": 135.6688,
+     "coolantC": 96.9422
+    },
+    {
+     "t": 180.0,
+     "engineC": 139.6797,
+     "coolantC": 98.6292
+    },
+    {
+     "t": 240.0,
+     "engineC": 141.974,
+     "coolantC": 100.1022
+    },
+    {
+     "t": 300.0,
+     "engineC": 143.4545,
+     "coolantC": 101.0575
+    },
+    {
+     "t": 360.0,
+     "engineC": 144.4046,
+     "coolantC": 101.6653
+    },
+    {
+     "t": 420.0,
+     "engineC": 145.0111,
+     "coolantC": 102.0514
+    },
+    {
+     "t": 480.0,
+     "engineC": 145.3971,
+     "coolantC": 102.2963
+    },
+    {
+     "t": 540.0,
+     "engineC": 145.6423,
+     "coolantC": 102.4517
+    },
+    {
+     "t": 600.0,
+     "engineC": 145.7979,
+     "coolantC": 102.5501
+    },
+    {
+     "t": 660.0,
+     "engineC": 145.8966,
+     "coolantC": 102.6125
+    },
+    {
+     "t": 720.0,
+     "engineC": 145.9592,
+     "coolantC": 102.6521
+    },
+    {
+     "t": 780.0,
+     "engineC": 145.9989,
+     "coolantC": 102.6771
+    },
+    {
+     "t": 840.0,
+     "engineC": 146.024,
+     "coolantC": 102.693
+    },
+    {
+     "t": 900.0,
+     "engineC": 146.0399,
+     "coolantC": 102.7031
+    },
+    {
+     "t": 960.0,
+     "engineC": 146.05,
+     "coolantC": 102.7094
+    },
+    {
+     "t": 1020.0,
+     "engineC": 146.0564,
+     "coolantC": 102.7135
+    },
+    {
+     "t": 1080.0,
+     "engineC": 146.0604,
+     "coolantC": 102.716
+    },
+    {
+     "t": 1140.0,
+     "engineC": 146.063,
+     "coolantC": 102.7176
+    },
+    {
+     "t": 1200.0,
+     "engineC": 146.0646,
+     "coolantC": 102.7187
+    }
+   ],
+   "endState": {
+    "engineC": 146.0646,
+    "coolantC": 102.7187,
+    "thermostatFraction": 1.0,
+    "fanFraction": 0.8398,
+    "radiatorHeatW": 43345.6049,
+    "airFlowKgS": 2.7811,
+    "pumpFlowKgS": 0.332
+   },
+   "peak": {
+    "engineC": 146.0646,
+    "coolantC": 102.7187
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0022
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-08",
+   "name": "40% radiator UA loss",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 126.8158,
+     "coolantC": 95.0283
+    },
+    {
+     "t": 120.0,
+     "engineC": 137.8416,
+     "coolantC": 101.7289
+    },
+    {
+     "t": 180.0,
+     "engineC": 145.1641,
+     "coolantC": 106.8744
+    },
+    {
+     "t": 240.0,
+     "engineC": 150.3201,
+     "coolantC": 110.634
+    },
+    {
+     "t": 300.0,
+     "engineC": 153.9952,
+     "coolantC": 113.3171
+    },
+    {
+     "t": 360.0,
+     "engineC": 156.6155,
+     "coolantC": 115.2301
+    },
+    {
+     "t": 420.0,
+     "engineC": 158.4837,
+     "coolantC": 116.594
+    },
+    {
+     "t": 480.0,
+     "engineC": 159.8156,
+     "coolantC": 117.5664
+    },
+    {
+     "t": 540.0,
+     "engineC": 160.7653,
+     "coolantC": 118.2597
+    },
+    {
+     "t": 600.0,
+     "engineC": 161.4424,
+     "coolantC": 118.7541
+    },
+    {
+     "t": 660.0,
+     "engineC": 161.9251,
+     "coolantC": 119.1065
+    },
+    {
+     "t": 720.0,
+     "engineC": 162.2693,
+     "coolantC": 119.3578
+    },
+    {
+     "t": 780.0,
+     "engineC": 162.5147,
+     "coolantC": 119.5369
+    },
+    {
+     "t": 840.0,
+     "engineC": 162.6897,
+     "coolantC": 119.6647
+    },
+    {
+     "t": 900.0,
+     "engineC": 162.8144,
+     "coolantC": 119.7558
+    },
+    {
+     "t": 960.0,
+     "engineC": 162.9033,
+     "coolantC": 119.8207
+    },
+    {
+     "t": 1020.0,
+     "engineC": 162.9667,
+     "coolantC": 119.867
+    },
+    {
+     "t": 1080.0,
+     "engineC": 163.012,
+     "coolantC": 119.9
+    },
+    {
+     "t": 1140.0,
+     "engineC": 163.0442,
+     "coolantC": 119.9235
+    },
+    {
+     "t": 1200.0,
+     "engineC": 163.0672,
+     "coolantC": 119.9403
+    }
+   ],
+   "endState": {
+    "engineC": 163.0672,
+    "coolantC": 119.9403,
+    "thermostatFraction": 1.0,
+    "fanFraction": 1.0,
+    "radiatorHeatW": 43121.1279,
+    "airFlowKgS": 2.8716,
+    "pumpFlowKgS": 0.664
+   },
+   "peak": {
+    "engineC": 163.0672,
+    "coolantC": 119.9403
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0022
+   },
+   "warnings": []
+  },
+  {
+   "scenarioId": "S-09",
+   "name": "50% airflow restriction",
+   "durationS": 1200.0,
+   "trace": [
+    {
+     "t": 0.0,
+     "engineC": 105.0,
+     "coolantC": 92.0
+    },
+    {
+     "t": 60.0,
+     "engineC": 125.9471,
+     "coolantC": 92.7659
+    },
+    {
+     "t": 120.0,
+     "engineC": 134.6388,
+     "coolantC": 96.0638
+    },
+    {
+     "t": 180.0,
+     "engineC": 138.9416,
+     "coolantC": 98.058
+    },
+    {
+     "t": 240.0,
+     "engineC": 141.3419,
+     "coolantC": 99.5058
+    },
+    {
+     "t": 300.0,
+     "engineC": 142.8443,
+     "coolantC": 100.4379
+    },
+    {
+     "t": 360.0,
+     "engineC": 143.7771,
+     "coolantC": 101.007
+    },
+    {
+     "t": 420.0,
+     "engineC": 144.3508,
+     "coolantC": 101.3536
+    },
+    {
+     "t": 480.0,
+     "engineC": 144.7016,
+     "coolantC": 101.5643
+    },
+    {
+     "t": 540.0,
+     "engineC": 144.9155,
+     "coolantC": 101.6924
+    },
+    {
+     "t": 600.0,
+     "engineC": 145.0457,
+     "coolantC": 101.7702
+    },
+    {
+     "t": 660.0,
+     "engineC": 145.1249,
+     "coolantC": 101.8175
+    },
+    {
+     "t": 720.0,
+     "engineC": 145.1729,
+     "coolantC": 101.8461
+    },
+    {
+     "t": 780.0,
+     "engineC": 145.2021,
+     "coolantC": 101.8636
+    },
+    {
+     "t": 840.0,
+     "engineC": 145.2199,
+     "coolantC": 101.8741
+    },
+    {
+     "t": 900.0,
+     "engineC": 145.2306,
+     "coolantC": 101.8805
+    },
+    {
+     "t": 960.0,
+     "engineC": 145.2372,
+     "coolantC": 101.8844
+    },
+    {
+     "t": 1020.0,
+     "engineC": 145.2411,
+     "coolantC": 101.8868
+    },
+    {
+     "t": 1080.0,
+     "engineC": 145.2435,
+     "coolantC": 101.8882
+    },
+    {
+     "t": 1140.0,
+     "engineC": 145.245,
+     "coolantC": 101.8891
+    },
+    {
+     "t": 1200.0,
+     "engineC": 145.2459,
+     "coolantC": 101.8896
+    }
+   ],
+   "endState": {
+    "engineC": 145.2459,
+    "coolantC": 101.8896,
+    "thermostatFraction": 1.0,
+    "fanFraction": 0.7362,
+    "radiatorHeatW": 43356.0915,
+    "airFlowKgS": 1.3649,
+    "pumpFlowKgS": 0.664
+   },
+   "peak": {
+    "engineC": 145.2459,
+    "coolantC": 101.8896
+   },
+   "energyBalance": {
+    "normalizedResidual": 0.0045
+   },
+   "warnings": []
+  }
+ ]
+}

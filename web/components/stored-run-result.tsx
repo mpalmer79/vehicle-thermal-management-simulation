@@ -7,6 +7,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import { PlaybackWorkspace } from "@/components/playback-workspace";
 import { StatusPill } from "@/components/status-pill";
 import { apiResponseToFixture } from "@/lib/api";
+import { thresholdsFromSnapshot } from "@/lib/model-thresholds";
 import type { SimulationApiResponse } from "@/lib/vtms-types";
 
 const subscribe = () => () => {};
@@ -78,7 +79,7 @@ export function StoredRunResult() {
         </span>
       </div>
 
-      <PlaybackWorkspace data={fixture} />
+      <PlaybackWorkspace data={fixture} thresholds={thresholdsFromSnapshot(result.parameter_snapshot)} />
 
       <div className="run-metadata-grid">
         <article>
