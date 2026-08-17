@@ -16,7 +16,10 @@ from .heat_input import MafStoichiometricHeatEstimator
 from .identifiability import (
     IdentifiabilityDiagnostic,
     ParameterSensitivity,
+    WarmupStageIdentifiabilityDiagnostic,
+    WarmupStageSensitivity,
     evaluate_synthetic_identifiability,
+    evaluate_warmup_stage_identifiability,
     synthetic_identifiability_case,
 )
 from .manifest import (
@@ -30,7 +33,11 @@ from .manifest import (
 )
 from .metrics import ValidationMetrics, calculate_metrics
 from .physical_bounds import (
+    CAL_01_PARAMETER_NAMES,
+    CAL_RAD_01_PARAMETER_NAMES,
     BoundRationale,
+    argonne_cal_01_bounds,
+    argonne_cal_rad_01_bounds,
     argonne_physical_bound_rationales,
     argonne_preregistered_bounds,
 )
@@ -68,12 +75,19 @@ __all__ = [
     "BoundedCalibrationResult",
     "run_bounded_calibration",
     "BoundRationale",
+    "CAL_01_PARAMETER_NAMES",
+    "CAL_RAD_01_PARAMETER_NAMES",
     "argonne_physical_bound_rationales",
     "argonne_preregistered_bounds",
+    "argonne_cal_01_bounds",
+    "argonne_cal_rad_01_bounds",
     "ParameterSensitivity",
     "IdentifiabilityDiagnostic",
+    "WarmupStageSensitivity",
+    "WarmupStageIdentifiabilityDiagnostic",
     "synthetic_identifiability_case",
     "evaluate_synthetic_identifiability",
+    "evaluate_warmup_stage_identifiability",
     "SyntheticCase",
     "SyntheticCalibrationHarnessResult",
     "generate_synthetic_dataset",
