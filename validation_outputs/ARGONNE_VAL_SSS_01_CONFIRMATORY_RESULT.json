@@ -1,0 +1,110 @@
+{
+  "acceptance": {
+    "checks": [
+      {"check_id": "rmse", "label": "RMSE", "limit": 5.0, "note": "", "observed": 5.125896933289166, "status": "fail", "units": "degC"},
+      {"check_id": "mae", "label": "MAE", "limit": 4.0, "note": "", "observed": 4.108994732252794, "status": "fail", "units": "degC"},
+      {"check_id": "abs_bias", "label": "Absolute mean bias", "limit": 3.0, "note": "", "observed": 4.014699633211751, "status": "fail", "units": "degC"},
+      {"check_id": "p90_abs_error", "label": "P90 absolute error", "limit": 7.0, "note": "", "observed": 8.39743154520653, "status": "fail", "units": "degC"},
+      {"check_id": "arrival_60c", "label": "60 degC arrival-time error", "limit": null, "note": "Measured trace begins at or above the threshold; the physical crossing occurred before the observation window.", "observed": null, "status": "not_evaluable", "units": "s"},
+      {"check_id": "arrival_80c", "label": "80 degC arrival-time error", "limit": 60.0, "note": "", "observed": 17.29129750356391, "status": "pass", "units": "s"},
+      {"check_id": "arrival_90c", "label": "90 degC arrival-time error", "limit": 60.0, "note": "", "observed": 23.838577633400035, "status": "pass", "units": "s"}
+    ],
+    "claim_label": "formal_holdout_acceptance_fail",
+    "formal_validation_pass": false,
+    "overall_threshold_pass": false,
+    "role": "holdout"
+  },
+  "data_summary": {
+    "initial_measured_coolant_c": 63.0,
+    "normalized_duration_s": 446.1,
+    "retained_rows": 4462,
+    "source_rows": 4562,
+    "source_time_end_s": 446.1,
+    "source_time_start_s": 0.0
+  },
+  "execution_identity": {
+    "evidence_grade": "independent_holdout",
+    "execution_note": "One-time confirmatory execution after PR #31 merged. The 71207052 source was extracted only after source, mapping, parameter snapshot, and no-fit rules were frozen.",
+    "numpy_version": "2.3.5",
+    "parameter_fitting_performed": false,
+    "physical_evidence": true,
+    "python_version": "3.13.5",
+    "repository_main_commit": "085a0a6f7879a8bf0afbb42dc894b037823b97af",
+    "run_id": "VAL-SSS-01",
+    "scipy_version": "1.17.0",
+    "source_test_id": "71207052"
+  },
+  "frozen_model_parameters": {
+    "air_cp_j_per_kg_k": 1006.0,
+    "air_gas_constant_j_per_kg_k": 287.05,
+    "atmospheric_pressure_pa": 101325.0,
+    "coolant_cp_j_per_kg_k": 3690.0,
+    "coolant_density_kg_per_m3": 1020.0,
+    "coolant_mass_kg": 6.63,
+    "coolant_thermal_capacitance_j_per_k": 24464.7,
+    "coolant_volume_m3": 0.0065,
+    "engine_ambient_ua_w_per_k": 12.0,
+    "engine_coolant_ua_w_per_k": 2198.432642517506,
+    "engine_thermal_capacitance_j_per_k": 52393.90776670539,
+    "fan_full_c": 104.0,
+    "fan_max_vol_flow_m3_s": 1.15,
+    "fan_start_c": 96.0,
+    "peak_torque_nm": 250.0,
+    "pump_base_flow_kg_s": 0.18,
+    "pump_max_flow_kg_s": 1.4,
+    "pump_slope_kg_s_per_rpm": 0.00022,
+    "radiator_face_area_m2": 0.45,
+    "radiator_ua_nominal_w_per_k": 400.83249653064377,
+    "ram_capture_coefficient": 0.33,
+    "solver_atol": 1e-08,
+    "solver_max_step_s": 1.0,
+    "solver_rtol": 1e-06,
+    "thermostat_full_c": 98.0,
+    "thermostat_open_c": 88.0,
+    "wall_heat_fraction": 0.4999228432666162
+  },
+  "input_preprocessing_metadata": {
+    "engine_speed_rpm": {
+      "engine_heat_uses_rpm_load_estimator": false,
+      "policy": "project_measured_rpm_at_frozen_vtms_v1_scenario_boundary",
+      "projected_high_sample_count": 0,
+      "projected_low_sample_count": 0,
+      "projected_sample_count": 0,
+      "raw_dataset_values_preserved": true,
+      "raw_max_rpm": 2124.18,
+      "raw_min_rpm": 710.29,
+      "reference_nonzero_rpm_min": 700.0,
+      "reference_rpm_max": 6500.0
+    }
+  },
+  "interpretation": {
+    "parameter_fitting_performed": false,
+    "primary_formal_validation_status_remains": "formal_holdout_acceptance_fail",
+    "purpose": "confirmatory_generalization_evidence_only",
+    "retuning_permitted_after_result": false,
+    "secondary_result_may_overturn_primary_formal_failure": false,
+    "threshold_arrival_policy": "not_evaluable_if_measured_trace_begins_at_or_above_threshold"
+  },
+  "locks": {
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+    "retuning_after_result_permitted": false,
+    "secondary_result_may_overturn_primary_formal_failure": false,
+    "signal_map_sha256": "4099b937418f78b393b536f59528d00ac8dd301339a43aa9b190b4e420391137",
+    "source_sha256": "b5a837449f824ad76b00a6ab7da7ae92486b4feec0b4e3a81eb126bac14b0f02",
+    "source_size_bytes": 1301807
+  },
+  "metrics": {
+    "bias_c": -4.014699633211751,
+    "final_error_c": -8.422660127239425,
+    "mae_c": 4.108994732252794,
+    "max_abs_error_c": 9.617062553773422,
+    "measured_final_c": 99.0,
+    "n": 4462,
+    "p90_abs_error_c": 8.39743154520653,
+    "predicted_final_c": 90.57733987276058,
+    "rmse_c": 5.125896933289166,
+    "threshold_arrival_error_s": {"60C": null, "80C": 17.29129750356391, "90C": 23.838577633400035}
+  }
+}

@@ -39,7 +39,7 @@ def test_validation_plan_points_to_the_frozen_primary_holdout_result():
     plan = json.loads(PLAN_PATH.read_text(encoding="utf-8"))
     run = next(item for item in plan["runs"] if item["run_id"] == "VAL-HOT-01")
 
-    assert plan["formal_validation_status"] == "failed_primary_independent_holdout"
+    assert plan["formal_validation_status"].startswith("failed_primary_independent_holdout")
     assert run["execution_status"] == "executed_blind_failed_formal_acceptance"
     assert run["result_file"] == "../validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json"
     assert run["claim_label"] == "formal_holdout_acceptance_fail"
