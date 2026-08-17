@@ -13,7 +13,7 @@ const STATUS_OVERRIDES: Record<string, Pick<KnowledgeTopic, "shortAnswer" | "det
   },
   argonne: {
     shortAnswer:
-      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Acquisition and source fingerprinting are complete; signal mapping and data qualification are in progress. Calibration has not started and no Argonne results exist yet.",
+      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Acquisition and source fingerprinting are complete; signal mapping and data qualification are in progress. Controlled calibration and physical holdout validation remain pending, and no Argonne results exist yet.",
     detail: [
       "The controlled workflow is Acquire → Hash → Map → Calibrate → Freeze → Holdout → Report; Acquire and Hash are complete and Map is active.",
       "Cold-start UDDS test 71207062 is the CAL-01 candidate after explicit ECT quality selection; hot-start UDDS test 71207063 is reserved as the primary clean holdout candidate.",
