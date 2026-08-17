@@ -15,16 +15,16 @@ Every external-data run must be assigned exactly one role before formal analysis
 
 The role and evidence grade are coupled in code. A manifest with a mismatched role/evidence grade is invalid.
 
-## Frozen calibration subset
+## Governance-approved calibration universe
 
-The governance-approved calibration universe is:
+The only parameters available to controlled calibration are:
 
 1. `wall_heat_fraction`
 2. `engine_thermal_capacitance_j_per_k`
 3. `engine_coolant_ua_w_per_k`
 4. `radiator_ua_nominal_w_per_k`
 
-No other parameter may be fitted without an explicit protocol and governance change. A calibration manifest may declare a governed subset of these parameters when pre-fit evidence shows that simultaneous estimation of all four is not defensible.
+No other parameter may be fitted without an explicit protocol and governance change. A calibration manifest may declare a governed subset of these parameters.
 
 Numerical physical calibration bounds are intentionally not embedded yet. They must be selected, physically justified, documented, and frozen before the first controlled Argonne fit rather than invented after observing residuals.
 
@@ -42,18 +42,43 @@ Before physical calibration bounds are frozen, VTMS evaluates the calibration st
 - reports parameter sensitivity magnitude, pairwise sensitivity-shape similarity, singular values, numerical rank, and normalized-matrix conditioning,
 - rejects physical datasets rather than allowing Argonne traces to influence the pre-bound decision.
 
-The first synthetic result is numerically full-rank but reveals weak practical excitation of `radiator_ua_nominal_w_per_k` in the available warm-up-style profiles. Across the combined synthetic profiles, radiator-UA RMS coolant sensitivity is about 0.94 percent of the strongest parameter sensitivity. On the second synthetic profile it is about 0.044 percent. Wall heat fraction and effective engine thermal capacitance also show notable inverse sensitivity-shape similarity, with combined cosine approximately -0.88.
+The first synthetic result is numerically full-rank but reveals weak practical excitation of `radiator_ua_nominal_w_per_k` in warm-up-style profiles. Across the combined synthetic profiles, radiator-UA RMS coolant sensitivity is about 0.94 percent of the strongest parameter sensitivity. On the second synthetic profile it is about 0.044 percent. Wall heat fraction and effective engine thermal capacitance also show notable inverse sensitivity-shape similarity, with combined cosine approximately -0.88.
 
-Therefore **a four-parameter simultaneous CAL-01 fit is not authorized by the current readiness evidence**. Full numerical rank is not treated as proof that every parameter is practically estimable.
+Therefore **a four-parameter simultaneous CAL-01 fit is prohibited**. Full numerical rank is not treated as proof that every parameter is practically estimable.
 
-Current staged-fit governance is:
-
-1. CAL-01 may eventually fit only the manifest-declared warm-up-sensitive subset after physical bounds for that subset are independently justified and frozen.
-2. `radiator_ua_nominal_w_per_k` remains fixed during CAL-01 unless a separately preregistered radiator-active calibration case is selected from source operating conditions before its VTMS residual is inspected.
-3. Existing holdouts cannot be repurposed as calibration data after their residuals have been observed.
-4. The synthetic sensitivity thresholds are engineering diagnostics only and are not formal acceptance standards.
+The synthetic sensitivity thresholds are VTMS engineering diagnostics only and are not formal acceptance standards.
 
 Detailed rationale and reproducible results are recorded in `docs/PRE_ARGONNE_CALIBRATION_READINESS.md`.
+
+## Frozen staged calibration structure
+
+The pre-fit result has been converted into two calibration roles before any Argonne residual was inspected.
+
+### CAL-01
+
+Source: Argonne test `71207062`, UDDS #1 cold start.
+
+Authorized fitted subset:
+
+1. `wall_heat_fraction`
+2. `engine_thermal_capacitance_j_per_k`
+3. `engine_coolant_ua_w_per_k`
+
+`radiator_ua_nominal_w_per_k` is explicitly excluded from CAL-01.
+
+### CAL-RAD-01
+
+Source: Argonne test `71207057`, `1.2 HWYx2 ED`.
+
+Authorized fitted subset:
+
+1. `radiator_ua_nominal_w_per_k`
+
+The source run was selected from measured operating conditions only. From source time zero through 1287.5 s, ECT is complete at 91 to 99 C, average dyno speed is about 57.31 mph, and about 92.65 percent of samples are at or above 40 mph while ECT is at or above 88 C. No VTMS prediction or residual was inspected before assigning this role.
+
+CAL-RAD-01 must use the frozen CAL-01 output snapshot for all non-radiator parameters. It may not reopen the three CAL-01 parameters.
+
+Neither calibration role is authorized to execute until its physical parameter bounds, normalized mapping hash, parameter snapshot hash, and immutable manifest are frozen.
 
 ## Dataset identity and immutability
 
@@ -88,12 +113,14 @@ The controlled sequence is:
 4. assign test IDs and roles before fitting
 5. build explicit source-to-VTMS signal maps and preprocessing declarations
 6. evaluate pre-fit practical identifiability without physical residuals
-7. select the governed calibration subset and freeze physically justified bounds
-8. qualify the calibration run
-9. fit only the manifest-declared subset
-10. freeze the resulting parameter snapshot and hash
-11. execute holdout runs without retuning
-12. publish metrics, residuals, warnings, and failures
+7. freeze the staged calibration roles and fitted subsets
+8. freeze physically justified bounds
+9. execute CAL-01 on only its declared subset
+10. freeze the CAL-01 parameter snapshot and hash
+11. execute CAL-RAD-01 on radiator UA only
+12. freeze the final staged parameter snapshot and hash
+13. execute holdout runs without retuning
+14. publish metrics, residuals, warnings, and failures
 
 A failed holdout remains part of the engineering record. It must not be converted into a new calibration run after its results have been inspected.
 
@@ -130,9 +157,10 @@ For the current controlled-validation path, engine heat comes from direct fuel e
 
 ## Current Argonne role reservations
 
-Role reservations were made from Argonne test documentation and source-signal quality before any VTMS residual was inspected.
+Role reservations were made from Argonne test documentation, source-signal quality, and source operating conditions before any VTMS residual was inspected.
 
-- `CAL-01`: 71207062, UDDS #1 cold start, calibration candidate after explicit ECT quality selection.
+- `CAL-01`: 71207062, UDDS #1 cold start. Three-parameter warm-up calibration candidate after explicit ECT quality selection.
+- `CAL-RAD-01`: 71207057, 1.2 highway x2. Radiator-UA-only calibration candidate selected from complete hot ECT and sustained highway speed.
 - `VAL-HOT-01`: 71207063, UDDS #2 hot start, independent holdout candidate.
 - `VAL-SSS-01`: 71207052, 55 mph warm-up, secondary independent holdout candidate reserved before fit.
 - `VAL-CS-01`: no separate clean cold-start UDDS replicate identified in the received package.
@@ -140,7 +168,7 @@ Role reservations were made from Argonne test documentation and source-signal qu
 - `VAL-US06-01`: 71207066, not qualified for full-cycle ECT validation because the received ECT channel becomes unavailable early.
 - `CHALLENGE-IDLE-CS-01`: 71207072, cold-start idle/no-fan challenge candidate with partial ECT coverage.
 
-These reservations do not authorize calibration. Physical calibration bounds remain unresolved and must be frozen first. The pre-fit synthetic result also blocks a four-parameter simultaneous CAL-01 fit.
+These reservations do not authorize calibration. Physical calibration bounds remain unresolved and must be frozen first.
 
 ## Project acceptance criteria
 
@@ -160,4 +188,4 @@ VTMS-V1 remains `numerical_verified_generic_uncalibrated`.
 
 The KIT comparison remains `external_plausibility_not_formal_validation` and must not be used to tune VTMS-V1 parameters.
 
-Argonne D3 source acquisition and fingerprinting are complete. Signal mapping and data qualification are in progress. The pre-fit synthetic identifiability gate has identified weak radiator-UA excitation and therefore requires a staged calibration structure. Controlled Argonne calibration has not started, and no physical holdout result exists yet.
+Argonne D3 source acquisition and fingerprinting are complete. Signal mapping and data qualification are in progress. The pre-fit synthetic identifiability gate and staged role selection are complete. Physical bounds are not frozen, controlled Argonne calibration has not started, and no physical holdout result exists yet.
