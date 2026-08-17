@@ -1,0 +1,44 @@
+{
+  "lock_id": "VTMS-V1-ARGONNE-CAL-RAD-01-LOCK-1",
+  "lock_status": "ready_for_controlled_execution_after_cal01_freeze",
+  "upstream_calibration_result": "validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json",
+  "manifest": {
+    "run_id": "CAL-RAD-01",
+    "dataset_id": "ARGONNE-D3-71207057",
+    "role": "calibration",
+    "evidence_grade": "controlled_calibration",
+    "dataset_fingerprint": {
+      "file_name": "71207057 Test Data.txt",
+      "sha256_hex": "57034f3e01e45bae7271cc4f96d3b7eb88055e17bb1bf3522e28c6734b631e3d",
+      "size_bytes": 3768884
+    },
+    "parameter_snapshot_sha256": "8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2",
+    "preprocessing_snapshot_sha256": "8e3807cb199bae5c5493c145ac55594afcadcfe7463b81a23844cde78b322be1",
+    "calibration_bounds_sha256": "7bdce5d1409c65a2f298de0a533b0097bdaff07fd5dbb426618e51aa9b6c86fd",
+    "calibration_parameters": ["radiator_ua_nominal_w_per_k"],
+    "physical_evidence": true,
+    "notes": "CAL-RAD-01 may move radiator_ua_nominal_w_per_k only. All non-radiator parameters are frozen to the formal CAL-01 snapshot. The 71207057 radiator-active role and 400 to 2200 W/K bound were preregistered before any VTMS residual inspection."
+  },
+  "execution": {
+    "signal_map_file": "validation_configs/argonne_2012_focus_71207057_radiator_calibration.json",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "optimizer": {
+      "coordinate_system": "normalized_bound_fraction_0_to_1",
+      "jacobian_scheme": "2-point",
+      "diff_step": 0.05,
+      "max_nfev": 80,
+      "ftol": 1e-6,
+      "xtol": 1e-6,
+      "gtol": 1e-6,
+      "boundary_fraction": 0.01
+    }
+  },
+  "audit": {
+    "source_role_selected_before_residual_inspection": true,
+    "radiator_bound_frozen_before_residual_inspection": true,
+    "upstream_cal01_snapshot_frozen_before_cal_rad_01_execution": true,
+    "cal01_parameters_may_not_reopen": true,
+    "holdout_roles_remain_untouched": true
+  }
+}
