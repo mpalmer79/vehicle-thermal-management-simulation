@@ -6,6 +6,14 @@ from .calibration import CalibrationBounds, ParameterBound
 from .manifest import ALLOWED_CALIBRATION_PARAMETERS
 
 
+CAL_01_PARAMETER_NAMES = (
+    "wall_heat_fraction",
+    "engine_thermal_capacitance_j_per_k",
+    "engine_coolant_ua_w_per_k",
+)
+CAL_RAD_01_PARAMETER_NAMES = ("radiator_ua_nominal_w_per_k",)
+
+
 @dataclass(frozen=True)
 class BoundRationale:
     name: str
@@ -112,19 +120,40 @@ def argonne_physical_bound_rationales() -> tuple[BoundRationale, ...]:
 
 
 def argonne_preregistered_bounds() -> CalibrationBounds:
-    """Return frozen physical bounds for the first Argonne controlled calibration.
+    """Return the complete frozen Argonne bound set for the governed parameter universe.
 
-    These bounds were selected before inspecting any VTMS-vs-Argonne residuals.
-    Changing them after a physical comparison requires a new protocol version and
-    explicit disclosure that the original preregistration was superseded.
+    The four numerical intervals were selected before inspecting any VTMS-vs-Argonne
+    residuals. The complete set is an audit record, not a declaration that all four
+    parameters belong in the same optimizer stage.
     """
 
     rationales = argonne_physical_bound_rationales()
     names = tuple(item.name for item in rationales)
     if names != tuple(ALLOWED_CALIBRATION_PARAMETERS):
-        raise RuntimeError("Argonne physical bounds must match the preregistered calibration subset")
+        raise RuntimeError("Argonne physical bounds must match the governed calibration universe")
     return CalibrationBounds(
         parameters=tuple(
             ParameterBound(item.name, item.lower, item.upper) for item in rationales
         )
     )
+
+
+def _bounds_for(names: tuple[str, ...]) -> CalibrationBounds:
+    by_name = {
+        bound.name: bound for bound in argonne_preregistered_bounds().parameters
+    }
+    if len(names) != len(set(names)) or any(name not in by_name for name in names):
+        raise RuntimeError("staged Argonne bounds reference an invalid parameter subset")
+    return CalibrationBounds(parameters=tuple(by_name[name] for name in names))
+
+
+def argonne_cal_01_bounds() -> CalibrationBounds:
+    """Return frozen bounds for the cold-start warm-up calibration stage."""
+
+    return _bounds_for(CAL_01_PARAMETER_NAMES)
+
+
+def argonne_cal_rad_01_bounds() -> CalibrationBounds:
+    """Return the frozen radiator-UA bound for the radiator-active calibration stage."""
+
+    return _bounds_for(CAL_RAD_01_PARAMETER_NAMES)
