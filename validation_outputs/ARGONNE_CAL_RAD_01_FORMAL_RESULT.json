@@ -1,0 +1,128 @@
+{
+  "acceptance_at_execution": {
+    "role": "calibration",
+    "overall_threshold_pass": false,
+    "formal_validation_pass": false,
+    "claim_label": "calibration_fit_outside_project_thresholds",
+    "core_failures": ["rmse", "mae", "abs_bias", "p90_abs_error"],
+    "arrival_checks_at_execution": {
+      "60C": "pass_zero_second_error",
+      "80C": "pass_zero_second_error",
+      "90C": "pass_zero_second_error"
+    }
+  },
+  "acceptance_after_pre_holdout_protocol_clarification": {
+    "role": "calibration",
+    "overall_threshold_pass": false,
+    "formal_validation_pass": false,
+    "claim_label": "calibration_fit_outside_project_thresholds",
+    "core_failures": ["rmse", "mae", "abs_bias", "p90_abs_error"],
+    "arrival_checks": {
+      "60C": "not_evaluable_measured_trace_begins_above_threshold",
+      "80C": "not_evaluable_measured_trace_begins_above_threshold",
+      "90C": "not_evaluable_measured_trace_begins_above_threshold"
+    },
+    "outcome_change": "none; the calibration stage failed the core temperature criteria both before and after the timing clarification"
+  },
+  "boundary_parameter_names": ["radiator_ua_nominal_w_per_k"],
+  "calibrated_model_parameters": {
+    "air_cp_j_per_kg_k": 1006.0,
+    "air_gas_constant_j_per_kg_k": 287.05,
+    "atmospheric_pressure_pa": 101325.0,
+    "coolant_cp_j_per_kg_k": 3690.0,
+    "coolant_density_kg_per_m3": 1020.0,
+    "coolant_mass_kg": 6.63,
+    "coolant_thermal_capacitance_j_per_k": 24464.7,
+    "coolant_volume_m3": 0.0065,
+    "engine_ambient_ua_w_per_k": 12.0,
+    "engine_coolant_ua_w_per_k": 2198.432642517506,
+    "engine_thermal_capacitance_j_per_k": 52393.90776670539,
+    "fan_full_c": 104.0,
+    "fan_max_vol_flow_m3_s": 1.15,
+    "fan_start_c": 96.0,
+    "peak_torque_nm": 250.0,
+    "pump_base_flow_kg_s": 0.18,
+    "pump_max_flow_kg_s": 1.4,
+    "pump_slope_kg_s_per_rpm": 0.00022,
+    "radiator_face_area_m2": 0.45,
+    "radiator_ua_nominal_w_per_k": 400.83249653064377,
+    "ram_capture_coefficient": 0.33,
+    "solver_atol": 1e-08,
+    "solver_max_step_s": 1.0,
+    "solver_rtol": 1e-06,
+    "thermostat_full_c": 98.0,
+    "thermostat_open_c": 88.0,
+    "wall_heat_fraction": 0.4999228432666162
+  },
+  "calibrated_parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+  "data_summary": {
+    "initial_measured_coolant_c": 98.0,
+    "normalized_duration_s": 1287.5,
+    "retained_rows": 12876,
+    "source_rows": 12976
+  },
+  "execution_identity": {
+    "evidence_grade": "controlled_calibration",
+    "formal_validation_claim": false,
+    "numpy_version": "2.3.5",
+    "python_version": "3.13.5",
+    "repository_main_commit": "95e9f38452cc879e335cb39e3a9da0c22278f8b5",
+    "run_id": "CAL-RAD-01",
+    "scipy_version": "1.17.0",
+    "source_test_id": "71207057",
+    "execution_note": "Executed under the merged CAL-RAD-01 lock using only source test 71207057. The preregistered holdout source files were not opened."
+  },
+  "interpretation": {
+    "calibration_threshold_pass_is_not_validation": true,
+    "calibration_stage_outcome": "failed_project_thresholds",
+    "effective_parameter_warning": "Radiator UA is an effective VTMS-V1 lumped heat-exchanger conductance tied to the frozen airflow/radiator topology, not a bench-rated Ford radiator constant.",
+    "boundary_warning": "The fitted radiator UA is within 1 percent of the frozen 400 W/K lower bound. The bound was not widened. The constrained model still misses all four core project criteria.",
+    "holdouts_opened": false,
+    "upstream_cal01_parameters_remained_frozen": true,
+    "retuning_policy": "Do not reopen CAL-01 parameters or widen radiator UA after observing this result. Freeze the staged snapshot and evaluate the preregistered holdout without retuning."
+  },
+  "locks": {
+    "calibration_bounds_sha256": "7bdce5d1409c65a2f298de0a533b0097bdaff07fd5dbb426618e51aa9b6c86fd",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "signal_map_sha256": "8e3807cb199bae5c5493c145ac55594afcadcfe7463b81a23844cde78b322be1",
+    "source_sha256": "57034f3e01e45bae7271cc4f96d3b7eb88055e17bb1bf3522e28c6734b631e3d",
+    "source_size_bytes": 3768884,
+    "upstream_cal01_parameter_snapshot_sha256": "8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2"
+  },
+  "metrics": {
+    "bias_c": -5.272268319999598,
+    "final_error_c": -5.123690708374198,
+    "mae_c": 5.344174005739749,
+    "max_abs_error_c": 9.327848694454346,
+    "measured_final_c": 99.0,
+    "n": 12876,
+    "p90_abs_error_c": 8.124066338168177,
+    "predicted_final_c": 93.8763092916258,
+    "rmse_c": 5.732676575424179,
+    "threshold_arrival_error_s_at_execution": {"60C": 0.0, "80C": 0.0, "90C": 0.0},
+    "threshold_arrival_error_s_after_protocol_clarification": {"60C": null, "80C": null, "90C": null}
+  },
+  "optimizer": {
+    "active_mask": [0],
+    "coordinate_system": "normalized_bound_fraction_0_to_1",
+    "diff_step": 0.05,
+    "final_cost": 211575.73266516926,
+    "initial_cost": 517655.4868916508,
+    "initial_rmse_c": 8.966953645017552,
+    "message": "`xtol` termination condition is satisfied.",
+    "nfev": 13,
+    "optimality": 12130.73294514005,
+    "status": 3,
+    "success": true
+  },
+  "parameters": [
+    {
+      "fitted": 400.83249653064377,
+      "initial": 1100.0,
+      "lower": 400.0,
+      "name": "radiator_ua_nominal_w_per_k",
+      "normalized_bound_fraction": 0.00046249807257986046,
+      "upper": 2200.0
+    }
+  ]
+}
