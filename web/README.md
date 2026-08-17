@@ -16,6 +16,7 @@ This directory contains the executable web layer for the Vehicle Thermal Managem
 - Browser-renderable KIT plausibility evidence
 - `/about` creator page built from `lib/about-content.ts`
 - `/assistant` local knowledge assistant plus a floating launcher on every other route
+- Route-aware assistant starters, scenario intelligence, and disambiguation
 - UI-3 standalone production output and non-root Docker image
 - Web health endpoint at `/api/health`
 - Production browser security headers
@@ -29,13 +30,28 @@ Circuit geometry lives in `lib/schematic-geometry.ts` and is shared by the Overv
 
 ## VTMS Knowledge Assistant
 
-The assistant answers only from a curated knowledge base that is bundled with the frontend. **No external AI or model API is contacted, no API key exists, and there is no backend AI endpoint.**
+The assistant answers only from a curated knowledge base that is bundled with the frontend. **No external AI or model API is contacted, no API key exists, no embeddings service is used, and there is no backend AI endpoint.** Every answer is composed synchronously in the browser from approved material.
 
-- `lib/assistant-knowledge.ts`: the topics. Each entry carries keywords, synonyms, a short answer, key facts, related routes, and follow-up questions. Response copy lives here, never inside React components.
-- `lib/assistant-retrieval.ts`: deterministic matching. A question is canonicalized (lowercased, punctuation stripped, scenario identities such as `S-03` folded to `s03`, terminology normalized, tokens singularized), then scored against every topic by keyword phrase, keyword token, synonym, and title overlap. The previously matched topic contributes a small context boost so short follow-ups stay in the right subject area. Below the confidence floor the assistant returns a fixed fallback instead of guessing.
-- `components/assistant/`: the launcher, the sheet, the conversational surface, message rendering, and the preset/follow-up controls.
+The pipeline is: **extract entities → classify intent → rank topics → compose → suggest follow-ups.**
 
-Answers are resolved synchronously in the browser, so there is nothing to await and no artificial "thinking" delay. Truthfulness constraints — no OEM calibration, no completed physical validation, no digital-twin status, no telemetry, no damage or boiling thresholds — are enforced by `tests/assistant-retrieval.test.ts`.
+| Module | Role |
+|---|---|
+| `lib/assistant-text.ts` | Canonicalization (scenario identities such as `S-03` folded to `s03`, terminology normalized, tokens singularized) and a bounded Levenshtein used for spell repair. |
+| `lib/assistant-entities.ts` | Closed-vocabulary extraction of scenarios, components, operating conditions, evidence concepts, model concepts, and the creator — including scenario *names*, so "the fan failure case" resolves to S-05. |
+| `lib/assistant-intent.ts` | Deterministic lexical and structural intent router: definition, explanation, comparison, scenario lookup, scenario comparison, status, capability, exclusion, numerical question, creator, architecture, follow-up. |
+| `lib/assistant-scenarios.ts` | Scenario intelligence joined from `lib/scenarios.ts` (canonical inputs) and `lib/canonical-previews.ts` (authoritative outputs). Lookup, comparison, ranking, and category sets. No value is re-typed by hand. |
+| `lib/assistant-retrieval.ts` | Ranked candidates carrying score, matched terms, and confidence, with entity and context boosts and ambiguity detection. |
+| `lib/assistant-compose.ts` | Per-intent answer templates that only ever combine approved snippets. |
+| `lib/assistant-context.ts` | Bounded conversation memory: recent topics, scenarios, components, conditions, evidence concept, last intent. |
+| `lib/assistant-run-context.ts` | Optional readout of a computed run already held in session storage, on `/results/<runId>`. |
+| `lib/assistant-prompts.ts` | The five global starters plus route-aware quick questions. |
+| `lib/assistant-knowledge.ts` | The topics themselves. Response copy lives here, never inside React components. |
+
+**Truthfulness is enforced, not assumed.** Numbers quoted from canonical scenarios are labelled *VTMS-V1 canonical simulation output*, never telemetry, and any ordering by temperature carries an explicit note that it is a model-output ordering and not a real-world severity, safety, or damage ranking. Spell repair is restricted to the VTMS vocabulary with a tight edit budget, so out-of-domain words are never pulled into a VTMS topic. Conversation context can supply a missing subject for a genuine follow-up but can never turn an unrelated question into a VTMS match. Below the confidence floor the assistant returns a fixed fallback; when two unrelated candidates are near-tied on a short question it asks which was meant instead of guessing.
+
+The composer never generates prose. Every sentence is a verbatim knowledge-base string, a verbatim string from an authoritative scenario or run record, or a fixed structural label or formatted number.
+
+`tests/assistant-retrieval.test.ts` drives 122 distinct queries through the real pipeline and asserts these properties directly.
 
 ## Engineering boundary
 
@@ -85,7 +101,7 @@ npm test
 npm run build
 ```
 
-`npm test` runs the assistant retrieval suite on Node's built-in test runner using TypeScript type stripping, so it needs no test framework, bundler, or extra dependency. `tests/ts-resolve.mjs` is a test-only module-resolution hook that lets Node load the app's extensionless relative imports.
+`npm test` runs the assistant suite on Node's built-in test runner using TypeScript type stripping, so it needs no test framework, bundler, or extra dependency. `tests/ts-resolve.mjs` is a test-only module-resolution hook that lets Node load the app's extensionless relative imports, the `@/*` path alias, and JSON fixtures.
 
 ## Backend development
 

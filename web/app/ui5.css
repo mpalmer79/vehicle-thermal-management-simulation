@@ -1847,6 +1847,14 @@
   .assistant-scrim { background: rgba(16, 39, 59, .28) }
   .assistant-surface.page .assistant-transcript { min-height: 260px; max-height: 62vh }
   .assistant-transcript { padding: 13px }
+
+  /* Keep the starter state compact so five prompts do not consume the sheet. */
+  .assistant-intro > p { margin-bottom: 12px; font-size: 12px }
+  .assistant-prompts ul { gap: 5px }
+  .assistant-prompts.preset button { min-height: 42px; padding: 7px 11px; font-size: 12px; gap: 9px }
+  .assistant-prompts.preset .prompt-glyph { width: 18px; height: 18px; flex-basis: 18px }
+  .assistant-figures { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)) }
+  .assistant-choices button { flex: 1 1 100% }
   .assistant-composer { padding: 11px 13px }
   .assistant-composer .button { padding-inline: 15px }
   .assistant-aside { grid-template-columns: minmax(0, 1fr) }
@@ -1875,6 +1883,227 @@
 @media (max-width: 430px) {
   .creator-links { grid-template-columns: minmax(0, 1fr) }
   .intersection-strip li { font-size: 10.5px; padding: 6px 11px }
+}
+
+/* --------------------------------------------------------------------------
+   Assistant Intelligence 2.0
+   Category indicators, composed answer structure, authoritative figures,
+   disambiguation, starter glyphs, and the knowledge map.
+   -------------------------------------------------------------------------- */
+
+.assistant-answer-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.assistant-answer-head h3 { margin: 0; font-size: 14px; letter-spacing: -.012em }
+
+.assistant-category {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel2);
+  color: var(--muted2);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.assistant-category.physics { border-color: #f3cdb4; background: #fdf3ea; color: #b06a25 }
+.assistant-category.scenario { border-color: #c6dcf3; background: #eef5fd; color: #2f6bab }
+.assistant-category.validation { border-color: #b9e1c8; background: #edf9f1; color: #18864d }
+.assistant-category.architecture { border-color: #d8cdf0; background: #f4f1fb; color: #6a4bb0 }
+.assistant-category.creator { border-color: #cbe9e4; background: #edf8f7; color: var(--coolant-deep) }
+.assistant-category.run { border-color: #cbe9e4; background: #e8f7f5; color: var(--coolant-deep) }
+.assistant-category.clarify { border-color: #edd4a8; background: #fff7ea; color: #a96711 }
+
+.assistant-answer.clarify { border-left-color: var(--pending) }
+
+/* Authoritative figures pulled from canonical output or a returned run. */
+.assistant-figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+  margin: 11px 0 0;
+}
+
+.assistant-figures div {
+  display: grid;
+  gap: 2px;
+  padding: 9px 10px;
+  border: 1px solid var(--soft);
+  border-radius: 10px;
+  background: var(--panel2);
+}
+
+.assistant-figures dt { color: var(--muted2); font-size: 9px; letter-spacing: .09em; font-weight: 800; text-transform: uppercase }
+.assistant-figures dd { margin: 0; color: var(--ink-strong); font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums }
+.assistant-figures small { color: var(--muted2); font-size: 9.5px; line-height: 1.35 }
+
+/* A supporting topic the composer synthesized in. */
+.assistant-subsection {
+  margin-top: 11px;
+  padding: 10px 12px;
+  border: 1px solid var(--soft);
+  border-left: 2px solid var(--line-strong);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--panel2);
+}
+
+.assistant-subsection strong { display: block; color: var(--ink-strong); font-size: 11.5px }
+.assistant-subsection p { margin: 5px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.55 }
+.assistant-subsection .assistant-facts { margin-top: 7px }
+.assistant-subsection .assistant-facts li { font-size: 11px }
+
+.assistant-note {
+  margin: 11px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fbf7ef;
+  border: 1px solid #eee0c6;
+  color: #8a6b32;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.assistant-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px }
+
+.assistant-choices button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid rgba(18, 159, 171, .35);
+  border-radius: 10px;
+  background: #f2fafa;
+  color: var(--coolant-deep);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background .18s var(--ease), transform .18s var(--ease);
+}
+
+.assistant-choices button:hover { background: #e6f6f5; transform: translateY(-1px) }
+
+/* ---- Starter prompt glyphs ---- */
+
+.prompt-glyph { width: 20px; height: 20px; flex: 0 0 20px; overflow: visible }
+.pgm-stroke { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round }
+.pgm-dash { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-dasharray: 3 2.4; opacity: .75 }
+.pgm-line { fill: currentColor; opacity: .8 }
+.pgm-bar { stroke: currentColor; stroke-width: 1.6; stroke-linecap: round }
+.pgm-axis { stroke: currentColor; stroke-width: 1.3; opacity: .5 }
+.pgm-dot { fill: currentColor }
+
+.assistant-prompts.preset button { gap: 10px }
+.assistant-prompts.preset .prompt-glyph { color: var(--coolant-deep) }
+.assistant-prompts.preset button > span { flex: 1 1 auto; min-width: 0 }
+
+/* ---- Knowledge map ---- */
+
+.knowledge-map {
+  padding: 18px;
+  border: 1px solid #dbe3e2;
+  border-radius: var(--radius);
+  background: rgba(255, 253, 250, .92);
+  box-shadow: var(--shadow-soft);
+}
+
+.knowledge-map ol {
+  position: relative;
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.knowledge-map ol:before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--coolant), var(--thermal), var(--purple), var(--verified), var(--blue));
+  opacity: .35;
+}
+
+.km-layer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.km-mark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 3px 9px rgba(35, 52, 62, .05);
+}
+
+.km-glyph { width: 20px; height: 20px }
+.km-stroke { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round }
+.km-flow { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round }
+.km-bar { stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; opacity: .6 }
+.km-axis { stroke: currentColor; stroke-width: 1.4; opacity: .5 }
+.km-curve { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round }
+.km-fault { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-dasharray: 3 2.4 }
+.km-dot { fill: currentColor }
+
+.km-layer.model .km-mark { color: var(--coolant-deep) }
+.km-layer.system .km-mark { color: var(--thermal) }
+.km-layer.scenarios .km-mark { color: var(--purple-deep) }
+.km-layer.evidence .km-mark { color: var(--verified) }
+.km-layer.architecture .km-mark { color: var(--blue) }
+
+.km-text { display: grid; gap: 2px; min-width: 0 }
+.km-text strong { color: var(--ink-strong); font-size: 10px; letter-spacing: .12em; font-weight: 800 }
+.km-text small { color: var(--muted); font-size: 11px; line-height: 1.4 }
+
+.assistant-pipeline {
+  list-style: none;
+  margin: 11px 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+  counter-reset: step;
+}
+
+.assistant-pipeline li {
+  position: relative;
+  padding-left: 24px;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+  counter-increment: step;
+}
+
+.assistant-pipeline li:before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e6f4f2;
+  color: var(--coolant-deep);
+  font-size: 9px;
+  font-weight: 800;
 }
 
 /* --------------------------------------------------------------------------
@@ -1912,6 +2141,7 @@
   }
 
   .pg-travel, .sg-flow { display: none }
+  .assistant-choices button:hover,
   .assistant-launcher:hover,
   .creator-link:hover,
   .assistant-cross-link:hover,
