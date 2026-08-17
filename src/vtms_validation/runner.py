@@ -80,15 +80,13 @@ def _run_comparison(
     scenario_id: str,
     scenario_name: str,
     initial_engine_temp_c: float | None,
-) -> tuple[object, np.ndarray, np.ndarray, ValidationMetrics, dict[str, object]]:
+) -> tuple[object, np.ndarray, np.ndarray, ValidationMetrics]:
     te0 = (
         float(dataset.measured_coolant_temp_c[0])
         if initial_engine_temp_c is None
         else float(initial_engine_temp_c)
     )
-    reference_rpm, rpm_metadata = _project_engine_speed_to_reference_domain(
-        dataset.engine_speed_rpm
-    )
+    reference_rpm, _ = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
     scenario = Scenario(
         scenario_id=scenario_id,
         name=scenario_name,
@@ -108,7 +106,7 @@ def _run_comparison(
     predicted = np.interp(dataset.time_s, sim_t, sim_c)
     measured = dataset.measured_coolant_temp_c.astype(float)
     metrics = calculate_metrics(dataset.time_s, measured, predicted)
-    return result, measured, predicted, metrics, {"engine_speed_rpm": rpm_metadata}
+    return result, measured, predicted, metrics
 
 
 def run_kit_plausibility(
@@ -126,7 +124,9 @@ def run_kit_plausibility(
         wall_heat_fraction=parameters.wall_heat_fraction
     )
     q_engine = np.asarray(estimator.engine_heat_w(dataset.mass_air_flow_g_s), dtype=float)
-    result, measured, predicted, metrics, preprocessing = _run_comparison(
+    _, rpm_metadata = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
+    preprocessing = {"engine_speed_rpm": rpm_metadata}
+    result, measured, predicted, metrics = _run_comparison(
         dataset,
         parameters,
         q_engine,
@@ -212,7 +212,9 @@ def run_controlled_comparison(
         )
 
     q_engine = fuel_energy_rate_w * parameters.wall_heat_fraction
-    result, measured, predicted, metrics, preprocessing = _run_comparison(
+    _, rpm_metadata = _project_engine_speed_to_reference_domain(dataset.engine_speed_rpm)
+    preprocessing = {"engine_speed_rpm": rpm_metadata}
+    result, measured, predicted, metrics = _run_comparison(
         dataset,
         parameters,
         q_engine,

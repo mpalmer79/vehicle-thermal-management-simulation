@@ -198,7 +198,8 @@ class ArgonneD3Adapter:
             "source_sha256": fingerprint.sha256_hex,
             "source_size_bytes": fingerprint.size_bytes,
             "signal_map_sha256": sha256_mapping(mapping.snapshot()),
-            "mapping_policy": "explicit_no_schema_or_cleanup_guessing",
+            "mapping_policy": "explicit_no_schema_guessing",
+            "cleanup_policy": "explicit_reviewed_no_cleanup_guessing",
             **selection_metadata,
         }
 

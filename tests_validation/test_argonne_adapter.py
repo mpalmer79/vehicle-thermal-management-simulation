@@ -74,7 +74,8 @@ def test_argonne_adapter_loads_reviewed_tsv_and_converts_direct_fuel(tmp_path):
     np.testing.assert_allclose(dataset.engine_speed_rpm, [650.0, 900.0])
     assert dataset.metadata["source_rows_before_selection"] == 3
     assert dataset.metadata["source_rows_after_selection"] == 2
-    assert dataset.metadata["mapping_policy"] == "explicit_no_schema_or_cleanup_guessing"
+    assert dataset.metadata["mapping_policy"] == "explicit_no_schema_guessing"
+    assert dataset.metadata["cleanup_policy"] == "explicit_reviewed_no_cleanup_guessing"
 
 
 def test_argonne_volumetric_fuel_requires_explicit_density():
