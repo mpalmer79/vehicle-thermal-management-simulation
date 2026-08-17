@@ -3,32 +3,32 @@ import type { KnowledgeTopic } from "./assistant-knowledge";
 const STATUS_OVERRIDES: Record<string, Pick<KnowledgeTopic, "shortAnswer" | "detail">> = {
   "verification-and-validation": {
     shortAnswer:
-      "The two are kept deliberately separate. Numerical verification is complete and external KIT plausibility is complete. Controlled physical validation is not complete; Argonne D3 data are now acquired and fingerprinted, with signal qualification in progress before calibration.",
+      "The two are kept deliberately separate. Numerical verification and external KIT plausibility are complete. Controlled physical validation is not complete; Argonne bounds and staged calibration roles are frozen before residual inspection, but physical calibration has not started.",
     detail: [
       "Stage 1, numerical verification: complete (energy conservation, convergence, component and regression checks).",
       "Stage 2, external plausibility: complete, using an independent KIT OBD-II warm-up trace with no parameter tuning.",
-      "Stage 3, controlled calibration preparation: active. Argonne source data are received; mapping, ECT quality controls, and physical calibration bounds must be frozen before fitting.",
-      "Stage 4, blind holdout validation: future, and only after calibration is frozen.",
+      "Stage 3, controlled calibration preparation: active. CAL-01 test 71207062 is restricted to wall heat fraction, effective engine capacitance, and engine-to-coolant UA. CAL-RAD-01 test 71207057 is reserved for radiator UA only.",
+      "Stage 4, blind holdout validation: future. Tests 71207063 and 71207052 remain reserved holdouts and are not calibration data.",
     ],
   },
   argonne: {
     shortAnswer:
-      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Acquisition and source fingerprinting are complete; signal mapping and data qualification are in progress. Controlled calibration and physical holdout validation remain pending, and no Argonne results exist yet.",
+      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Physical bounds and staged calibration roles are frozen before residual inspection. Cold-start 71207062 is the three-parameter warm-up stage and highway 71207057 is radiator-UA only. Physical calibration and holdout validation remain pending.",
     detail: [
-      "The controlled workflow is Acquire → Hash → Map → Calibrate → Freeze → Holdout → Report; Acquire and Hash are complete and Map is active.",
-      "Cold-start UDDS test 71207062 is the CAL-01 candidate after explicit ECT quality selection; hot-start UDDS test 71207063 is reserved as the primary clean holdout candidate.",
-      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature. MAF is not used as formal heat-input evidence.",
-      "Physical calibration bounds remain unresolved and must be justified and frozen before the first fit. Calibration and holdout results are still pending.",
+      "CAL-01 may fit only wall_heat_fraction, engine_thermal_capacitance_j_per_k, and engine_coolant_ua_w_per_k within their frozen physical bounds.",
+      "CAL-RAD-01 may fit only radiator_ua_nominal_w_per_k after the CAL-01 snapshot is frozen. Test 71207057 was selected from source ECT and speed conditions before any VTMS residual was inspected.",
+      "Hot-start test 71207063 remains the primary clean holdout, and 55 mph warm-up test 71207052 remains a secondary holdout. Neither was repurposed for fitting.",
+      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature. No Argonne calibration or validation result exists yet.",
     ],
   },
   "validation-status": {
     shortAnswer:
-      "VTMS-V1 is numerically verified but not physically validated. Argonne controlled data have now been acquired and fingerprinted, but controlled calibration and independent holdout validation have not yet been executed.",
+      "VTMS-V1 is numerically verified but not physically validated. Argonne bounds and calibration roles are preregistered, with CAL-01 split from a radiator-only CAL-RAD-01 stage. Neither physical calibration nor independent holdout validation has been executed.",
     detail: [
       "The KIT plausibility test remains the only completed real-world comparison and showed warm-up that is substantially too fast.",
-      "Argonne signal mapping and source-data qualification are in progress, including explicit treatment of coolant-temperature acquisition artifacts.",
-      "The parameter set is still generic and uncalibrated, so there is no vehicle-specific accuracy claim to make.",
-      "Physical calibration bounds must be frozen before any Argonne fit; no Argonne validation result exists yet.",
+      "The broad synthetic preflight checks numerical parameter separation, while the warm-up-stage diagnostic found radiator UA weakly excited by warm-up evidence and blocked a four-parameter CAL-01 fit.",
+      "Argonne test 71207057 was preregistered as the radiator-active stage from source operating conditions before any VTMS residual inspection.",
+      "The parameter set is still generic and uncalibrated. Exact preprocessing hashes and immutable manifests must be frozen before physical fitting, and no Argonne validation result exists yet.",
     ],
   },
 };
