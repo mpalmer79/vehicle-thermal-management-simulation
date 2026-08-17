@@ -3,32 +3,32 @@ import type { KnowledgeTopic } from "./assistant-knowledge";
 const STATUS_OVERRIDES: Record<string, Pick<KnowledgeTopic, "shortAnswer" | "detail">> = {
   "verification-and-validation": {
     shortAnswer:
-      "The two are kept deliberately separate. Numerical verification is complete and external KIT plausibility is complete. Controlled physical validation is not complete; Argonne D3 data are acquired and fingerprinted, and a synthetic pre-fit identifiability gate now requires staged calibration before any physical fit.",
+      "The two are kept deliberately separate. Numerical verification is complete and external KIT plausibility is complete. Controlled physical validation is not complete; Argonne D3 data are acquired and fingerprinted, and the pre-fit identifiability gate has split calibration into a three-parameter warm-up stage plus a separate radiator-UA stage.",
     detail: [
       "Stage 1, numerical verification: complete (energy conservation, convergence, component and regression checks).",
       "Stage 2, external plausibility: complete, using an independent KIT OBD-II warm-up trace with no parameter tuning.",
-      "Stage 3, controlled calibration preparation: active. The synthetic identifiability gate found radiator UA weakly excited by warm-up profiles, so a four-parameter simultaneous CAL-01 fit is not authorized.",
-      "Stage 4, blind holdout validation: future, and only after the calibration subset and physical bounds are frozen.",
+      "Stage 3, controlled calibration preparation: active. CAL-01 test 71207062 is restricted to wall heat fraction, effective engine capacitance, and engine-to-coolant UA. CAL-RAD-01 test 71207057 is reserved for radiator UA only.",
+      "Stage 4, blind holdout validation: future. Tests 71207063 and 71207052 remain reserved holdouts and are not calibration data.",
     ],
   },
   argonne: {
     shortAnswer:
-      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Acquisition and source fingerprinting are complete; signal mapping and data qualification are in progress. A synthetic pre-fit identifiability gate is complete, but controlled calibration and physical holdout validation remain pending.",
+      "Argonne National Laboratory supplied the requested 2012 Ford Focus D3 files on August 17, 2026. Acquisition and source fingerprinting are complete. Pre-fit analysis now reserves cold-start 71207062 for a three-parameter warm-up calibration and highway test 71207057 for radiator UA only. Physical calibration and holdout validation remain pending.",
     detail: [
-      "Cold-start UDDS test 71207062 is the CAL-01 candidate after explicit ECT quality selection; hot-start UDDS test 71207063 is reserved as the primary clean holdout candidate.",
-      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature. MAF is not used as formal heat-input evidence.",
-      "The pre-fit synthetic sensitivity matrix is full-rank, but radiator UA contributes less than one percent of the strongest RMS coolant sensitivity across the combined warm-up profiles. A four-parameter simultaneous CAL-01 fit is therefore blocked.",
-      "Physical calibration bounds remain unresolved. A manifest-declared warm-up-sensitive subset and any separate radiator-active calibration role must be frozen before physical fitting.",
+      "CAL-01 uses test 71207062 and may fit only wall_heat_fraction, engine_thermal_capacitance_j_per_k, and engine_coolant_ua_w_per_k after their physical bounds are frozen.",
+      "CAL-RAD-01 uses test 71207057 and may fit only radiator_ua_nominal_w_per_k after the CAL-01 snapshot and radiator-UA bound are frozen. The role was selected from source ECT and speed conditions before any VTMS residual was inspected.",
+      "Hot-start test 71207063 remains the primary clean holdout, and 55 mph warm-up test 71207052 remains a secondary holdout. Neither was repurposed for fitting.",
+      "The received files include direct bench fuel flow, ECT, engine speed, dyno speed, and cell temperature. Physical bounds remain unresolved and no Argonne calibration result exists yet.",
     ],
   },
   "validation-status": {
     shortAnswer:
-      "VTMS-V1 is numerically verified but not physically validated. Argonne controlled data are acquired and fingerprinted, and the pre-fit synthetic identifiability gate found weak radiator-UA excitation. Controlled calibration and independent holdout validation have not yet been executed.",
+      "VTMS-V1 is numerically verified but not physically validated. Argonne controlled data are acquired and fingerprinted. The calibration structure is now staged: CAL-01 is a three-parameter warm-up fit candidate and CAL-RAD-01 is radiator-UA only. Neither physical calibration nor independent holdout validation has been executed.",
     detail: [
       "The KIT plausibility test remains the only completed real-world comparison and showed warm-up that is substantially too fast.",
-      "Argonne signal mapping and source-data qualification are in progress, including explicit treatment of coolant-temperature acquisition artifacts.",
-      "The synthetic identifiability result supports staged calibration rather than fitting all four governed parameters simultaneously in CAL-01.",
-      "The parameter set is still generic and uncalibrated. Physical bounds and the final CAL-01 fitted subset must be frozen before any Argonne fit, and no Argonne validation result exists yet.",
+      "The synthetic identifiability gate found radiator UA weakly excited by warm-up profiles, so it was removed from the CAL-01 fitted subset before any Argonne residual was inspected.",
+      "Argonne test 71207057 was preregistered as CAL-RAD-01 from source operating conditions because it has complete hot ECT and sustained highway speed. It is radiator-UA only.",
+      "The parameter set is still generic and uncalibrated. Physical bounds, exact mapping hashes, and immutable manifests must be frozen before either Argonne fit, and no Argonne validation result exists yet.",
     ],
   },
 };
