@@ -25,7 +25,7 @@ const stages: EvidenceStage[] = [
     number: "03",
     title: "Controlled calibration preparation",
     state: "active",
-    description: "Argonne data are received; qualification and staged-fit controls are being frozen before fitting.",
+    description: "Argonne data are received; staged calibration roles are frozen and physical bounds are next.",
   },
   {
     number: "04",
@@ -47,6 +47,7 @@ const controlledPipeline = [
   ["Hash", "complete"],
   ["Map", "active"],
   ["Identify", "complete"],
+  ["Stage", "complete"],
   ["Bound", "queued"],
   ["Calibrate", "queued"],
   ["Freeze", "queued"],
@@ -56,9 +57,9 @@ const controlledPipeline = [
 
 const argonneFacts = [
   ["Received tests", "18"],
-  ["CAL candidate", "71207062"],
+  ["Warm-up CAL", "71207062"],
+  ["Radiator CAL", "71207057"],
   ["Primary holdout", "71207063"],
-  ["Heat evidence", "Direct fuel flow"],
 ];
 
 const identifiabilityFacts = [
@@ -120,15 +121,15 @@ export default function ValidationPage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">CONTROLLED PHYSICAL VALIDATION</span>
-            <h2>Argonne D3 data received</h2>
+            <h2>Argonne D3 pre-fit controls</h2>
           </div>
-          <span className="status-pill pending">Pre-fit controls active</span>
+          <span className="status-pill pending">Bounds next</span>
         </div>
 
         <p>
           Argonne supplied comprehensive 2012 Ford Focus dynamometer files on August 17, 2026.
-          The source artifacts and candidate runs are fingerprinted. Signal quality, calibration
-          structure, and physical bounds are being frozen before any parameter fit.
+          Source qualification and the calibration structure are now separated from model residuals.
+          Physical parameter bounds still have to be justified and frozen before any fit.
         </p>
 
         <div className="validation-metrics">
@@ -152,9 +153,9 @@ export default function ValidationPage() {
         <div className="section-head">
           <div>
             <span className="eyebrow">PRE-FIT IDENTIFIABILITY</span>
-            <h2>Warm-up profiles do not strongly identify radiator UA</h2>
+            <h2>Warm-up data and radiator data are now separate calibration stages</h2>
           </div>
-          <span className="fixture-badge">Synthetic only</span>
+          <span className="fixture-badge">No Argonne residuals inspected</span>
         </div>
 
         <div className="validation-metrics">
@@ -163,22 +164,29 @@ export default function ValidationPage() {
           ))}
         </div>
 
-        <ValidationTakeaway headline="Four-parameter CAL-01 fit blocked">
+        <ValidationTakeaway headline="CAL-01 is three parameters, not four">
           <p>
             The synthetic sensitivity matrix is full-rank, but radiator UA contributes less than
-            one percent of the strongest combined RMS coolant sensitivity. CAL-01 will not fit all
-            four governed parameters simultaneously. Radiator UA remains fixed unless a separate
-            radiator-active calibration case is preregistered before its VTMS residual is inspected.
+            one percent of the strongest combined RMS coolant sensitivity. CAL-01 test 71207062
+            is therefore restricted to wall heat fraction, effective engine thermal capacitance,
+            and engine-to-coolant UA.
+          </p>
+        </ValidationTakeaway>
+
+        <ValidationTakeaway headline="CAL-RAD-01 reserves test 71207057 for radiator UA">
+          <p>
+            Test 71207057 was selected from source measurements before any VTMS residual was
+            inspected. Its post-zero ECT is complete at 91 to 99 °C, average dyno speed is about
+            57.3 mph, and about 92.7% of samples are at or above 40 mph. It is reserved for
+            radiator UA only after the CAL-01 snapshot and radiator bound are frozen.
           </p>
         </ValidationTakeaway>
 
         <ValidationTakeaway headline="Calibration has not started">
           <p>
-            CAL-01 is reserved for cold-start UDDS test 71207062 and hot-start UDDS test 71207063
-            is reserved as the primary clean holdout. The received highway and US06 files have
-            incomplete coolant-temperature coverage, so they are not currently qualified as
-            full-cycle formal holdouts. Physical bounds and the final CAL-01 fitted subset must
-            still be justified and frozen.
+            Hot-start test 71207063 remains the primary clean holdout, and 55 mph warm-up test
+            71207052 remains a secondary holdout. Physical bounds, exact mapping hashes, and
+            immutable calibration manifests must still be frozen before CAL-01 or CAL-RAD-01 runs.
           </p>
         </ValidationTakeaway>
 
