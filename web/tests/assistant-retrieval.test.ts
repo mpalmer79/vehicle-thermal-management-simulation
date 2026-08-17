@@ -202,7 +202,7 @@ const CASES: QueryCase[] = [
   { group: "status", q: "Is VTMS calibrated to a specific vehicle?", contains: /not calibrated to any specific vehicle/i },
   { group: "status", q: "What is the KIT plausibility comparison?", topic: "kit-plausibility", contains: /21\.40|plausibility/i },
   { group: "status", q: "What did the KIT comparison show?", contains: /plausibility|warm/i },
-  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /no argonne results exist yet/i },
+  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /did not pass controlled physical validation/i },
   { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", lacks: /calibration (is |has )?complete/i },
   { group: "status", q: "Why is controlled validation still pending?", contains: /pending|Argonne/i },
   { group: "status", q: "How are calibration and holdout kept separate?", topic: "calibration-vs-holdout" },
@@ -386,7 +386,7 @@ test("no answer mixes current project status with superseded status text", () =>
   }
 });
 
-test("status answers still refuse to claim completed physical validation", () => {
+test("status answers do not claim successful physical validation", () => {
   for (const question of [
     "How trustworthy are the results?",
     "Is VTMS validated?",
@@ -394,9 +394,9 @@ test("status answers still refuse to claim completed physical validation", () =>
     "What is the Argonne controlled validation plan?",
   ]) {
     const text = allText(respond(question));
-    assert.match(text, /not physically validated|no argonne (validation )?result/i, question);
-    assert.doesNotMatch(text, /\bvalidation (is |has been )?complete\b/i, question);
-    assert.doesNotMatch(text, /\bholdout (is |has been )?(complete|executed)\b/i, question);
+    assert.match(text, /not physically validated|did not pass controlled physical validation/i, question);
+    assert.doesNotMatch(text, /\bcontrolled physical validation (passed|succeeded|was successful)\b/i, question);
+    assert.doesNotMatch(text, /\bholdout validation (passed|succeeded|was accepted)\b/i, question);
   }
 });
 
