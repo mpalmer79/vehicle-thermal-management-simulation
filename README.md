@@ -30,7 +30,7 @@ The project is built around three questions:
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **54 passing** |
+| Automated Python/API tests | **61 passing** |
 | Engineering verification checks | **21 passing** |
 | Canonical scenarios | S-01 through S-09 frozen and implemented |
 | Energy-conservation verification | Passing |
@@ -38,6 +38,7 @@ The project is built around three questions:
 | Controlled validation governance | Complete |
 | Formal acceptance evaluator | Complete |
 | Synthetic bounded-calibration harness | Complete, software-only evidence |
+| Pre-Argonne identifiability gate | **Complete, staged-fit concern identified** |
 | Argonne D3 data acquisition | **Complete, received 2026-08-17** |
 | Argonne source fingerprinting | **Complete** |
 | Argonne signal mapping and qualification | **In progress** |
@@ -114,7 +115,7 @@ Numerics are frozen for V1:
 
 Verification asks whether the implementation solves the frozen VTMS-V1 equations consistently. It does not establish vehicle-specific physical accuracy.
 
-The repository now has **54 passing Python/API tests** and **21 passing engineering verification checks**. CI runs the Python suite on Python 3.11, 3.12, and 3.13, plus web dependency audit, ESLint, TypeScript, web unit tests, Next.js production build, and API/web container smoke tests.
+The repository now has **61 passing Python/API tests** and **21 passing engineering verification checks**. CI runs the Python suite on Python 3.11, 3.12, and 3.13, plus the synthetic identifiability diagnostic, web dependency audit, ESLint, TypeScript, web unit tests, Next.js production build, and API/web container smoke tests.
 
 Verification coverage includes:
 
@@ -129,6 +130,7 @@ Verification coverage includes:
 - calibration/holdout separation
 - formal acceptance decisions
 - synthetic bounded fitting and untouched holdout execution
+- synthetic pre-fit identifiability and weak-excitation detection
 - Argonne TSV mapping, direct fuel-flow normalization, source-time selection, and preprocessing provenance
 
 ## First external plausibility comparison
@@ -178,7 +180,7 @@ Machine-readable inventory: [`validation_configs/argonne_2012_focus_inventory.js
 
 ## Reviewed Argonne mapping
 
-The received comprehensive files are tab-separated text, not the previously assumed generic CSV form. `ArgonneD3Adapter` now supports explicitly mapped CSV, TSV, and delimited text while continuing to refuse schema guessing.
+The received comprehensive files are tab-separated text. `ArgonneD3Adapter` supports explicitly mapped CSV, TSV, and delimited text while continuing to refuse schema guessing.
 
 Reviewed mapping:
 
@@ -209,43 +211,64 @@ Run roles were selected from Argonne test documentation and measurement quality 
 
 The cold-start calibration mapping explicitly starts after an invalid ECT initialization period and excludes only reviewed source-time ECT dropouts. The adapter does not automatically detect or repair ECT.
 
+## Pre-fit practical identifiability
+
+Before allowing physical calibration, VTMS now applies a synthetic-only local sensitivity gate to the four governance-approved calibration parameters. The diagnostic rejects physical datasets, so it cannot inspect Argonne prediction residuals during this pre-bound phase.
+
+The combined synthetic profiles produced:
+
+- numerical rank: **4 of 4**
+- normalized sensitivity-matrix condition number: **8.12**
+- strongest pairwise sensitivity-shape similarity: wall heat fraction versus effective engine thermal capacitance, `cosine = -0.88`
+- radiator-UA RMS coolant sensitivity: **0.94% of the strongest parameter sensitivity**
+
+The matrix is mathematically full-rank, but radiator `UA` is too weakly excited by the warm-up profiles to justify a four-parameter simultaneous CAL-01 fit. The governed decision is therefore staged calibration: CAL-01 may eventually fit only a manifest-declared warm-up-sensitive subset after physical bounds are frozen. Radiator `UA` remains fixed unless a separate radiator-active calibration case is preregistered from source operating conditions before its VTMS residual is inspected.
+
+Detailed readiness record: [`docs/PRE_ARGONNE_CALIBRATION_READINESS.md`](docs/PRE_ARGONNE_CALIBRATION_READINESS.md)
+
 ## Controlled validation workflow
 
 Current progress:
 
 ```text
-Acquire   COMPLETE
+Acquire    COMPLETE
    ↓
-Hash      COMPLETE
+Hash       COMPLETE
    ↓
-Map       ACTIVE
+Map        ACTIVE
    ↓
-Calibrate QUEUED
+Identify   COMPLETE
    ↓
-Freeze    QUEUED
+Bound      QUEUED
    ↓
-Holdout   QUEUED
+Calibrate  QUEUED
    ↓
-Report    QUEUED
+Freeze     QUEUED
+   ↓
+Holdout    QUEUED
+   ↓
+Report     QUEUED
 ```
 
 Before the first Argonne fit, VTMS must still:
 
-1. establish physically justified bounds for the four preregistered calibration parameters,
-2. freeze those bounds before observing fit residuals,
-3. finalize the CAL-01 normalized mapping and preprocessing hash,
-4. create the immutable calibration manifest,
-5. preserve the holdout reservations,
-6. only then execute bounded calibration.
+1. finalize the manifest-declared CAL-01 fitted subset,
+2. establish physically justified bounds for every parameter that remains fitted,
+3. freeze those bounds before observing Argonne fit residuals,
+4. decide whether a separate radiator-active calibration case is required and reserve it before residual inspection,
+5. finalize the CAL-01 normalized mapping and preprocessing hash,
+6. create the immutable calibration manifest,
+7. preserve the holdout reservations,
+8. only then execute bounded calibration.
 
-The only parameters authorized for controlled calibration are:
+The governance-approved calibration universe remains:
 
 1. `wall_heat_fraction`
 2. `engine_thermal_capacitance_j_per_k`
 3. `engine_coolant_ua_w_per_k`
 4. `radiator_ua_nominal_w_per_k`
 
-Synthetic demonstration bounds are test fixtures only and are not approved Argonne bounds.
+A calibration manifest may declare a governed subset. Synthetic demonstration bounds are test fixtures only and are not approved Argonne bounds.
 
 ## Formal acceptance criteria
 
@@ -263,7 +286,7 @@ Numeric threshold success alone cannot create a formal validation claim. Formal 
 
 The correct current statement is:
 
-> **Argonne D3 controlled data have been acquired and fingerprinted. Signal mapping and data qualification are in progress. Controlled calibration and physical holdout validation have not yet been executed.**
+> **Argonne D3 controlled data have been acquired and fingerprinted. Signal mapping and data qualification are in progress. The synthetic pre-fit identifiability gate requires staged calibration, with radiator UA excluded from a four-parameter simultaneous CAL-01 fit. Controlled calibration and physical holdout validation have not yet been executed.**
 
 VTMS-V1 therefore remains `numerical_verified_generic_uncalibrated`.
 
@@ -277,8 +300,10 @@ VTMS-V1 therefore remains `numerical_verified_generic_uncalibrated`.
 ├── VERIFICATION_RESULTS.md
 ├── KIT_DATASET_AUDIT.md
 ├── VALIDATION_TOOLKIT_README.md
+├── run_synthetic_identifiability.py
 ├── docs/
 │   ├── ARGONNE_D3_DATA_QUALIFICATION.md
+│   ├── PRE_ARGONNE_CALIBRATION_READINESS.md
 │   ├── VALIDATION_GOVERNANCE.md
 │   ├── SYNTHETIC_CALIBRATION_HARNESS.md
 │   ├── DEPLOYMENT.md
@@ -337,8 +362,12 @@ High-temperature fault cases above the liquid-only caution boundary are treated 
 - [x] Fingerprint received Argonne archives and comprehensive test files
 - [x] Register candidate calibration and holdout roles before fitting
 - [x] Extend the adapter for the received TSV/direct-fuel schema
+- [x] Add synthetic-only pre-fit practical-identifiability gate
+- [x] Block four-parameter simultaneous CAL-01 after weak radiator-UA excitation finding
 - [ ] Complete and freeze source-signal qualification/preprocessing
+- [ ] Freeze final CAL-01 fitted subset
 - [ ] Establish physically justified Argonne calibration bounds before fitting
+- [ ] Decide and preregister any separate radiator-active calibration case
 - [ ] Execute CAL-01 bounded calibration
 - [ ] Freeze the calibrated parameter snapshot
 - [ ] Execute untouched physical holdouts
@@ -356,7 +385,8 @@ Synchronized physical-vehicle telemetry, state estimation, continuous calibratio
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): engineering and software architecture
 - [`docs/ARGONNE_D3_DATA_QUALIFICATION.md`](docs/ARGONNE_D3_DATA_QUALIFICATION.md): received Argonne data inventory, mapping, QC, and role decisions
-- [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md): controlled evidence roles and provenance locks
+- [`docs/PRE_ARGONNE_CALIBRATION_READINESS.md`](docs/PRE_ARGONNE_CALIBRATION_READINESS.md): pre-fit parameter-separation analysis and staged-fit decision
+- [`docs/VALIDATION_GOVERNANCE.md`](docs/VALIDATION_GOVERNANCE.md): controlled evidence roles, provenance locks, and identifiability gate
 - [`docs/SYNTHETIC_CALIBRATION_HARNESS.md`](docs/SYNTHETIC_CALIBRATION_HARNESS.md): nonphysical calibration/freeze/holdout dry run
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): Railway topology and production verification
 - [`docs/VTMS_V1_Engineering_Model_Specification.docx`](docs/VTMS_V1_Engineering_Model_Specification.docx): frozen V1 physics contract
