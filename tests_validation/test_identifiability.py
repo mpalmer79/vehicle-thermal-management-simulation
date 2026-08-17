@@ -38,6 +38,7 @@ def test_synthetic_identifiability_analyzes_exact_frozen_subset() -> None:
     assert len(diagnostics.pairwise) == 6
     assert all(np.isfinite(diagnostics.sensitivity_matrix.ravel()))
     assert all(0.0 <= item.absolute_cosine_similarity <= 1.0 for item in diagnostics.pairwise)
+    assert all(0.0 <= item.relative_rms_to_strongest <= 1.0 for item in diagnostics.sensitivities)
 
 
 def test_combined_profiles_stack_without_using_measured_residuals() -> None:
@@ -49,6 +50,21 @@ def test_combined_profiles_stack_without_using_measured_residuals() -> None:
     assert diagnostics.sensitivity_matrix.shape[0] == diagnostics.sample_count
     assert "physical" in diagnostics.disclaimer.lower()
     assert "argonne" in diagnostics.disclaimer.lower()
+
+
+def test_default_profiles_flag_weak_radiator_ua_excitation() -> None:
+    calibration, holdout = _datasets()
+    diagnostics = analyze_synthetic_identifiability((calibration, holdout))
+    radiator = next(
+        item for item in diagnostics.sensitivities if item.name == "radiator_ua_nominal_w_per_k"
+    )
+
+    assert radiator.relative_rms_to_strongest < 0.02
+    assert diagnostics.assessment == "practical_identifiability_concern_detected"
+    assert any(
+        flag.startswith("weak_relative_sensitivity:radiator_ua_nominal_w_per_k:")
+        for flag in diagnostics.diagnostic_flags
+    )
 
 
 def test_identifiability_is_deterministic() -> None:
