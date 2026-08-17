@@ -41,6 +41,8 @@ The project is built around three questions:
 | UI-3 production packaging and hardening | Complete |
 | UI-4 light production UX and browser QA | Complete |
 | UI-5 visual productization and engineering visuals | Complete |
+| Creator / About page | Complete |
+| Local VTMS knowledge assistant (no external AI API) | Complete |
 | Production dependency audit | Passing at high severity threshold |
 | API and web container smoke tests | Passing |
 | Public application deployment | Live at `https://vtms.up.railway.app` |
@@ -396,6 +398,7 @@ High-temperature fault cases above the liquid-only caution boundary are therefor
 - [x] Deploy Railway API and web services
 - [x] Complete UI-4 light production UX and browser/device QA
 - [x] Complete UI-5 visual productization, interactive thermal schematic, and responsive visual QA
+- [x] Add the creator page and a local knowledge assistant with no external AI dependency
 - [x] Add dependency audit and container smoke gates
 - [x] Add controlled-validation manifests and evidence-role enforcement
 - [x] Add raw-data and parameter-snapshot provenance locks

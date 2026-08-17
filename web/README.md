@@ -6,7 +6,7 @@ This directory contains the executable web layer for the Vehicle Thermal Managem
 
 - Next.js App Router with TypeScript
 - Responsive desktop and mobile engineering-workstation shell
-- Overview, Simulation Lab, System Explorer, Scenario Library, Validation, Model, Roadmap, and Results routes
+- Overview, Simulation Lab, System Explorer, Scenario Library, Validation, Model, Roadmap, About, Assistant, and Results routes
 - Synchronized thermal-system playback through an interactive circuit schematic
 - Custom SVG engineering visuals: system hero, scenario previews, gauges, evidence timeline
 - Frozen S-03 demonstration fixture for the Overview and System Explorer
@@ -14,6 +14,8 @@ This directory contains the executable web layer for the Vehicle Thermal Managem
 - FastAPI execution path for Simulation Lab runs
 - Session-scoped computed result routes under `/results/[runId]`
 - Browser-renderable KIT plausibility evidence
+- `/about` creator page built from `lib/about-content.ts`
+- `/assistant` local knowledge assistant plus a floating launcher on every other route
 - UI-3 standalone production output and non-root Docker image
 - Web health endpoint at `/api/health`
 - Production browser security headers
@@ -21,9 +23,19 @@ This directory contains the executable web layer for the Vehicle Thermal Managem
 
 ## Visual layer
 
-UI-5 replaced the accumulated `globals.css` / `ui2.css` / `ui4.css` / `ui4-polish.css` override stack with two files: `app/globals.css` for tokens, shell, and shared controls, and `app/ui5.css` for the UI-5 visual system. The frontend still depends only on Next.js and React; every diagram, chart, gauge, and animation is hand-written SVG and CSS.
+UI-5 replaced the accumulated `globals.css` / `ui2.css` / `ui4.css` / `ui4-polish.css` override stack with two files: `app/globals.css` for tokens, shell, and shared controls, and `app/ui5.css` for the UI-5 visual system. The About page and the assistant extend `app/ui5.css` rather than reintroducing an override stack. The frontend still depends only on Next.js and React; every diagram, chart, gauge, and animation is hand-written SVG and CSS.
 
 Circuit geometry lives in `lib/schematic-geometry.ts` and is shared by the Overview hero and the System Explorer schematic, in landscape and portrait variants so the diagram stays legible from 360 px upward. All motion is disabled under `prefers-reduced-motion`.
+
+## VTMS Knowledge Assistant
+
+The assistant answers only from a curated knowledge base that is bundled with the frontend. **No external AI or model API is contacted, no API key exists, and there is no backend AI endpoint.**
+
+- `lib/assistant-knowledge.ts`: the topics. Each entry carries keywords, synonyms, a short answer, key facts, related routes, and follow-up questions. Response copy lives here, never inside React components.
+- `lib/assistant-retrieval.ts`: deterministic matching. A question is canonicalized (lowercased, punctuation stripped, scenario identities such as `S-03` folded to `s03`, terminology normalized, tokens singularized), then scored against every topic by keyword phrase, keyword token, synonym, and title overlap. The previously matched topic contributes a small context boost so short follow-ups stay in the right subject area. Below the confidence floor the assistant returns a fixed fallback instead of guessing.
+- `components/assistant/`: the launcher, the sheet, the conversational surface, message rendering, and the preset/follow-up controls.
+
+Answers are resolved synchronously in the browser, so there is nothing to await and no artificial "thinking" delay. Truthfulness constraints — no OEM calibration, no completed physical validation, no digital-twin status, no telemetry, no damage or boiling thresholds — are enforced by `tests/assistant-retrieval.test.ts`.
 
 ## Engineering boundary
 
@@ -69,8 +81,11 @@ Quality gates:
 ```text
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
+
+`npm test` runs the assistant retrieval suite on Node's built-in test runner using TypeScript type stripping, so it needs no test framework, bundler, or extra dependency. `tests/ts-resolve.mjs` is a test-only module-resolution hook that lets Node load the app's extensionless relative imports.
 
 ## Backend development
 
