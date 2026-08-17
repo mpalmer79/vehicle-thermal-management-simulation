@@ -38,13 +38,21 @@
     "source_test_id": "71207062",
     "cycle": "UDDS #1 cold start, 2 bag",
     "average_test_cell_temp_c_from_master_summary": 21,
-    "validation_use": "CAL-01 calibration candidate",
-    "mapping_status": "reviewed_data_quality_only_before_fit",
+    "validation_use": "CAL-01 three-parameter warm-up calibration candidate",
+    "mapping_status": "reviewed_data_quality_and_pre_fit_subset_before_residual_inspection",
+    "authorized_parameter_candidates": [
+      "wall_heat_fraction",
+      "engine_thermal_capacitance_j_per_k",
+      "engine_coolant_ua_w_per_k"
+    ],
+    "excluded_parameter_candidate": "radiator_ua_nominal_w_per_k",
+    "subset_basis": "Synthetic-only pre-fit sensitivity analysis found radiator UA weakly excited by warm-up profiles. The staged subset was frozen before any Argonne prediction residual was inspected.",
     "fuel_density_g_ml": 0.743,
     "fuel_net_heating_value_j_per_kg_reference": 42668144.0,
     "fuel_net_heating_value_use": "Must still be supplied explicitly to the controlled runner.",
     "source_file_sha256_expected": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
     "ect_qc_basis": "Initialization and excluded samples were identified only from the measured ECT trace and companion measured temperatures before any VTMS residual was inspected.",
+    "calibration_gate": "Candidate role only. Do not execute until physical bounds, exact normalized mapping hash, baseline parameter snapshot hash, and immutable CAL-01 manifest are frozen.",
     "physical_evidence_status": "received_not_yet_calibrated_or_validated",
     "attribution": "Argonne National Laboratory Downloadable Dynamometer Database (D3)"
   }
