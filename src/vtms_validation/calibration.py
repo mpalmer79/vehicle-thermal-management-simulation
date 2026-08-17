@@ -174,6 +174,17 @@ def run_bounded_calibration(
     manifest.assert_parameter_fit_allowed(fit_names)
     bounds.validate(manifest, initial_parameters)
 
+    # Acceptance evaluation may use a physical-evidence calibration manifest without
+    # executing a fit. The stronger provenance requirement belongs here, at the actual
+    # parameter-fitting boundary.
+    if manifest.physical_evidence:
+        if manifest.preprocessing_snapshot_sha256 is None:
+            raise ValueError(
+                "physical bounded calibration requires preprocessing_snapshot_sha256"
+            )
+        if manifest.calibration_bounds_sha256 is None:
+            raise ValueError("physical bounded calibration requires calibration_bounds_sha256")
+
     initial_hash = sha256_mapping(initial_parameters.snapshot())
     if initial_hash != manifest.parameter_snapshot_sha256:
         raise ValueError("initial parameter snapshot does not match calibration manifest")
