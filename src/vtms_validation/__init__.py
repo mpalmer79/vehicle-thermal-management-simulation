@@ -13,6 +13,12 @@ from .calibration import (
 )
 from .dataset import ValidationDataset
 from .heat_input import MafStoichiometricHeatEstimator
+from .identifiability import (
+    IdentifiabilityDiagnostic,
+    ParameterSensitivity,
+    evaluate_synthetic_identifiability,
+    synthetic_identifiability_case,
+)
 from .manifest import (
     ALLOWED_CALIBRATION_PARAMETERS,
     AcceptanceCriteria,
@@ -23,6 +29,11 @@ from .manifest import (
     sha256_mapping,
 )
 from .metrics import ValidationMetrics, calculate_metrics
+from .physical_bounds import (
+    BoundRationale,
+    argonne_physical_bound_rationales,
+    argonne_preregistered_bounds,
+)
 from .runner import ComparisonResult, run_controlled_comparison, run_kit_plausibility
 from .synthetic import (
     SyntheticCalibrationHarnessResult,
@@ -56,6 +67,13 @@ __all__ = [
     "CalibratedParameter",
     "BoundedCalibrationResult",
     "run_bounded_calibration",
+    "BoundRationale",
+    "argonne_physical_bound_rationales",
+    "argonne_preregistered_bounds",
+    "ParameterSensitivity",
+    "IdentifiabilityDiagnostic",
+    "synthetic_identifiability_case",
+    "evaluate_synthetic_identifiability",
     "SyntheticCase",
     "SyntheticCalibrationHarnessResult",
     "generate_synthetic_dataset",
