@@ -1,6 +1,6 @@
 {
   "plan_id": "ARGONNE-D3-VTMS-V1-CONTROLLED-PLAN",
-  "status": "primary_physical_holdout_executed_failed_no_retuning",
+  "status": "primary_and_secondary_physical_holdouts_executed_failed_no_retuning",
   "received_date": "2026-08-17",
   "rules": {
     "calibration_and_holdout_must_use_distinct_source_runs": true,
@@ -25,7 +25,7 @@
   },
   "pre_fit_identifiability_status": "broad_preflight_complete_and_warmup_stage_requires_staged_calibration",
   "final_staged_parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
-  "formal_validation_status": "failed_primary_independent_holdout",
+  "formal_validation_status": "failed_primary_independent_holdout_confirmed_by_secondary_failure",
   "runs": [
     {
       "run_id": "CAL-01",
@@ -109,8 +109,28 @@
       "evidence_grade": "independent_holdout",
       "target_condition": "approximately 72 F steady-state 55 mph warm-up",
       "source_test_id": "71207052",
-      "qualification_status": "secondary_holdout_candidate_reserved_before_fit_complete_ect_unexecuted",
-      "calibration_parameters": []
+      "mapping_file": "argonne_2012_focus_71207052_secondary_holdout.json",
+      "execution_manifest": "argonne_2012_focus_val_sss_01_manifest.json",
+      "result_file": "../validation_outputs/ARGONNE_VAL_SSS_01_CONFIRMATORY_RESULT.json",
+      "qualification_status": "secondary_holdout_candidate_reserved_before_fit_complete_ect",
+      "execution_status": "executed_once_failed_confirmatory_acceptance",
+      "parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+      "calibration_parameters": [],
+      "metrics": {
+        "rmse_c": 5.125896933289166,
+        "mae_c": 4.108994732252794,
+        "bias_c": -4.014699633211751,
+        "p90_abs_error_c": 8.39743154520653,
+        "final_error_c": -8.422660127239425,
+        "arrival_80c_error_s": 17.29129750356391,
+        "arrival_90c_error_s": 23.838577633400035
+      },
+      "overall_project_threshold_pass": false,
+      "formal_validation_pass": false,
+      "claim_label": "formal_holdout_acceptance_fail",
+      "purpose": "confirmatory_generalization_evidence_only",
+      "primary_formal_failure_overturned": false,
+      "retuning_permitted": false
     },
     {
       "run_id": "VAL-HWY-01",
@@ -149,6 +169,7 @@
     "existing_holdout_roles_preserved": true,
     "holdout_source_data_opened_during_calibration": false,
     "failed_calibration_stage_triggered_retuning": false,
-    "primary_holdout_triggered_retuning": false
+    "primary_holdout_triggered_retuning": false,
+    "secondary_holdout_triggered_retuning": false
   }
 }
