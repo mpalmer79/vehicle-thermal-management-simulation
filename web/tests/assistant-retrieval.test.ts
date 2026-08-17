@@ -202,7 +202,7 @@ const CASES: QueryCase[] = [
   { group: "status", q: "Is VTMS calibrated to a specific vehicle?", contains: /not calibrated to any specific vehicle/i },
   { group: "status", q: "What is the KIT plausibility comparison?", topic: "kit-plausibility", contains: /21\.40|plausibility/i },
   { group: "status", q: "What did the KIT comparison show?", contains: /plausibility|warm/i },
-  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /no argonne results exist yet/i },
+  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /physical calibration and holdout validation remain pending/i },
   { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", lacks: /calibration (is |has )?complete/i },
   { group: "status", q: "Why is controlled validation still pending?", contains: /pending|Argonne/i },
   { group: "status", q: "How are calibration and holdout kept separate?", topic: "calibration-vs-holdout" },
@@ -394,7 +394,7 @@ test("status answers still refuse to claim completed physical validation", () =>
     "What is the Argonne controlled validation plan?",
   ]) {
     const text = allText(respond(question));
-    assert.match(text, /not physically validated|no argonne (validation )?result/i, question);
+    assert.match(text, /not physically validated|physical calibration and holdout validation remain pending/i, question);
     assert.doesNotMatch(text, /\bvalidation (is |has been )?complete\b/i, question);
     assert.doesNotMatch(text, /\bholdout (is |has been )?(complete|executed)\b/i, question);
   }
