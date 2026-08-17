@@ -202,7 +202,8 @@ const CASES: QueryCase[] = [
   { group: "status", q: "Is VTMS calibrated to a specific vehicle?", contains: /not calibrated to any specific vehicle/i },
   { group: "status", q: "What is the KIT plausibility comparison?", topic: "kit-plausibility", contains: /21\.40|plausibility/i },
   { group: "status", q: "What did the KIT comparison show?", contains: /plausibility|warm/i },
-  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /pending/i },
+  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", contains: /no argonne results exist yet/i },
+  { group: "status", q: "What is the Argonne controlled validation plan?", topic: "argonne", lacks: /calibration (is |has )?complete/i },
   { group: "status", q: "Why is controlled validation still pending?", contains: /pending|Argonne/i },
   { group: "status", q: "How are calibration and holdout kept separate?", topic: "calibration-vs-holdout" },
   { group: "status", q: "What does verification cover?", topic: "verification" },
@@ -351,6 +352,51 @@ test("every quoted canonical number carries its provenance", () => {
       answer.notes.some((note) => /not measured vehicle telemetry/i.test(note)),
       `missing telemetry disclaimer for: ${question}`,
     );
+  }
+});
+
+test("no answer mixes current project status with superseded status text", () => {
+  // The knowledge base carries baseline status prose; `assistant-status-overrides.ts`
+  // supersedes it as the project advances. Every path that renders a topic must apply
+  // the override, or one answer can assert both the old and the new state at once.
+  const superseded = [
+    /pending data acquisition/i,
+    /awaiting qualified argonne/i,
+    /argonne d3 acquisition pending/i,
+  ];
+
+  for (const entry of CASES) {
+    const text = allText(respond(entry.q));
+    for (const pattern of superseded) {
+      assert.doesNotMatch(text, pattern, `superseded status text surfaced for "${entry.q}"`);
+    }
+  }
+
+  // Same guard on the status answers reached through the composer's direct lookups.
+  for (const question of [
+    "How trustworthy are the results?",
+    "Is VTMS validated?",
+    "What is the current validation status?",
+    "How accurate is VTMS?",
+  ]) {
+    const text = allText(respond(question));
+    for (const pattern of superseded) {
+      assert.doesNotMatch(text, pattern, `superseded status text surfaced for "${question}"`);
+    }
+  }
+});
+
+test("status answers still refuse to claim completed physical validation", () => {
+  for (const question of [
+    "How trustworthy are the results?",
+    "Is VTMS validated?",
+    "What is the current validation status?",
+    "What is the Argonne controlled validation plan?",
+  ]) {
+    const text = allText(respond(question));
+    assert.match(text, /not physically validated|no argonne (validation )?result/i, question);
+    assert.doesNotMatch(text, /\bvalidation (is |has been )?complete\b/i, question);
+    assert.doesNotMatch(text, /\bholdout (is |has been )?(complete|executed)\b/i, question);
   }
 });
 
