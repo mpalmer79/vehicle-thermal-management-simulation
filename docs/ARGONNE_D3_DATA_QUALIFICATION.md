@@ -68,9 +68,9 @@ MAF contains obvious impossible spikes and negative values in several comprehens
 
 ### 71207062: UDDS #1 cold start
 
-**Role candidate:** `CAL-01` calibration.
+**Frozen role candidate:** `CAL-01`, warm-up calibration.
 
-The master summary identifies test 71207062 as the 21 C UDDS #1 cold-start test. It is the strongest available calibration candidate because it contains the desired cold-start warm-up transient and direct fuel evidence.
+The master summary identifies test 71207062 as the 21 C UDDS #1 cold-start test. It contains the desired cold-start warm-up transient and direct fuel evidence.
 
 The ECT channel is not valid at file initialization. It reports 99 C through raw time 8.6 s while oil temperature is approximately 24 C, then changes to a physically consistent 25 C at 8.7 s. The trace also contains a small number of obvious half-scale/dropout samples later in the cycle.
 
@@ -87,15 +87,48 @@ The reviewed mapping therefore starts at raw time 8.7 s and explicitly excludes 
 - 1151.0 to 1151.2 s
 - 1309.7 to 1309.8 s
 
-The raw source file fingerprint is recorded in the inventory and mapping configuration.
+After the synthetic-only identifiability review, CAL-01 is restricted to:
+
+1. `wall_heat_fraction`
+2. `engine_thermal_capacitance_j_per_k`
+3. `engine_coolant_ua_w_per_k`
+
+`radiator_ua_nominal_w_per_k` is explicitly excluded from CAL-01.
+
+### 71207057: 1.2 HWYx2 ED
+
+**Frozen role candidate:** `CAL-RAD-01`, radiator-UA-only calibration.
+
+The pre-fit synthetic sensitivity gate showed that radiator UA is weakly excited by the warm-up profiles. The received source measurements were therefore reviewed without executing VTMS predictions to identify a radiator-active condition.
+
+For source time 0 through 1287.5 s, test 71207057 has:
+
+- 12,876 samples
+- complete ECT coverage
+- ECT range 91 to 99 C
+- no greater-than-10 C ECT sample jump
+- average dyno speed approximately 57.31 mph
+- maximum dyno speed 71.742 mph
+- approximately 92.653 percent of samples at or above 40 mph
+- approximately 92.653 percent of samples simultaneously at ECT >= 88 C and dyno speed >= 40 mph
+
+This source-only operating condition provides a substantially stronger basis for a radiator-active calibration stage than the cold-start warm-up profile. No VTMS prediction or residual for test 71207057 was inspected when the role was assigned.
+
+CAL-RAD-01 is limited to `radiator_ua_nominal_w_per_k`. All other parameters must come from the frozen CAL-01 output snapshot and may not be reopened in the radiator stage.
 
 ### 71207063: UDDS #2 hot start
 
-**Role candidate:** `VAL-HOT-01` independent holdout.
+**Frozen role candidate:** `VAL-HOT-01` independent holdout.
 
-Test 71207063 has complete ECT coverage across the received trace and no greater-than-10 C sample-to-sample ECT discontinuities from the test start. It is reserved as the primary clean holdout candidate before any Argonne calibration occurs.
+Test 71207063 has complete ECT coverage across the received trace and no greater-than-10 C sample-to-sample ECT discontinuities from the test start. It remains reserved as the primary clean holdout candidate.
 
 This is a hot-start test, so it cannot replace an independent cold-start replicate. Because the received package does not contain a separate clean cold-start UDDS replicate, the eventual validation claim must explicitly state that limitation.
+
+### 71207052: SSS 55 mph warm-up
+
+**Frozen role candidate:** `VAL-SSS-01` secondary independent holdout.
+
+This run has complete ECT coverage and was reserved as a secondary holdout before calibration. It remains a holdout after the staged-calibration decision and is not repurposed for radiator fitting.
 
 ### 71207065: highway
 
@@ -123,20 +156,18 @@ The master summary identifies this as a cold-start idle test with no fan and lat
 
 ## Other useful received tests
 
-Several Day 2 tests have complete ECT coverage and may be reserved as secondary diagnostic or holdout candidates before calibration if needed:
+Several Day 2 tests have complete ECT coverage and remain unassigned to the primary formal sequence:
 
-- 71207052: SSS 55 mph warm-up
 - 71207053: UDDS cycle beating
 - 71207054: 1.2 UDDS aggressive driving
 - 71207055: 1.4 UDDS aggressive driving
 - 71207056: SSS 0-80-0
-- 71207057: 1.2 highway aggressive driving
 
-They are not silently substituted for the originally requested standard-cycle holdouts. Any role change must be recorded before fitting and based on data availability/quality, not on VTMS residuals.
+They are not silently substituted for calibration or holdout roles. Any future role change must be recorded before fitting and based on source documentation, data quality, and operating conditions rather than VTMS residuals.
 
 ## Adapter changes required by the received data
 
-The original Argonne adapter intentionally supported only explicitly mapped CSV because no D3 schema had been received. The actual comprehensive data use tab-separated text files and direct volumetric fuel flow. The adapter is therefore extended to support:
+The original Argonne adapter intentionally supported only explicitly mapped CSV because no D3 schema had been received. The actual comprehensive data use tab-separated text files and direct volumetric fuel flow. The adapter is extended to support:
 
 1. explicitly mapped TSV/text parsing,
 2. `cc/s` source fuel-flow conversion using a required positive fuel density,
@@ -155,37 +186,44 @@ The validation dataset contract therefore stores nonnegative measured RPM withou
 
 For the current validation path this projection does not alter the heat-input evidence because controlled heat input comes from direct fuel flow rather than the generic RPM/load heat estimator. The projection is used only to keep the measured operating profile compatible with the frozen V1 component domain.
 
-## Preregistered role decisions
+## Frozen role decisions
 
 Before any Argonne parameter fit:
 
-- `CAL-01`: test 71207062, calibration candidate after explicit ECT QC
+- `CAL-01`: test 71207062, three-parameter warm-up calibration candidate after explicit ECT QC
+- `CAL-RAD-01`: test 71207057, radiator-UA-only calibration candidate selected from source operating conditions
 - `VAL-HOT-01`: test 71207063, independent hot-start holdout candidate
+- `VAL-SSS-01`: test 71207052, secondary independent holdout candidate
 - `VAL-HWY-01`: test 71207065, **not qualified for full-cycle ECT validation**
 - `VAL-US06-01`: test 71207066, **not qualified for full-cycle ECT validation**
 - `VAL-CS-01`: no separate clean cold-start UDDS replicate identified in the received package
 - `CHALLENGE-IDLE-CS-01`: test 71207072, challenge candidate only
 
-No model prediction residuals have been used to select these roles.
+No model prediction residuals have been used to select these roles. Existing holdout reservations were preserved when CAL-RAD-01 was introduced.
 
 ## What is still blocked
 
 Physical calibration must **not** start yet.
 
-The following remain required before the first controlled fit:
+Before CAL-01:
 
-1. freeze physically justified bounds for the four preregistered calibration parameters,
+1. freeze physically justified bounds for its three fitted parameters,
 2. finalize and hash the CAL-01 normalized mapping/preprocessing configuration,
-3. create the immutable CAL-01 manifest with the exact raw-file and parameter-snapshot hashes,
-4. freeze the holdout role reservations before observing model residuals,
-5. execute calibration only after those controls are complete.
+3. create the immutable CAL-01 manifest with exact raw-file and parameter-snapshot hashes,
+4. execute only after those controls are complete.
+
+Before CAL-RAD-01:
+
+1. freeze the CAL-01 output parameter snapshot,
+2. freeze a physically justified radiator-UA bound,
+3. finalize and hash the 71207057 normalized mapping/preprocessing configuration,
+4. create the immutable radiator-only manifest referencing the frozen upstream snapshot,
+5. execute only after those controls are complete.
 
 Synthetic demonstration bounds are not Argonne bounds and must not be reused.
 
 ## Current evidence statement
 
-After receipt of these files, the correct VTMS status is:
+The correct VTMS status is:
 
-> Argonne D3 controlled data have been acquired and fingerprinted. Signal mapping and data qualification are in progress. Controlled calibration and physical holdout validation have not yet been executed.
-
-That statement should remain until the governed calibration/holdout workflow produces actual physical comparison results.
+> Argonne D3 controlled data have been acquired and fingerprinted. Signal qualification is in progress. The staged calibration roles are frozen before residual inspection: CAL-01 is a three-parameter cold-start warm-up fit candidate and CAL-RAD-01 is a radiator-UA-only highway fit candidate. Physical calibration bounds are unresolved, controlled calibration has not started, and physical holdout validation has not been executed.
