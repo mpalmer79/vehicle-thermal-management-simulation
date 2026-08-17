@@ -1,0 +1,112 @@
+{
+  "acceptance": {
+    "checks": [
+      {"check_id": "rmse", "label": "RMSE", "status": "pass", "observed": 3.715958772996405, "limit": 5.0, "units": "degC", "note": ""},
+      {"check_id": "mae", "label": "MAE", "status": "pass", "observed": 3.2853693378142057, "limit": 4.0, "units": "degC", "note": ""},
+      {"check_id": "abs_bias", "label": "Absolute mean bias", "status": "pass", "observed": 2.413732045953712, "limit": 3.0, "units": "degC", "note": ""},
+      {"check_id": "p90_abs_error", "label": "P90 absolute error", "status": "pass", "observed": 5.9066163460775485, "limit": 7.0, "units": "degC", "note": ""},
+      {"check_id": "arrival_60c", "label": "60 degC arrival-time error", "status": "pass", "observed": 13.416550336028962, "limit": 60.0, "units": "s", "note": ""},
+      {"check_id": "arrival_80c", "label": "80 degC arrival-time error", "status": "pass", "observed": 8.697193775098015, "limit": 60.0, "units": "s", "note": ""},
+      {"check_id": "arrival_90c", "label": "90 degC arrival-time error", "status": "pass", "observed": 34.001244835474324, "limit": 60.0, "units": "s", "note": ""}
+    ],
+    "claim_label": "calibration_fit_within_project_thresholds",
+    "formal_validation_pass": false,
+    "overall_threshold_pass": true,
+    "role": "calibration"
+  },
+  "boundary_parameter_names": ["wall_heat_fraction", "engine_coolant_ua_w_per_k"],
+  "calibrated_model_parameters": {
+    "air_cp_j_per_kg_k": 1006.0,
+    "air_gas_constant_j_per_kg_k": 287.05,
+    "atmospheric_pressure_pa": 101325.0,
+    "coolant_cp_j_per_kg_k": 3690.0,
+    "coolant_density_kg_per_m3": 1020.0,
+    "coolant_mass_kg": 6.63,
+    "coolant_thermal_capacitance_j_per_k": 24464.7,
+    "coolant_volume_m3": 0.0065,
+    "engine_ambient_ua_w_per_k": 12.0,
+    "engine_coolant_ua_w_per_k": 2198.432642517506,
+    "engine_thermal_capacitance_j_per_k": 52393.90776670539,
+    "fan_full_c": 104.0,
+    "fan_max_vol_flow_m3_s": 1.15,
+    "fan_start_c": 96.0,
+    "peak_torque_nm": 250.0,
+    "pump_base_flow_kg_s": 0.18,
+    "pump_max_flow_kg_s": 1.4,
+    "pump_slope_kg_s_per_rpm": 0.00022,
+    "radiator_face_area_m2": 0.45,
+    "radiator_ua_nominal_w_per_k": 1100.0,
+    "ram_capture_coefficient": 0.33,
+    "solver_atol": 1e-08,
+    "solver_max_step_s": 1.0,
+    "solver_rtol": 1e-06,
+    "thermostat_full_c": 98.0,
+    "thermostat_open_c": 88.0,
+    "wall_heat_fraction": 0.4999228432666162
+  },
+  "calibrated_parameter_snapshot_sha256": "8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2",
+  "data_summary": {
+    "initial_measured_coolant_c": 25.0,
+    "normalized_duration_s": 1365.3,
+    "retained_rows": 13638,
+    "retained_time_end_source_s": 1374.0,
+    "retained_time_start_source_s": 8.7,
+    "source_rows": 13841
+  },
+  "execution_identity": {
+    "evidence_grade": "controlled_calibration",
+    "formal_validation_claim": false,
+    "repository_main_commit": "4f168720774e1e69513a40b1af1c393359c4c3c6",
+    "run_id": "CAL-01",
+    "source_test_id": "71207062",
+    "python_version": "3.13.5",
+    "numpy_version": "2.3.5",
+    "scipy_version": "1.17.0",
+    "execution_note": "Executed from the merged 4f168720 lock semantics using a local mirror because the container could not resolve github.com. Source, mapping, baseline parameter, staged-bound, optimizer, and LHV locks were verified before residual evaluation."
+  },
+  "interpretation": {
+    "cal_rad_01_executed": false,
+    "calibration_threshold_pass_is_not_validation": true,
+    "effective_parameter_warning": "CAL-01 parameters are effective VTMS-V1 lumped values. Strong sensitivity correlation means individual fitted values must not be reported as uniquely identified physical properties.",
+    "boundary_warning": "wall_heat_fraction and engine_coolant_ua_w_per_k are within 1 percent of their frozen upper bounds. The bounds were not widened and this constraint interaction is preserved as model-calibration evidence.",
+    "holdouts_opened": false
+  },
+  "locks": {
+    "calibration_bounds_sha256": "2d32b4b3514205001f7fc984b1c68dbbdbdb78d3a4f7de19fe816eb9433b33aa",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "initial_parameter_snapshot_sha256": "f5ee79e90565136c77f60b1dec429e24a6693aefc475fe2469e25b0d6d9e30d4",
+    "signal_map_sha256": "838e8a9c4280785a8a1715bccec25c97fcafbb457005c73c6a09d26bcf23970f",
+    "source_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+    "source_size_bytes": 5112912
+  },
+  "metrics": {
+    "bias_c": -2.413732045953712,
+    "final_error_c": -4.631169531597379,
+    "mae_c": 3.2853693378142057,
+    "max_abs_error_c": 7.0668665935673545,
+    "measured_final_c": 95.0,
+    "n": 13638,
+    "p90_abs_error_c": 5.9066163460775485,
+    "predicted_final_c": 90.36883046840262,
+    "rmse_c": 3.715958772996405,
+    "threshold_arrival_error_s": {"60C": 13.416550336028962, "80C": -8.697193775098015, "90C": -34.001244835474324}
+  },
+  "optimizer": {
+    "active_mask": [0, 0, 0],
+    "coordinate_system": "normalized_bound_fraction_0_to_1",
+    "diff_step": 0.05,
+    "final_cost": 94159.13594019042,
+    "initial_cost": 1188101.664225258,
+    "message": "`xtol` termination condition is satisfied.",
+    "nfev": 18,
+    "optimality": 1349.4273237860402,
+    "status": 3,
+    "success": true
+  },
+  "parameters": [
+    {"fitted": 0.4999228432666162, "initial": 0.28, "lower": 0.2, "name": "wall_heat_fraction", "normalized_bound_fraction": 0.9997428108887205, "upper": 0.5},
+    {"fitted": 52393.90776670539, "initial": 50000.0, "lower": 25000.0, "name": "engine_thermal_capacitance_j_per_k", "normalized_bound_fraction": 0.36525210355607196, "upper": 100000.0},
+    {"fitted": 2198.432642517506, "initial": 1000.0, "lower": 400.0, "name": "engine_coolant_ua_w_per_k", "normalized_bound_fraction": 0.9991292458430587, "upper": 2200.0}
+  ]
+}
