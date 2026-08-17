@@ -2,24 +2,29 @@
 
 ## Status
 
-**CAL-01 remains blocked. No Argonne model residual has been evaluated. Physical calibration bounds are not yet frozen.**
+**Physical calibration remains blocked. No Argonne model residual has been evaluated. Physical calibration bounds are not yet frozen.**
 
-The synthetic pre-fit identifiability gate is now implemented and has produced its first governed result. The four-parameter local sensitivity matrix is numerically full-rank, but the current warm-up profiles provide very weak excitation of `radiator_ua_nominal_w_per_k`. A four-parameter simultaneous CAL-01 fit is therefore not authorized by this readiness review.
+The synthetic pre-fit identifiability gate is implemented and has produced its first governed result. The four-parameter local sensitivity matrix is numerically full-rank, but the warm-up profiles provide very weak excitation of `radiator_ua_nominal_w_per_k`. A four-parameter simultaneous CAL-01 fit is therefore prohibited.
 
-This document records the engineering basis for the pre-fit identifiability gate that must be completed before the 2012 Ford Focus Argonne D3 cold-start calibration run is allowed to influence VTMS-V1 parameters.
+The resulting staged calibration roles have now been frozen before residual inspection:
 
-The purpose is not to find bounds that make the future fit succeed. The purpose is to determine whether the preregistered effective parameters can be distinguished by the available coolant-temperature observation and to identify what additional physical rationale is required before numerical limits are frozen.
+- `CAL-01`: Argonne test 71207062, fitted subset limited to `wall_heat_fraction`, `engine_thermal_capacitance_j_per_k`, and `engine_coolant_ua_w_per_k`.
+- `CAL-RAD-01`: Argonne test 71207057, fitted subset limited to `radiator_ua_nominal_w_per_k` after the CAL-01 snapshot is frozen.
+- `VAL-HOT-01`: 71207063 remains an untouched holdout.
+- `VAL-SSS-01`: 71207052 remains an untouched secondary holdout.
 
-## Frozen calibration subset
+This document records the engineering basis for those decisions before any Argonne model prediction is compared with measured ECT.
 
-The governance-approved calibration universe remains unchanged:
+## Governance-approved calibration universe
+
+The overall calibration universe remains unchanged:
 
 1. `wall_heat_fraction`
 2. `engine_thermal_capacitance_j_per_k`
 3. `engine_coolant_ua_w_per_k`
 4. `radiator_ua_nominal_w_per_k`
 
-A calibration manifest may declare a governed subset of these parameters. No fifth parameter is introduced by this work.
+No fifth parameter is introduced. The parameters are now split across two calibration runs because the pre-fit diagnostic shows they are not equally informed by the same operating regime.
 
 ## Why literature values cannot simply be copied into VTMS
 
@@ -99,7 +104,7 @@ The current diagnostic thresholds are **VTMS engineering heuristics only**, not 
 - normalized condition number `>= 100`: strong ill-conditioning
 - RMS sensitivity `< 2%` of the strongest parameter: weak practical excitation
 
-Most importantly, the function rejects any dataset that is not explicitly marked synthetic and nonphysical. This prevents the identifiability phase from accidentally seeing Argonne prediction residuals before physical calibration bounds and evidence roles are frozen.
+Most importantly, the function rejects any dataset that is not explicitly marked synthetic and nonphysical. This prevents the identifiability phase from seeing Argonne prediction residuals before physical calibration bounds and evidence roles are frozen.
 
 ## Synthetic profiles used
 
@@ -110,8 +115,6 @@ The CI runner evaluates:
 1. synthetic calibration profile alone
 2. synthetic holdout profile alone
 3. both profiles combined
-
-The combined profile is the most informative pre-fit view because it asks whether changes in operating condition improve separation of the four parameter sensitivity shapes.
 
 ## Observed synthetic result
 
@@ -125,16 +128,12 @@ The first CI execution used the generic VTMS-V1 parameter snapshot and a 1 perce
 - smallest normalized singular value: **0.1708**
 - strongest pairwise similarity: wall heat fraction versus engine thermal capacitance, `|cosine| = 0.7118`
 
-RMS coolant-temperature sensitivities per unit fractional parameter change:
-
 | Parameter | RMS sensitivity, C | Relative to strongest |
 |---|---:|---:|
 | `wall_heat_fraction` | 6.0726 | 100.0% |
 | `engine_thermal_capacitance_j_per_k` | 1.4170 | 23.34% |
 | `engine_coolant_ua_w_per_k` | 4.0274 | 66.32% |
 | `radiator_ua_nominal_w_per_k` | 0.1078 | **1.78%** |
-
-The radiator term is already below the 2 percent weak-excitation heuristic in this profile.
 
 ### Synthetic holdout profile, `SYN-HOLD-01`
 
@@ -144,16 +143,12 @@ The radiator term is already below the 2 percent weak-excitation heuristic in th
 - smallest normalized singular value: **0.0913**
 - strongest pairwise similarity: wall heat fraction versus engine thermal capacitance, `|cosine| = 0.9375`
 
-RMS sensitivities:
-
 | Parameter | RMS sensitivity, C | Relative to strongest |
 |---|---:|---:|
 | `wall_heat_fraction` | 10.4328 | 100.0% |
 | `engine_thermal_capacitance_j_per_k` | 3.2195 | 30.86% |
 | `engine_coolant_ua_w_per_k` | 4.3725 | 41.91% |
 | `radiator_ua_nominal_w_per_k` | 0.00461 | **0.044%** |
-
-The holdout profile provides essentially no practical radiator-UA excitation around the generic operating point.
 
 ### Combined synthetic profiles
 
@@ -162,8 +157,6 @@ The holdout profile provides essentially no practical radiator-UA excitation aro
 - normalized-matrix condition number: **8.123**
 - normalized singular values relative to the largest: `1.0000, 0.6685, 0.5926, 0.1231`
 - strongest pairwise similarity: wall heat fraction versus engine thermal capacitance, `cosine = -0.8800`
-
-Combined RMS sensitivities:
 
 | Parameter | RMS sensitivity, C | Relative to strongest |
 |---|---:|---:|
@@ -174,38 +167,81 @@ Combined RMS sensitivities:
 
 ### Interpretation
 
-The normalized Jacobian is neither rank deficient nor severely ill-conditioned at this local synthetic point. That means the four sensitivity histories are mathematically distinct.
+The normalized Jacobian is neither rank deficient nor severely ill-conditioned at this local synthetic point. The four sensitivity histories are mathematically distinct, but `radiator_ua_nominal_w_per_k` produces less than one percent of the strongest RMS coolant response across the combined warm-up profiles. That parameter is therefore not practically supported by the same warm-up fit.
 
-However, mathematical rank does not make a weak parameter practically estimable. `radiator_ua_nominal_w_per_k` produces less than one percent of the strongest RMS coolant response across the combined warm-up profiles. A nonlinear optimizer could still move that parameter, but the coolant trace would supply little information with which to distinguish a genuine radiator-UA correction from optimizer freedom, noise, or compensation through other parameters.
+Wall heat fraction and effective engine thermal capacitance also show notable inverse similarity (`cosine = -0.8800` combined and `-0.9375` on the second profile). This is a reason to keep their future physical bounds conservative and to inspect post-fit covariance or profile behavior before treating fitted values as independently identified physical properties.
 
-Wall heat fraction and effective engine thermal capacitance also show a notable inverse similarity (`cosine = -0.8800` combined and `-0.9375` on the second profile). That is not severe enough to trigger the 0.95 shape heuristic in the combined analysis, but it is a reason to keep both bounds conservative and to inspect post-fit covariance or profile behavior before treating their fitted values as independently identified physical properties.
+## Source-only selection of CAL-RAD-01
 
-## Readiness decision
+After the synthetic weak-excitation finding, the received Argonne source measurements were reviewed **without running VTMS predictions** to locate an operating condition that actually exercises the radiator path.
 
-**Do not execute a four-parameter CAL-01 fit.**
+Test `71207057`, identified in the Argonne material as `1.2 HWYx2 ED`, was selected as `CAL-RAD-01` because its post-zero source record has:
 
-The current evidence supports a staged calibration strategy:
+- 12,876 samples through 1287.5 s
+- complete ECT coverage
+- ECT range **91 to 99 °C**
+- no greater-than-10 °C ECT sample jump
+- average dyno speed **57.31 mph**
+- maximum dyno speed **71.742 mph**
+- **92.653%** of samples at or above 40 mph
+- **92.653%** of samples simultaneously at ECT >= 88 °C and speed >= 40 mph
 
-1. `CAL-01` may eventually fit only a defensible manifest-declared subset of the warm-up-sensitive parameters after their physical bounds are independently justified and frozen.
-2. `radiator_ua_nominal_w_per_k` should remain fixed during CAL-01 unless a separately preregistered calibration case is shown, from source operating conditions rather than VTMS residuals, to provide meaningful radiator-active excitation.
-3. Existing holdout reservations must not be converted into calibration cases after their model residuals are observed.
-4. A separate radiator-active calibration case, if selected from the already-received Argonne package, must be assigned before its VTMS residual is inspected.
+These are measured source conditions only. They were not selected because VTMS fit this test well or poorly. No VTMS residual for 71207057 has been observed.
 
-This is a calibration-structure decision, not a statement that the generic 1100 W/K radiator value is correct. The present analysis only establishes that the warm-up profiles are a poor place to estimate it.
+The mapping and role reservation are frozen in `validation_configs/argonne_2012_focus_71207057_radiator_calibration.json` and `validation_configs/argonne_validation_plan.json`.
+
+## Frozen staged calibration structure
+
+### CAL-01, warm-up stage
+
+Source test: **71207062**, cold-start UDDS #1.
+
+Manifest-declared fitted subset:
+
+1. `wall_heat_fraction`
+2. `engine_thermal_capacitance_j_per_k`
+3. `engine_coolant_ua_w_per_k`
+
+`radiator_ua_nominal_w_per_k` is explicitly excluded from this fit.
+
+### CAL-RAD-01, radiator stage
+
+Source test: **71207057**, 1.2 highway x2.
+
+Manifest-declared fitted subset:
+
+1. `radiator_ua_nominal_w_per_k`
+
+All non-radiator parameters must come from the frozen CAL-01 output snapshot. CAL-RAD-01 must not reopen or retune the three CAL-01 parameters.
+
+### Holdout protection
+
+- `VAL-HOT-01`, test 71207063, remains reserved as an independent holdout.
+- `VAL-SSS-01`, test 71207052, remains reserved as a secondary independent holdout.
+
+Neither was repurposed after the identifiability finding.
 
 ## Decision rule for the next phase
 
+The calibration structure is now frozen, but **neither physical fit is authorized yet**.
+
 Before CAL-01 can run, the project must still:
 
-1. establish the final manifest-declared CAL-01 fitted subset,
-2. establish a documented engineering basis for finite physical bounds on every parameter that remains fitted,
-3. freeze those bounds without reference to Argonne residuals,
-4. decide whether a separate radiator-active calibration case is needed and reserve it before residual inspection,
-5. freeze the CAL-01 mapping/preprocessing configuration and exact hashes,
-6. create the immutable CAL-01 manifest,
-7. only then execute the first physical calibration.
+1. establish a documented engineering basis for finite physical bounds on its three fitted parameters,
+2. freeze those bounds without reference to Argonne residuals,
+3. freeze the CAL-01 mapping/preprocessing configuration and exact hashes,
+4. create the immutable CAL-01 manifest,
+5. only then execute CAL-01.
 
-The synthetic identifiability concern is not a software failure. It is useful evidence that the calibration problem should be staged rather than allowing a four-variable optimizer to absorb model mismatch indiscriminately.
+Before CAL-RAD-01 can run, the project must additionally:
+
+1. freeze the successful or otherwise governed CAL-01 output snapshot,
+2. establish and freeze a physical bound for radiator UA,
+3. freeze the 71207057 normalized mapping/preprocessing hash,
+4. create an immutable radiator-only calibration manifest referencing the frozen upstream snapshot,
+5. only then execute CAL-RAD-01.
+
+The synthetic identifiability concern is useful evidence that the calibration problem should be staged rather than allowing a four-variable optimizer to absorb model mismatch indiscriminately.
 
 ## Primary technical sources
 
@@ -215,4 +251,4 @@ The synthetic identifiability concern is not a software failure. It is useful ev
 
 ## Evidence boundary
 
-Nothing in this document is an Argonne calibration result. Nothing here changes VTMS-V1 equations, the generic parameter snapshot, the formal acceptance thresholds, or the already-reserved holdout roles. VTMS-V1 remains `numerical_verified_generic_uncalibrated`.
+Nothing in this document is an Argonne calibration result. Nothing here changes VTMS-V1 equations, the generic parameter snapshot, the formal acceptance thresholds, or the reserved holdout roles. VTMS-V1 remains `numerical_verified_generic_uncalibrated`.
