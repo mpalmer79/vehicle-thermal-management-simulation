@@ -15,104 +15,131 @@ Every external-data run must be assigned exactly one role before formal analysis
 
 The role and evidence grade are coupled in code. A manifest with a mismatched role/evidence grade is invalid.
 
-## Frozen calibration subset
+## Governed calibration universe and frozen bounds
 
-The controlled calibration subset is:
+Only these four VTMS-V1 parameters may be adjusted by controlled physical calibration:
 
-1. `wall_heat_fraction`
-2. `engine_thermal_capacitance_j_per_k`
-3. `engine_coolant_ua_w_per_k`
-4. `radiator_ua_nominal_w_per_k`
+1. `wall_heat_fraction`, bound 0.20 to 0.50
+2. `engine_thermal_capacitance_j_per_k`, bound 25,000 to 100,000 J/K
+3. `engine_coolant_ua_w_per_k`, bound 400 to 2,200 W/K
+4. `radiator_ua_nominal_w_per_k`, bound 400 to 2,200 W/K
 
-No other parameter may be fitted without an explicit protocol and governance change. Numerical calibration bounds are intentionally not embedded yet. They must be selected, physically justified, documented, and frozen before the first controlled Argonne fit rather than invented after observing residuals.
+The numerical intervals were frozen before any VTMS-vs-Argonne residual inspection. They are effective-model engineering bounds, not direct measurements of Ford component properties. Synthetic demonstration bounds remain test-only and are not physical justification.
 
-Synthetic demonstration bounds are test-only and must not be reused as Argonne physical calibration bounds.
+The complete four-parameter bound set is an audit record for the governed calibration universe. It does **not** authorize all four parameters to move in the same optimizer stage.
+
+## Pre-fit identifiability and staged calibration
+
+Two synthetic diagnostics are used before physical fitting:
+
+1. a broad rich-excitation preflight to detect gross local collinearity or numerical degeneracy,
+2. a warm-up-stage diagnostic that asks whether the cold-start CAL-01 experiment materially excites all four parameters.
+
+The warm-up-stage diagnostic is internally generated and cannot accept Argonne data. Its combined synthetic warm-up profiles are full rank, but radiator-UA RMS coolant sensitivity is about 0.94 percent of the strongest parameter sensitivity. The strongest combined sensitivity-shape relationship is wall heat fraction versus effective engine capacitance, cosine about -0.88.
+
+The 2 percent weak-relative-sensitivity threshold is a VTMS engineering heuristic, not a formal statistical criterion. It exists to prevent a weakly informed parameter from moving merely because an optimizer can move it.
+
+As a result, a four-parameter simultaneous CAL-01 fit is prohibited.
+
+### CAL-01
+
+Source test: `71207062`, UDDS #1 cold start.
+
+Authorized parameters:
+
+- `wall_heat_fraction`
+- `engine_thermal_capacitance_j_per_k`
+- `engine_coolant_ua_w_per_k`
+
+`radiator_ua_nominal_w_per_k` is fixed during this stage.
+
+### CAL-RAD-01
+
+Source test: `71207057`, 1.2 highway x2.
+
+Authorized parameter:
+
+- `radiator_ua_nominal_w_per_k`
+
+The run was selected from source measurements before any VTMS prediction or residual inspection. Its post-zero source record has complete ECT from 91 to 99 C, average dyno speed about 57.31 mph, and about 92.65 percent of samples at or above 40 mph while ECT is at or above 88 C.
+
+CAL-RAD-01 must use the frozen CAL-01 output snapshot for every non-radiator parameter. It may not reopen the CAL-01 parameters.
 
 ## Dataset identity and immutability
 
 Every controlled run must record:
 
 - dataset ID
-- source file name
-- SHA-256 hash of the exact source file
+- source file name and SHA-256
 - file size
-- model ID and model version
-- equation set
-- parameter set
-- SHA-256 hash of the exact parameter snapshot
-- validation role
-- evidence grade
-- fitted-parameter declaration, if and only if the run is calibration
+- model ID/version and equation set
+- parameter-set identifier and exact parameter-snapshot SHA-256
+- validation role and evidence grade
+- fitted-parameter declaration for calibration runs only
+- frozen bound set applicable to that stage
+- preprocessing/mapping provenance
 - acceptance criteria
 
-If the source file changes by even one byte, it is a different dataset artifact for provenance purposes.
+If a source file changes by one byte, it is a different provenance artifact.
 
-Received third-party raw validation files are kept outside version control unless redistribution terms are explicitly confirmed. The repository stores fingerprints, reviewed mappings, qualification findings, and run manifests.
+Received third-party raw validation files remain outside version control unless redistribution terms are explicitly confirmed. The repository stores fingerprints, reviewed mappings, qualification findings, and run manifests.
 
 ## Holdout protection
 
-A holdout manifest cannot declare calibration parameters and cannot authorize a fitting operation. This is enforced by `ValidationRunManifest.assert_parameter_fit_allowed()` rather than relying only on analyst discipline.
+A holdout manifest cannot declare calibration parameters and cannot authorize fitting. Existing holdout reservations remain protected after the staged-calibration decision:
 
-The controlled sequence is:
+- `VAL-HOT-01`: test 71207063, UDDS #2 hot start
+- `VAL-SSS-01`: test 71207052, 55 mph warm-up
 
-1. acquire and archive source files and source documentation
+Neither may be repurposed for fitting after its model residual is observed.
+
+The controlled sequence is now:
+
+1. acquire and archive source files and documentation
 2. hash each raw artifact
-3. inspect source data quality without model residuals
-4. assign test IDs and roles before fitting
-5. build explicit source-to-VTMS signal maps and preprocessing declarations
-6. freeze physically justified calibration bounds
-7. qualify the calibration run
-8. fit only the preregistered subset
-9. freeze the resulting parameter snapshot and hash
-10. execute holdout runs without retuning
-11. publish metrics, residuals, warnings, and failures
+3. inspect measurement quality without model residuals
+4. assign source roles before fitting
+5. build explicit source-to-VTMS mappings
+6. freeze physical bounds
+7. run synthetic pre-fit identifiability diagnostics
+8. freeze staged calibration roles
+9. freeze CAL-01 mapping, preprocessing, baseline parameter snapshot, bounds subset, and immutable manifest
+10. execute CAL-01 on only its three declared parameters
+11. freeze the CAL-01 output snapshot
+12. freeze CAL-RAD-01 mapping and immutable radiator-only manifest
+13. execute CAL-RAD-01 without reopening CAL-01 parameters
+14. freeze the final staged parameter snapshot
+15. execute untouched holdouts without retuning
+16. publish metrics, residuals, warnings, acceptance decisions, and failures
 
-A failed holdout remains part of the engineering record. It must not be converted into a new calibration run after its results have been inspected.
+A failed physical comparison remains part of the engineering record. Bounds or roles may not be widened or rearranged merely to improve an already-observed residual.
 
 ## Argonne D3 mapping policy
 
-VTMS does not guess Argonne D3 column names, units, file semantics, or cleanup rules.
+VTMS does not guess Argonne D3 column names, units, file semantics, or cleanup rules. The received comprehensive files are tab-separated text and provide explicit channels including time, ECT, RPM, dyno speed, cell temperature, and direct bench fuel flow.
 
-Argonne supplied the requested 2012 Ford Focus material on 2026-08-17. The received comprehensive test files are tab-separated text and provide the reviewed channels needed by VTMS:
+`ArgonneD3Adapter` requires a reviewed `ArgonneSignalMap`. Direct volumetric fuel flow is converted to mass flow only with the documented 0.743 g/mL fuel density, and controlled execution still requires an explicitly supplied lower heating value. MAF is not formal controlled heat-input evidence.
 
-- `Time [s]`
-- `EngineCoolantTemp[C]`
-- `Eng_Spd[RPM]`
-- `Dyno_Spd[mph]`
-- `Cell_Temp[C]`
-- `Eng_FuelFlow_Direct[cc/s]`
-
-`ArgonneD3Adapter` requires a reviewed `ArgonneSignalMap`. The map explicitly names every source column and unit. The adapter now supports explicitly mapped CSV, TSV, and delimited text files because the received D3 package documents that format.
-
-The direct fuel-flow source is volumetric. The included Argonne master summary reports a fuel density of 0.743 g/mL, so the adapter may convert `cc/s` to `kg/s` only when that density is explicitly declared in the mapping metadata. Controlled execution still requires the fuel lower heating value to be explicitly supplied to the runner.
-
-The adapter also supports explicit source-time start/end selection and explicit exclusion intervals. It does not infer invalid ECT values and does not silently clean a trace. Every removed interval must be declared in the reviewed map and is recorded in normalized dataset metadata.
-
-The detailed qualification record is `docs/ARGONNE_D3_DATA_QUALIFICATION.md`.
-
-Preferred formal heat-input evidence is direct measured fuel rate or fuel-energy rate when available. MAF-derived stoichiometric heat remains secondary plausibility evidence and must not be relabeled as measured fuel. The received comprehensive MAF channel contains impossible spikes in several tests and is not used for controlled heat input.
+Source-time selection and ECT exclusions are explicit reviewed mapping decisions. The adapter does not automatically infer or repair bad ECT samples.
 
 ## Measured operating data versus frozen model domain
 
-External measurement files are evidence records and may contain measured operating values outside the frozen VTMS-V1 scenario input domain. `ValidationDataset` therefore validates measured RPM as nonnegative evidence rather than forcing the evidence into the model domain.
+External measurement files are evidence records. Measured RPM is preserved as nonnegative source evidence even when it lies below the frozen scenario-domain floor. The comparison runner projects nonzero RPM into the frozen 700 to 6500 rpm model domain only at execution and records that projection as preprocessing provenance.
 
-At comparison execution, the runner projects nonzero measured RPM into the frozen 700 to 6500 rpm `Scenario` reference domain and records the projection in `input_preprocessing_metadata`. The raw dataset values remain unchanged.
-
-For the current controlled-validation path, engine heat comes from direct fuel evidence through `engine_heat_override_w`, not from the generic RPM/load heat estimator. The RPM projection therefore exists only to keep the measured operating profile compatible with the frozen V1 component-model boundary.
+Controlled engine heat comes from direct fuel evidence rather than the generic RPM/load heat estimator.
 
 ## Current Argonne role reservations
 
-Role reservations were made from Argonne test documentation and source-signal quality before any VTMS residual was inspected.
+- `CAL-01`: 71207062, three-parameter cold-start warm-up calibration stage
+- `CAL-RAD-01`: 71207057, radiator-UA-only highway calibration stage
+- `VAL-HOT-01`: 71207063, independent hot-start holdout
+- `VAL-SSS-01`: 71207052, secondary independent holdout
+- `VAL-CS-01`: no separate clean cold-start UDDS replicate identified
+- `VAL-HWY-01`: 71207065, not qualified for full-cycle ECT validation
+- `VAL-US06-01`: 71207066, not qualified for full-cycle ECT validation
+- `CHALLENGE-IDLE-CS-01`: 71207072, challenge only
 
-- `CAL-01`: 71207062, UDDS #1 cold start, calibration candidate after explicit ECT quality selection.
-- `VAL-HOT-01`: 71207063, UDDS #2 hot start, independent holdout candidate.
-- `VAL-SSS-01`: 71207052, 55 mph warm-up, secondary independent holdout candidate reserved before fit.
-- `VAL-CS-01`: no separate clean cold-start UDDS replicate identified in the received package.
-- `VAL-HWY-01`: 71207065, not qualified for full-cycle ECT validation because the received ECT channel becomes unavailable early.
-- `VAL-US06-01`: 71207066, not qualified for full-cycle ECT validation because the received ECT channel becomes unavailable early.
-- `CHALLENGE-IDLE-CS-01`: 71207072, cold-start idle/no-fan challenge candidate with partial ECT coverage.
-
-These reservations do not authorize calibration. Physical calibration bounds remain unresolved and must be frozen first.
+These roles and bounds still do not authorize physical calibration until exact preprocessing and immutable manifests are frozen.
 
 ## Project acceptance criteria
 
@@ -122,7 +149,7 @@ These thresholds are VTMS project criteria, not SAE or Argonne standards:
 - MAE <= 4 C
 - absolute mean bias <= 3 C
 - 90th percentile absolute error <= 7 C
-- 60/80/90 C arrival error <= 60 s or 10 percent of the measured arrival time, whichever is larger
+- 60/80/90 C arrival error <= 60 s or 10 percent of measured arrival time, whichever is larger
 
 Passing numerical verification remains necessary but is not equivalent to physical validation.
 
@@ -132,4 +159,4 @@ VTMS-V1 remains `numerical_verified_generic_uncalibrated`.
 
 The KIT comparison remains `external_plausibility_not_formal_validation` and must not be used to tune VTMS-V1 parameters.
 
-Argonne D3 source acquisition and fingerprinting are complete. Signal mapping and data qualification are in progress. Controlled Argonne calibration has not started, and no physical holdout result exists yet.
+Argonne source acquisition, fingerprinting, physical-bound freeze, synthetic preflight, and staged role allocation are complete. Signal/mapping qualification is being finalized. No Argonne physical calibration or holdout validation result exists yet.

@@ -2,119 +2,134 @@
 
 ## Status
 
-**Frozen before inspection of VTMS-vs-Argonne residuals.**
+**Frozen before inspection of VTMS-vs-Argonne residuals. Physical calibration has not started.**
 
-This document records the first controlled physical-calibration search space for VTMS-V1 and the pre-Argonne identifiability diagnostic. The purpose is to prevent residual-driven boundary selection and to make later calibration decisions auditable.
+This document records the controlled physical-calibration bounds for VTMS-V1 and the pre-Argonne identifiability decisions that determine how those bounds may be used. The purpose is to prevent residual-driven boundary selection, prevent weakly informed parameters from drifting inside a large optimizer, and make later calibration decisions auditable.
 
-The Argonne source data have been received and qualified, but no VTMS prediction residual against the selected Argonne calibration or holdout traces was used to select the bounds in this document.
+The Argonne source data have been received and qualified. No VTMS prediction residual against CAL-01, CAL-RAD-01, or the reserved holdouts was used to select the bounds or the staged calibration roles in this document.
 
-## Governing calibration subset
+## Governed calibration universe
 
-The existing validation protocol permits only four fitted parameters:
+The validation protocol permits only four adjustable parameters:
 
 1. `wall_heat_fraction`
 2. `engine_thermal_capacitance_j_per_k`
 3. `engine_coolant_ua_w_per_k`
 4. `radiator_ua_nominal_w_per_k`
 
-No other VTMS-V1 parameter may move in the first Argonne fit without a new protocol version.
+No other VTMS-V1 parameter may move without a new protocol and governance version. These four parameters form the governed calibration universe. They are not required to move in the same optimizer stage.
 
 ## Frozen physical calibration bounds
 
-| Parameter | Lower | Upper | Current generic value | Interpretation |
-|---|---:|---:|---:|---|
-| `wall_heat_fraction` | 0.20 | 0.50 | 0.28 | effective fraction of measured fuel LHV rate entering the lumped engine thermal state |
-| `engine_thermal_capacitance_j_per_k` | 25,000 J/K | 100,000 J/K | 50,000 J/K | effective thermal capacitance of the V1 engine-structure state |
-| `engine_coolant_ua_w_per_k` | 400 W/K | 2,200 W/K | 1,000 W/K | effective aggregate engine-structure-to-coolant conductance |
-| `radiator_ua_nominal_w_per_k` | 400 W/K | 2,200 W/K | 1,100 W/K | nominal aggregate radiator conductance in the V1 effectiveness-NTU model |
+| Parameter | Lower | Upper | Current generic value |
+|---|---:|---:|---:|
+| `wall_heat_fraction` | 0.20 | 0.50 | 0.28 |
+| `engine_thermal_capacitance_j_per_k` | 25,000 J/K | 100,000 J/K | 50,000 J/K |
+| `engine_coolant_ua_w_per_k` | 400 W/K | 2,200 W/K | 1,000 W/K |
+| `radiator_ua_nominal_w_per_k` | 400 W/K | 2,200 W/K | 1,100 W/K |
 
-These are **engineering bounds for the frozen VTMS-V1 topology**, not direct measurements of Ford components. A fitted effective parameter must not be relabeled as a physical mass, local heat-transfer coefficient, or bench-rated radiator constant.
-
-These bounds are intentionally different from the synthetic calibration-harness fixtures. The synthetic ranges were software-test inputs and remain prohibited as physical justification.
+These are engineering bounds for the frozen VTMS-V1 topology, not direct measurements of Ford components. A fitted effective parameter must not be relabeled as a physical mass, local heat-transfer coefficient, or bench-rated radiator constant. The synthetic calibration-harness ranges remain software-test fixtures and are not physical justification.
 
 ## Parameter rationale
 
-### 1. Wall heat fraction: 0.20 to 0.50
+### Wall heat fraction
 
-Transient gasoline-engine start-up work by Lejsek and Kulzer reports combustion-wall heat transfer as a very large term in the start-up energy balance, approximately 40 percent of burned fuel energy in SAE 2009-01-0613 and nearly 45 percent in SAE 2010-01-1270. Those measurements are not identical to the VTMS parameter because V1 collapses multiple engine solids into one state and does not explicitly represent oil, exhaust, or spatial wall temperatures.
+Transient gasoline-engine start-up work reports combustion-wall heat transfer as a large term in the start-up energy balance. Those measurements are not identical to the VTMS parameter because V1 collapses multiple engine solids into one state and does not explicitly represent oil, exhaust, or spatial wall temperatures. The frozen 0.20 to 0.50 range therefore brackets the literature scale without equating the effective V1 term to a local wall measurement.
 
-The preregistered interval therefore brackets the literature scale without forcing the fitted effective V1 parameter to equal a local combustion-wall measurement. The 0.20 lower bound allows substantial energy to leave through pathways omitted from the single engine state, while 0.50 prevents the calibration from assigning a majority-plus share of fuel LHV directly to the one lumped state.
+Primary source basis: SAE 2009-01-0613 and SAE 2010-01-1270.
 
-Primary sources:
+### Effective engine thermal capacitance
 
-- SAE 2009-01-0613, *Investigations on the Transient Wall Heat Transfer at Start-Up for SI Engines with Gasoline Direct Injection*.
-- SAE 2010-01-1270, *Novel Transient Wall Heat Transfer Approach for the Start-up of SI Engines with Gasoline Direct Injection*.
+Engine warm-up literature uses lumped thermal capacitances or lumped masses. VTMS-V1 is lower order than those models, so its engine capacitance is an effective participating capacitance rather than the heat capacity of the complete engine assembly. The frozen 25 to 100 kJ/K interval spans a factor of four around the generic 50 kJ/K value.
 
-### 2. Effective engine thermal capacitance: 25 to 100 kJ/K
+Primary source basis: SAE 910302, SAE 931153, SAE 971852, and SAE 2016-01-0197.
 
-Engine warm-up literature routinely represents engine structure using lumped thermal capacitances or lumped masses. SAE 910302 develops an SI-engine warm-up model using lumped thermal capacitance for major engine components. SAE 931153 uses a lumped-capacity block/head model. SAE 971852 describes engine geometry, mass, coolant volume, and lumped-capacity thermal behavior. SAE 2016-01-0197 separates coolant, oil, and engine masses in a four-point warm-up model.
+### Engine-to-coolant UA
 
-VTMS-V1 is lower order than those models, so its `engine_thermal_capacitance_j_per_k` is an **effective participating capacitance**, not the heat capacity of the complete engine assembly. A broad 25 to 100 kJ/K interval spans a factor of four and contains the current 50 kJ/K generic value. It allows a large change in transient inertia without allowing the engine state to become nearly massless or effectively fixed over a drive-cycle warm-up.
+Detailed engine thermal models resolve coolant-side convection, conduction through engine solids, spatial wall temperatures, and multiple coolant paths. VTMS-V1 compresses that network into one `UA_ec`, so there is no single transferable literature coefficient. The frozen 400 to 2,200 W/K interval permits a large coupling-time-scale correction while remaining finite and positive.
 
-Primary sources:
+Primary source basis: SAE 931157, SAE 971852, and SAE 2011-01-0647.
 
-- SAE 910302, *Modeling the Spark Ignition Engine Warm-Up Process to Predict Component Temperatures and Hydrocarbon Emissions*.
-- SAE 931153, *A Model for the Investigation of Temperature, Heat Flow and Friction Characteristics During Engine Warm-Up*.
-- SAE 971852, *Progress on Modelling Engine Thermal Behaviour for VTMS Applications*.
-- SAE 2016-01-0197, *Prediction of Engine Thermal Behavior during Emission Cycle Using 1D Four Point Mass Model*.
+### Radiator nominal UA
 
-### 3. Engine-to-coolant UA: 400 to 2,200 W/K
+The V1 radiator is an effectiveness-NTU heat exchanger. Automotive radiator experiments and models show performance depends on core geometry, flow rates, and inlet-air distribution, so a universal passenger-car radiator UA cannot be imported without the exact test hardware. The frozen 400 to 2,200 W/K range is an effective-system interval around the generic 1,100 W/K value.
 
-Detailed engine thermal models resolve coolant-side convection, conduction through engine solids, spatial wall temperatures, and multiple coolant paths. SAE 931157 uses convection/conduction thermal-network elements. SAE 971852 describes boundary heat exchange with coolant and other flows. Ford-authored SAE 2011-01-0647 uses a detailed coolant circuit with component heat-transfer rates and lumped thermal components.
+Primary source basis: SAE 940771 and SAE 2011-01-0647.
 
-VTMS-V1 compresses that distributed network into one conductance, `UA_ec`. There is therefore no single literature value that can be transferred directly. The 400 to 2,200 W/K range spans more than a fivefold change in coupling strength around the current 1,000 W/K value. It is intentionally broad because this parameter is expected to trade against effective thermal capacitance in coolant-only calibration.
+## Two complementary synthetic identifiability questions
 
-Primary sources:
+VTMS runs two different synthetic diagnostics before physical calibration. They answer different questions.
 
-- SAE 931157, *A Computer Model for Thermofluid Analysis of Engine Warm-up Process*.
-- SAE 971852, *Progress on Modelling Engine Thermal Behaviour for VTMS Applications*.
-- SAE 2011-01-0647, *Development of a One-Dimensional Engine Thermal Management Model to Predict Piston and Oil Temperatures*.
+### Broad excitation preflight
 
-### 4. Radiator nominal UA: 400 to 2,200 W/K
+`evaluate_synthetic_identifiability()` uses a deliberately rich synthetic profile containing warm-up, thermostat/radiator, vehicle-speed, and fuel-rate changes. It estimates `dT_c/d(log theta)`, normalizes the sensitivity columns, and computes correlation, singular values, and a normalized-Jacobian condition number.
 
-The V1 radiator is explicitly an effectiveness-NTU heat exchanger. SAE 940771 applies NTU/effectiveness methods to an automotive radiator and demonstrates that inlet-air distributions influence performance. Ford-authored SAE 2011-01-0647 likewise treats the coolant system and heat-rejection hardware as a coupled thermal network.
+This asks whether the frozen model can create locally distinct coolant-temperature parameter signatures under sufficiently rich excitation. It can detect gross numerical degeneracy, but it does not prove that one physical experiment excites every parameter strongly enough to estimate it.
 
-A universal passenger-car radiator UA cannot be imported without the exact core, flows, frontal distribution, and test condition. The preregistered 400 to 2,200 W/K interval therefore serves as a broad effective-system range around the generic 1,100 W/K value. It is large enough to permit material correction while preventing the optimizer from escaping into a nearly zero or arbitrarily large conductance.
+### Warm-up-stage preflight
 
-Primary sources:
+`evaluate_warmup_stage_identifiability()` reuses the existing deterministic synthetic calibration and holdout warm-up profiles and applies a 1 percent central fractional perturbation around the generic VTMS-V1 point.
 
-- SAE 940771, *Determination of the Effects of Inlet Air Velocity and Temperature Distributions on the Performance of an Automotive Radiator*.
-- SAE 2011-01-0647, *Development of a One-Dimensional Engine Thermal Management Model to Predict Piston and Oil Temperatures*.
+This asks the narrower experimental-design question: **should all four parameters be placed in the same cold-start CAL-01 optimizer stage?**
 
-## Identifiability preflight
+The combined warm-up profiles are numerically full-rank, with a normalized-matrix condition number of approximately **8.12**. Sensitivity magnitude is the important result:
 
-The four parameters are not assumed to be separately identifiable simply because an optimizer can return four numbers.
+| Parameter | Combined RMS coolant sensitivity per unit fractional change | Relative to strongest |
+|---|---:|---:|
+| `wall_heat_fraction` | about 8.39 °C | 100% |
+| `engine_thermal_capacitance_j_per_k` | about 2.43 °C | 29% |
+| `engine_coolant_ua_w_per_k` | about 4.19 °C | 50% |
+| `radiator_ua_nominal_w_per_k` | about 0.079 °C | **0.94%** |
 
-`src/vtms_validation/identifiability.py` performs a pre-physical-data local sensitivity study on a deterministic synthetic excitation profile. For each calibration parameter it uses a central multiplicative perturbation and estimates:
+The strongest combined sensitivity-shape relationship is the inverse wall-fraction versus engine-capacitance pair, with cosine approximately **-0.88**.
 
-```text
-dT_c / d(log theta)
-```
+The 2 percent relative-RMS weak-excitation threshold is a VTMS engineering heuristic, not a statistical confidence criterion or validation limit. Its purpose is to prevent a parameter with negligible leverage from drifting merely because the optimizer can move it.
 
-The resulting coolant-temperature sensitivity columns are normalized before computing:
+## Staged calibration decision
 
-- parameter-shape correlation matrix,
-- singular values,
-- normalized-Jacobian condition number,
-- RMS and peak absolute log-sensitivity for each parameter.
+The four physical bounds remain frozen and valid for the governed calibration universe, but a four-parameter simultaneous CAL-01 fit is not authorized.
 
-A diagnostic warning is raised when the normalized condition number exceeds 100, an absolute cross-parameter correlation exceeds 0.95, or a parameter is effectively unexcited.
+### CAL-01: cold-start warm-up stage
 
-Those thresholds are **diagnostic engineering flags**, not statistical confidence criteria and not validation acceptance limits. The analysis is local to the generic V1 point and the synthetic excitation. It cannot prove structural identifiability on the Argonne cycle.
+Argonne test `71207062`, UDDS #1 cold start.
 
-## Interpretation rule for the physical fit
+Allowed fitted parameters:
 
-If the first Argonne calibration returns parameters near bounds, strong covariance, or multiple substantially different parameter combinations with similar coolant residuals, VTMS will treat the individual fitted parameters as non-unique effective values. The project will not claim that coolant temperature alone uniquely identifies physical engine mass, wall heat transfer, engine-to-coolant conductance, and radiator conductance.
+- `wall_heat_fraction`: 0.20 to 0.50
+- `engine_thermal_capacitance_j_per_k`: 25,000 to 100,000 J/K
+- `engine_coolant_ua_w_per_k`: 400 to 2,200 W/K
 
-The correct response to poor identifiability is to add independent observables or stronger physically sourced constraints, not to keep widening the optimizer bounds until one fit looks visually good.
+`radiator_ua_nominal_w_per_k` is fixed during CAL-01.
+
+### CAL-RAD-01: radiator-active stage
+
+Argonne test `71207057`, 1.2 highway x2.
+
+Allowed fitted parameter:
+
+- `radiator_ua_nominal_w_per_k`: 400 to 2,200 W/K
+
+The run was selected from source measurements before any VTMS prediction or residual was inspected. From source time zero through 1287.5 s, ECT is complete at 91 to 99 °C, average dyno speed is approximately 57.31 mph, and approximately 92.65 percent of samples are at or above 40 mph while ECT is at or above 88 °C.
+
+CAL-RAD-01 must use the frozen CAL-01 output snapshot for the three non-radiator parameters and may not reopen them.
+
+## Holdout protection
+
+The staged decision does not consume previously reserved holdouts:
+
+- `VAL-HOT-01`, test 71207063, remains the primary clean independent holdout.
+- `VAL-SSS-01`, test 71207052, remains a secondary independent holdout.
+
+Neither run was repurposed after seeing a model residual. No model residual has been inspected for either holdout.
+
+## Interpretation rule
+
+If a calibration returns parameters near bounds, strong covariance, or materially different parameter combinations with similar coolant residuals, VTMS will treat the individual fitted parameters as non-unique effective values. The project will not claim that coolant temperature alone uniquely identifies physical engine mass, wall heat transfer, engine-to-coolant conductance, or radiator conductance.
+
+The correct response to poor identifiability is to add independent observables or stronger physically sourced constraints, not to keep widening bounds until a trace looks good.
 
 ## Change-control rule
 
-These four bounds are preregistered for the first controlled Argonne calibration. Any later change requires:
+The four numerical bounds and the two-stage parameter allocation are preregistered before physical residual inspection. Any later change requires a new documented protocol/bounds version, a reason independent of improving an already-observed residual, disclosure that the original preregistration was superseded, and a new immutable calibration manifest before rerunning the affected fit.
 
-1. a new documented protocol/bounds version,
-2. a reason independent of improving the already-observed residual,
-3. disclosure that the original preregistration was superseded,
-4. a new immutable calibration manifest before rerunning the fit.
-
-The first Argonne residual must therefore be preserved even if it is poor.
+The first physical residual from each stage must therefore be preserved even if it is poor.

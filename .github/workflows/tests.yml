@@ -27,6 +27,10 @@ jobs:
       - name: Run VTMS test suite
         run: python -m pytest
 
+      - name: Run pre-Argonne identifiability preflight
+        if: matrix.python-version == '3.11'
+        run: python run_identifiability_preflight.py
+
   web-build:
     runs-on: ubuntu-latest
     defaults:
