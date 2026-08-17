@@ -43,8 +43,8 @@ class ValidationDataset:
             raise ValueError("time_s must start at zero")
         if np.any(self.vehicle_speed_m_s < 0):
             raise ValueError("vehicle speed must be nonnegative")
-        if np.any((self.engine_speed_rpm != 0.0) & ((self.engine_speed_rpm < 700.0) | (self.engine_speed_rpm > 6500.0))):
-            raise ValueError("engine speed must be 0 or inside VTMS reference domain 700..6500 rpm")
+        if np.any(self.engine_speed_rpm < 0):
+            raise ValueError("measured engine speed must be nonnegative")
 
         nonnegative_optional = {
             "mass_air_flow_g_s": self.mass_air_flow_g_s,

@@ -1,0 +1,92 @@
+{
+  "plan_id": "ARGONNE-D3-VTMS-V1-CONTROLLED-PLAN",
+  "status": "data_received_qualification_in_progress",
+  "received_date": "2026-08-17",
+  "rules": {
+    "calibration_and_holdout_must_use_distinct_source_runs": true,
+    "holdout_reuse_for_fitting_after_observation": false,
+    "preferred_environment_f": 72,
+    "preferred_climate_control": "off_when_documented",
+    "maf_proxy_permitted_for_formal_controlled_evidence": false,
+    "source_role_selection_may_use_data_quality_but_not_model_residuals": true,
+    "calibration_bounds_must_be_frozen_before_first_argonne_fit": true
+  },
+  "calibration_bounds_status": "unresolved_must_be_physically_justified_and_frozen_before_fit",
+  "runs": [
+    {
+      "run_id": "CAL-01",
+      "role": "calibration",
+      "evidence_grade": "controlled_calibration",
+      "target_condition": "approximately 72 F cold-start UDDS #1",
+      "source_test_id": "71207062",
+      "mapping_file": "argonne_2012_focus_71207062_calibration.json",
+      "qualification_status": "qualified_candidate_after_explicit_ect_qc",
+      "calibration_parameters": [
+        "wall_heat_fraction",
+        "engine_thermal_capacitance_j_per_k",
+        "engine_coolant_ua_w_per_k",
+        "radiator_ua_nominal_w_per_k"
+      ]
+    },
+    {
+      "run_id": "VAL-CS-01",
+      "role": "holdout",
+      "evidence_grade": "independent_holdout",
+      "target_condition": "separate approximately 72 F cold-start UDDS replicate",
+      "source_test_id": null,
+      "qualification_status": "not_identified_in_received_package",
+      "calibration_parameters": []
+    },
+    {
+      "run_id": "VAL-HOT-01",
+      "role": "holdout",
+      "evidence_grade": "independent_holdout",
+      "target_condition": "approximately 72 F hot-start UDDS #2",
+      "source_test_id": "71207063",
+      "mapping_file": "argonne_2012_focus_71207063_holdout.json",
+      "qualification_status": "qualified_holdout_candidate_reserved_before_fit",
+      "calibration_parameters": []
+    },
+    {
+      "run_id": "VAL-SSS-01",
+      "role": "holdout",
+      "evidence_grade": "independent_holdout",
+      "target_condition": "approximately 72 F steady-state 55 mph warm-up",
+      "source_test_id": "71207052",
+      "qualification_status": "secondary_holdout_candidate_reserved_before_fit_complete_ect",
+      "calibration_parameters": []
+    },
+    {
+      "run_id": "VAL-HWY-01",
+      "role": "holdout",
+      "evidence_grade": "independent_holdout",
+      "target_condition": "approximately 72 F highway/HWFET",
+      "source_test_id": "71207065",
+      "qualification_status": "not_qualified_full_cycle_ect_available_only_to_about_223_s",
+      "calibration_parameters": []
+    },
+    {
+      "run_id": "VAL-US06-01",
+      "role": "holdout",
+      "evidence_grade": "independent_holdout",
+      "target_condition": "approximately 72 F US06 aggressive cycle",
+      "source_test_id": "71207066",
+      "qualification_status": "not_qualified_full_cycle_ect_available_only_to_about_481_s",
+      "calibration_parameters": []
+    },
+    {
+      "run_id": "CHALLENGE-IDLE-CS-01",
+      "role": "challenge",
+      "evidence_grade": "challenge_only",
+      "target_condition": "approximately 72 F cold-start idle, no fan, later WOT events",
+      "source_test_id": "71207072",
+      "qualification_status": "challenge_candidate_only_ect_partial",
+      "calibration_parameters": []
+    }
+  ],
+  "selection_audit": {
+    "model_predictions_run_during_source_qc": false,
+    "model_residuals_inspected_during_source_qc": false,
+    "roles_selected_from_test_documentation_and_measurement_quality_only": true
+  }
+}

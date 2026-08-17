@@ -76,3 +76,29 @@ def test_controlled_runner_rejects_wrong_raw_file_hash():
     dataset.metadata["source_sha256"] = "c" * 64
     with pytest.raises(ValueError, match="source SHA-256"):
         run_controlled_comparison(dataset, _manifest(parameters), parameters=parameters)
+
+
+def test_controlled_runner_projects_measured_idle_rpm_only_at_model_boundary():
+    parameters = ModelParameters()
+    dataset = ValidationDataset(
+        dataset_id="ARGONNE-D3-HOLDOUT",
+        source_name="measured idle-rpm fixture",
+        time_s=np.array([0.0, 1.0, 2.0]),
+        measured_coolant_temp_c=np.array([20.0, 20.1, 20.2]),
+        engine_speed_rpm=np.array([650.0, 900.0, 6600.0]),
+        vehicle_speed_m_s=np.array([0.0, 0.0, 0.0]),
+        ambient_temp_c=np.array([20.0, 20.0, 20.0]),
+        fuel_energy_rate_w=np.array([20000.0, 20000.0, 20000.0]),
+        metadata={"source_sha256": "b" * 64},
+    )
+    raw_rpm = dataset.engine_speed_rpm.copy()
+
+    result = run_controlled_comparison(dataset, _manifest(parameters), parameters=parameters)
+
+    np.testing.assert_allclose(dataset.engine_speed_rpm, raw_rpm)
+    rpm_meta = result.input_preprocessing_metadata["engine_speed_rpm"]
+    assert rpm_meta["projected_sample_count"] == 2
+    assert rpm_meta["projected_low_sample_count"] == 1
+    assert rpm_meta["projected_high_sample_count"] == 1
+    assert rpm_meta["raw_dataset_values_preserved"] is True
+    assert rpm_meta["engine_heat_uses_rpm_load_estimator"] is False
