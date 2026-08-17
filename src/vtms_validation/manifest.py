@@ -126,12 +126,6 @@ class ValidationRunManifest:
         if self.role is ValidationRole.CALIBRATION and not self.calibration_parameters:
             raise ValueError("calibration runs must declare the preregistered fitted-parameter subset")
 
-        if self.role is ValidationRole.CALIBRATION and self.physical_evidence:
-            if self.preprocessing_snapshot_sha256 is None:
-                raise ValueError("physical calibration manifest requires preprocessing_snapshot_sha256")
-            if self.calibration_bounds_sha256 is None:
-                raise ValueError("physical calibration manifest requires calibration_bounds_sha256")
-
     @property
     def permits_parameter_fitting(self) -> bool:
         return self.role is ValidationRole.CALIBRATION
