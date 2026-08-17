@@ -98,6 +98,10 @@ def evaluate_acceptance(
     The numeric criteria can be evaluated for calibration, holdout, challenge,
     and synthetic software exercises. A formal validation-pass claim additionally
     requires an independent holdout manifest explicitly marked as physical evidence.
+
+    Arrival timing is not evaluable when the measured trace begins at or above a
+    threshold because the physical crossing occurred before the observation window.
+    This prevents hot-start traces from receiving artificial zero-second timing passes.
     """
 
     manifest.validate()
@@ -130,10 +134,28 @@ def evaluate_acceptance(
     predicted = np.asarray(comparison.predicted_coolant_temp_c, dtype=float)
 
     for threshold_c in thresholds_c:
-        measured_t = _first_crossing(time_s, measured, threshold_c)
-        predicted_t = _first_crossing(time_s, predicted, threshold_c)
         check_id = f"arrival_{threshold_c:g}c"
         label = f"{threshold_c:g} degC arrival-time error"
+
+        if float(measured[0]) >= threshold_c:
+            checks.append(
+                AcceptanceCheck(
+                    check_id=check_id,
+                    label=label,
+                    status=AcceptanceStatus.NOT_EVALUABLE,
+                    observed=None,
+                    limit=None,
+                    units="s",
+                    note=(
+                        "Measured trace begins at or above the threshold; the physical crossing "
+                        "occurred before the observation window."
+                    ),
+                )
+            )
+            continue
+
+        measured_t = _first_crossing(time_s, measured, threshold_c)
+        predicted_t = _first_crossing(time_s, predicted, threshold_c)
 
         if measured_t is None:
             checks.append(
