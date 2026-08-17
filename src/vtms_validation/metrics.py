@@ -51,9 +51,12 @@ def calculate_metrics(
     abs_error = np.abs(error)
     arrivals: dict[str, float | None] = {}
     for threshold in thresholds_c:
+        key = f"{threshold:g}C"
+        if float(measured_c[0]) >= threshold:
+            arrivals[key] = None
+            continue
         measured_t = _first_crossing(time_s, measured_c, threshold)
         predicted_t = _first_crossing(time_s, predicted_c, threshold)
-        key = f"{threshold:g}C"
         if measured_t is None or predicted_t is None:
             arrivals[key] = None
         else:
