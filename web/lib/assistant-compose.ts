@@ -42,7 +42,23 @@ import { type Entity, scenarioIdsIn } from "./assistant-entities";
 import { type Intent, classifyIntent } from "./assistant-intent";
 import { MIN_CONFIDENCE, rankTopics, type Candidate } from "./assistant-retrieval";
 import { type RunReadout, classifyRunQuestion } from "./assistant-run-context";
+import { withCurrentProjectStatus } from "./assistant-status-overrides";
 import { canonicalize } from "./assistant-text";
+
+/**
+ * Topic lookup that applies the current-project status override.
+ *
+ * `rankTopics` already overrides the topics it indexes, but the composer also looks
+ * topics up directly (status pairings, boundary answers, scenario explainers, and the
+ * follow-up subject carried in context). Without this wrapper those paths return the
+ * base knowledge-base text, which can contradict the overridden text in the very same
+ * answer — for example claiming Argonne data are acquired and awaiting acquisition at
+ * once. Every lookup goes through here so one answer always speaks with one status.
+ */
+const currentTopic = (id: string): KnowledgeTopic | undefined => {
+  const topic = topicById(id);
+  return topic ? withCurrentProjectStatus(topic) : undefined;
+};
 
 export type AnswerCategory = TopicCategory | "Scenario" | "Run";
 
@@ -238,7 +254,7 @@ function scenarioSetAnswer(
   intent: Intent,
 ): ComposedAnswer {
   const set = scenariosInCategory(category);
-  const explainer = topicById(CATEGORY_TOPIC[category]);
+  const explainer = currentTopic(CATEGORY_TOPIC[category]);
 
   return {
     kind: "answer",
@@ -398,8 +414,8 @@ function topicAnswer(
 
 /** Status answers always pair completed evidence with what is still pending. */
 function statusAnswer(primary: Candidate, entities: Entity[], repairs: { from: string; to: string }[]): ComposedAnswer {
-  const standing = topicById("validation-status");
-  const ladder = topicById("verification-and-validation");
+  const standing = currentTopic("validation-status");
+  const ladder = currentTopic("verification-and-validation");
   const topic = primary.topic;
 
   const sections: AnswerSection[] = [];
@@ -432,7 +448,7 @@ function boundaryAnswer(
   entities: Entity[],
   repairs: { from: string; to: string }[],
 ): ComposedAnswer | null {
-  const exclusions = topicById("model-exclusions");
+  const exclusions = currentTopic("model-exclusions");
   if (!exclusions) return null;
 
   const topic = primary && primary.topic.id !== exclusions.id ? primary.topic : undefined;
@@ -583,7 +599,7 @@ export function answerQuestion(question: string, options: AnswerOptions = {}): A
   // supply the supporting blocks. Requires a domain entity, so an unrelated question
   // can never inherit a subject this way.
   if (candidates.length === 0 && analysis.isFollowUp && entities.length > 0) {
-    const carried = context.recentTopicIds.map((id) => topicById(id)).find(Boolean);
+    const carried = context.recentTopicIds.map((id) => currentTopic(id)).find(Boolean);
     if (carried) {
       const primary: Candidate = { topic: carried, score: MIN_CONFIDENCE, matchedTerms: [], confidence: 0.5 };
       const supportingTopics = scored
@@ -598,7 +614,7 @@ export function answerQuestion(question: string, options: AnswerOptions = {}): A
     // Status questions have a definite answer even when the wording matches no
     // keyword: the model's standing is always reportable.
     if (analysis.intent === "status") {
-      const standing = topicById("validation-status");
+      const standing = currentTopic("validation-status");
       if (standing) {
         const composed = statusAnswer(
           { topic: standing, score: MIN_SUPPORT_SCORE, matchedTerms: [], confidence: 0.5 },
