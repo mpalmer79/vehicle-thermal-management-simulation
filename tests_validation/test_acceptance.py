@@ -127,3 +127,27 @@ def test_prediction_missing_a_measured_threshold_crossing_fails_that_timing_chec
     arrival_90 = next(check for check in evaluation.checks if check.check_id == "arrival_90c")
     assert arrival_90.status is AcceptanceStatus.FAIL
     assert "prediction did not" in arrival_90.note
+
+
+def test_threshold_already_exceeded_at_start_is_not_evaluable():
+    time_s = np.arange(0.0, 61.0, 10.0)
+    measured = np.asarray([98.0, 97.0, 96.0, 95.0, 96.0, 97.0, 98.0])
+    predicted = measured - 2.0
+    metrics = calculate_metrics(time_s, measured, predicted)
+    comparison = ComparisonResult(
+        dataset_id="ACCEPTANCE-DATASET",
+        comparison_time_s=time_s,
+        measured_coolant_temp_c=measured,
+        predicted_coolant_temp_c=predicted,
+        residual_c=predicted - measured,
+        metrics=metrics,
+        simulation_result=object(),
+        heat_input_metadata={},
+        evidence_label="test",
+    )
+
+    assert metrics.threshold_arrival_error_s == {"60C": None, "80C": None, "90C": None}
+    evaluation = evaluate_acceptance(comparison, _manifest(ValidationRole.HOLDOUT))
+    timing = [check for check in evaluation.checks if check.check_id.startswith("arrival_")]
+    assert all(check.status is AcceptanceStatus.NOT_EVALUABLE for check in timing)
+    assert all("before the observation window" in check.note for check in timing)
