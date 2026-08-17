@@ -31,14 +31,17 @@ ROLE_EVIDENCE_GRADE: dict[ValidationRole, EvidenceGrade] = {
     ValidationRole.CHALLENGE: EvidenceGrade.CHALLENGE_ONLY,
 }
 
-# Frozen from the VTMS physical-validation protocol. Adding another fitted
-# parameter requires an explicit protocol/model-governance change.
 ALLOWED_CALIBRATION_PARAMETERS = (
     "wall_heat_fraction",
     "engine_thermal_capacitance_j_per_k",
     "engine_coolant_ua_w_per_k",
     "radiator_ua_nominal_w_per_k",
 )
+
+
+def _validate_sha256_hex(name: str, value: str) -> None:
+    if len(value) != 64 or any(char not in "0123456789abcdef" for char in value.lower()):
+        raise ValueError(f"{name} must be a 64-character hexadecimal SHA-256")
 
 
 @dataclass(frozen=True)
@@ -75,8 +78,7 @@ class DatasetFingerprint:
             raise ValueError("dataset fingerprint requires a file name")
         if self.size_bytes < 0:
             raise ValueError("dataset fingerprint size_bytes must be nonnegative")
-        if len(self.sha256_hex) != 64 or any(char not in "0123456789abcdef" for char in self.sha256_hex.lower()):
-            raise ValueError("dataset fingerprint sha256_hex must be a 64-character hexadecimal SHA-256")
+        _validate_sha256_hex("dataset fingerprint sha256_hex", self.sha256_hex)
 
 
 @dataclass(frozen=True)
@@ -94,6 +96,8 @@ class ValidationRunManifest:
     calibration_parameters: tuple[str, ...] = ()
     acceptance_criteria: AcceptanceCriteria = field(default_factory=AcceptanceCriteria)
     physical_evidence: bool = False
+    preprocessing_snapshot_sha256: str | None = None
+    calibration_bounds_sha256: str | None = None
     notes: str = ""
 
     def validate(self) -> None:
@@ -108,10 +112,11 @@ class ValidationRunManifest:
                 f"role {self.role.value!r} requires evidence grade {expected_grade.value!r}, "
                 f"got {self.evidence_grade.value!r}"
             )
-        if len(self.parameter_snapshot_sha256) != 64 or any(
-            char not in "0123456789abcdef" for char in self.parameter_snapshot_sha256.lower()
-        ):
-            raise ValueError("parameter_snapshot_sha256 must be a 64-character hexadecimal SHA-256")
+        _validate_sha256_hex("parameter_snapshot_sha256", self.parameter_snapshot_sha256)
+        if self.preprocessing_snapshot_sha256 is not None:
+            _validate_sha256_hex("preprocessing_snapshot_sha256", self.preprocessing_snapshot_sha256)
+        if self.calibration_bounds_sha256 is not None:
+            _validate_sha256_hex("calibration_bounds_sha256", self.calibration_bounds_sha256)
 
         unknown = sorted(set(self.calibration_parameters) - set(ALLOWED_CALIBRATION_PARAMETERS))
         if unknown:

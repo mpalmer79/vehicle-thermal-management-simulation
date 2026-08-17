@@ -1,0 +1,48 @@
+{
+  "lock_id": "VTMS-V1-ARGONNE-CAL-01-LOCK-1",
+  "lock_status": "ready_for_controlled_execution",
+  "governance_base_commit": "7f14203a974c4d5e0500a7efe84ddea1b661c3ba",
+  "manifest": {
+    "run_id": "CAL-01",
+    "dataset_id": "ARGONNE-D3-71207062",
+    "role": "calibration",
+    "evidence_grade": "controlled_calibration",
+    "dataset_fingerprint": {
+      "file_name": "71207062 Test Data.txt",
+      "sha256_hex": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+      "size_bytes": 5112912
+    },
+    "parameter_snapshot_sha256": "f5ee79e90565136c77f60b1dec429e24a6693aefc475fe2469e25b0d6d9e30d4",
+    "preprocessing_snapshot_sha256": "838e8a9c4280785a8a1715bccec25c97fcafbb457005c73c6a09d26bcf23970f",
+    "calibration_bounds_sha256": "2d32b4b3514205001f7fc984b1c68dbbdbdb78d3a4f7de19fe816eb9433b33aa",
+    "calibration_parameters": [
+      "wall_heat_fraction",
+      "engine_thermal_capacitance_j_per_k",
+      "engine_coolant_ua_w_per_k"
+    ],
+    "physical_evidence": true,
+    "notes": "CAL-01 uses the already frozen cold-start source selection, physical bounds, three-parameter warm-up subset, and untouched holdout reservations from governance commit 7f14203. Radiator UA is fixed during this stage."
+  },
+  "execution": {
+    "signal_map_file": "validation_configs/argonne_2012_focus_71207062_calibration.json",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "optimizer": {
+      "coordinate_system": "normalized_bound_fraction_0_to_1",
+      "jacobian_scheme": "2-point",
+      "diff_step": 0.05,
+      "max_nfev": 80,
+      "ftol": 1e-6,
+      "xtol": 1e-6,
+      "gtol": 1e-6,
+      "boundary_fraction": 0.01
+    }
+  },
+  "audit": {
+    "source_mapping_ect_exclusions_bounds_and_parameter_subset_frozen_before_first_argonne_residual_inspection": true,
+    "holdout_roles_frozen_before_first_argonne_residual_inspection": true,
+    "exploratory_solver_execution_before_this_manifest_serialization": true,
+    "exploratory_solver_execution_disposition": "Non-formal software diagnostic only. It used the already frozen source mapping and parameter subset but terminated essentially at the starting point because finite-difference steps in raw physical coordinates were numerically ineffective. It is excluded from controlled calibration evidence and no preprocessing, bounds, role, or holdout decision was changed in response.",
+    "formal_execution_may_not_change_frozen_source_selection_bounds_or_fit_subset": true
+  }
+}

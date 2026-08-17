@@ -80,12 +80,17 @@ class BoundedCalibrationResult:
     success: bool
     optimizer_status: int
     optimizer_message: str
+    optimizer_optimality: float
+    optimizer_active_mask: tuple[int, ...]
+    optimization_coordinate_system: str
+    optimizer_diff_step: float
     nfev: int
     initial_cost: float
     final_cost: float
     initial_parameter_snapshot_sha256: str
     calibrated_parameter_snapshot_sha256: str
     parameters: tuple[CalibratedParameter, ...]
+    boundary_parameter_names: tuple[str, ...]
     calibrated_model_parameters: ModelParameters
     comparison: ComparisonResult
     acceptance: AcceptanceEvaluation
@@ -95,12 +100,17 @@ class BoundedCalibrationResult:
             "success": self.success,
             "optimizer_status": self.optimizer_status,
             "optimizer_message": self.optimizer_message,
+            "optimizer_optimality": self.optimizer_optimality,
+            "optimizer_active_mask": list(self.optimizer_active_mask),
+            "optimization_coordinate_system": self.optimization_coordinate_system,
+            "optimizer_diff_step": self.optimizer_diff_step,
             "nfev": self.nfev,
             "initial_cost": self.initial_cost,
             "final_cost": self.final_cost,
             "initial_parameter_snapshot_sha256": self.initial_parameter_snapshot_sha256,
             "calibrated_parameter_snapshot_sha256": self.calibrated_parameter_snapshot_sha256,
             "parameters": [asdict(parameter) for parameter in self.parameters],
+            "boundary_parameter_names": list(self.boundary_parameter_names),
             "calibrated_model_parameters": self.calibrated_model_parameters.snapshot(),
             "metrics": self.comparison.metrics.as_dict(),
             "acceptance": self.acceptance.as_dict(),
@@ -139,12 +149,15 @@ def run_bounded_calibration(
     initial_engine_temp_c: float | None = None,
     fuel_lhv_j_per_kg: float | None = None,
     max_nfev: int = 80,
+    optimizer_diff_step: float = 0.05,
+    boundary_fraction: float = 0.01,
 ) -> BoundedCalibrationResult:
     """Fit only manifest-authorized parameters inside explicit caller-supplied bounds.
 
-    This function does not provide physical calibration bounds. The caller must
-    preregister them. The synthetic harness supplies its own test-only bounds,
-    which are explicitly prohibited from being treated as future Argonne bounds.
+    The optimizer works in dimensionless 0..1 bound coordinates. This avoids finite-
+    difference steps that are numerically tiny for parameters whose physical units span
+    orders of magnitude. Physical calibration bounds remain caller-supplied and locked
+    by the manifest; normalization changes only optimizer coordinates, not the model.
     """
 
     dataset.validate()
@@ -152,10 +165,25 @@ def run_bounded_calibration(
     initial_parameters.validate()
     if max_nfev <= 0:
         raise ValueError("max_nfev must be positive")
+    if not 1.0e-4 <= optimizer_diff_step <= 0.20:
+        raise ValueError("optimizer_diff_step must be in [1e-4, 0.20]")
+    if not 0.0 < boundary_fraction < 0.5:
+        raise ValueError("boundary_fraction must be between 0 and 0.5")
 
     fit_names = tuple(manifest.calibration_parameters)
     manifest.assert_parameter_fit_allowed(fit_names)
     bounds.validate(manifest, initial_parameters)
+
+    # Acceptance evaluation may use a physical-evidence calibration manifest without
+    # executing a fit. The stronger provenance requirement belongs here, at the actual
+    # parameter-fitting boundary.
+    if manifest.physical_evidence:
+        if manifest.preprocessing_snapshot_sha256 is None:
+            raise ValueError(
+                "physical bounded calibration requires preprocessing_snapshot_sha256"
+            )
+        if manifest.calibration_bounds_sha256 is None:
+            raise ValueError("physical bounded calibration requires calibration_bounds_sha256")
 
     initial_hash = sha256_mapping(initial_parameters.snapshot())
     if initial_hash != manifest.parameter_snapshot_sha256:
@@ -165,14 +193,35 @@ def run_bounded_calibration(
     if source_sha != manifest.dataset_fingerprint.sha256_hex:
         raise ValueError("calibration dataset source SHA-256 does not match validation manifest")
 
+    if manifest.preprocessing_snapshot_sha256 is not None:
+        preprocessing_sha = dataset.metadata.get("signal_map_sha256")
+        if preprocessing_sha != manifest.preprocessing_snapshot_sha256:
+            raise ValueError("calibration preprocessing snapshot does not match validation manifest")
+
+    bounds_sha = sha256_mapping(bounds.as_dict())
+    if (
+        manifest.calibration_bounds_sha256 is not None
+        and bounds_sha != manifest.calibration_bounds_sha256
+    ):
+        raise ValueError("calibration bounds snapshot does not match validation manifest")
+
     fuel_energy_rate_w = _fuel_energy_rate(dataset, fuel_lhv_j_per_kg)
     ordered_bounds = bounds.ordered(fit_names)
     x0 = np.asarray([float(getattr(initial_parameters, name)) for name in fit_names], dtype=float)
     lower = np.asarray([bound.lower for bound in ordered_bounds], dtype=float)
     upper = np.asarray([bound.upper for bound in ordered_bounds], dtype=float)
+    span = upper - lower
+    z0 = (x0 - lower) / span
 
-    def residual(vector: np.ndarray) -> np.ndarray:
-        candidate = _with_parameter_vector(initial_parameters, fit_names, vector)
+    def physical_vector(normalized_vector: np.ndarray) -> np.ndarray:
+        return lower + np.asarray(normalized_vector, dtype=float) * span
+
+    def residual(normalized_vector: np.ndarray) -> np.ndarray:
+        candidate = _with_parameter_vector(
+            initial_parameters,
+            fit_names,
+            physical_vector(normalized_vector),
+        )
         q_engine_w = fuel_energy_rate_w * candidate.wall_heat_fraction
         _, measured, predicted, _ = _run_comparison(
             dataset,
@@ -184,20 +233,23 @@ def run_bounded_calibration(
         )
         return predicted - measured
 
-    initial_residual = residual(x0)
+    initial_residual = residual(z0)
     initial_cost = 0.5 * float(np.dot(initial_residual, initial_residual))
     solution = least_squares(
         residual,
-        x0,
-        bounds=(lower, upper),
+        z0,
+        bounds=(np.zeros_like(z0), np.ones_like(z0)),
         x_scale="jac",
+        jac="2-point",
+        diff_step=optimizer_diff_step,
         max_nfev=max_nfev,
-        ftol=1.0e-8,
-        xtol=1.0e-8,
-        gtol=1.0e-8,
+        ftol=1.0e-6,
+        xtol=1.0e-6,
+        gtol=1.0e-6,
     )
 
-    calibrated = _with_parameter_vector(initial_parameters, fit_names, solution.x)
+    calibrated_vector = physical_vector(solution.x)
+    calibrated = _with_parameter_vector(initial_parameters, fit_names, calibrated_vector)
     q_engine_w = fuel_energy_rate_w * calibrated.wall_heat_fraction
     simulation_result, measured, predicted, metrics = _run_comparison(
         dataset,
@@ -220,6 +272,8 @@ def run_bounded_calibration(
             "wall_heat_fraction": calibrated.wall_heat_fraction,
             "maf_proxy_used": False,
             "calibration_execution": True,
+            "optimization_coordinate_system": "normalized_bound_fraction_0_to_1",
+            "optimizer_diff_step": float(optimizer_diff_step),
         },
         evidence_label=manifest.evidence_grade.value,
         validation_manifest=manifest.to_dict(),
@@ -237,17 +291,28 @@ def run_bounded_calibration(
         )
         for name, bound in zip(fit_names, ordered_bounds, strict=True)
     )
+    boundary_names = tuple(
+        name
+        for name, normalized_value in zip(fit_names, solution.x, strict=True)
+        if float(normalized_value) <= boundary_fraction
+        or float(normalized_value) >= 1.0 - boundary_fraction
+    )
 
     return BoundedCalibrationResult(
         success=bool(solution.success),
         optimizer_status=int(solution.status),
         optimizer_message=str(solution.message),
+        optimizer_optimality=float(solution.optimality),
+        optimizer_active_mask=tuple(int(value) for value in solution.active_mask),
+        optimization_coordinate_system="normalized_bound_fraction_0_to_1",
+        optimizer_diff_step=float(optimizer_diff_step),
         nfev=int(solution.nfev),
         initial_cost=initial_cost,
         final_cost=float(solution.cost),
         initial_parameter_snapshot_sha256=initial_hash,
         calibrated_parameter_snapshot_sha256=calibrated_hash,
         parameters=fitted,
+        boundary_parameter_names=boundary_names,
         calibrated_model_parameters=calibrated,
         comparison=comparison,
         acceptance=acceptance,
