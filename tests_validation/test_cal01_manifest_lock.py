@@ -3,10 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from vtms_v1.config import ModelParameters
 from vtms_validation.adapters.argonne import ArgonneSignalMap
+from vtms_validation.calibration import CalibrationBounds, ParameterBound, run_bounded_calibration
+from vtms_validation.dataset import ValidationDataset
 from vtms_validation.manifest import (
     DatasetFingerprint,
     EvidenceGrade,
@@ -25,23 +28,45 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCK_PATH = ROOT / "validation_configs" / "argonne_2012_focus_cal_01_manifest.json"
 
 
-def test_physical_calibration_manifest_requires_preprocessing_and_bound_hashes():
-    fingerprint = DatasetFingerprint(
-        file_name="physical.txt",
-        sha256_hex="a" * 64,
-        size_bytes=1,
+def test_physical_calibration_execution_requires_preprocessing_and_bound_hashes():
+    initial = ModelParameters()
+    source_sha = "a" * 64
+    manifest = ValidationRunManifest(
+        run_id="CAL-X",
+        dataset_id="PHYSICAL-X",
+        role=ValidationRole.CALIBRATION,
+        evidence_grade=EvidenceGrade.CONTROLLED_CALIBRATION,
+        dataset_fingerprint=DatasetFingerprint(
+            file_name="physical.txt",
+            sha256_hex=source_sha,
+            size_bytes=1,
+        ),
+        parameter_snapshot_sha256=sha256_mapping(initial.snapshot()),
+        calibration_parameters=("wall_heat_fraction",),
+        physical_evidence=True,
     )
+    manifest.validate()
+    dataset = ValidationDataset(
+        dataset_id="PHYSICAL-X",
+        source_name="physical test fixture",
+        time_s=np.asarray([0.0, 1.0]),
+        measured_coolant_temp_c=np.asarray([20.0, 20.1]),
+        engine_speed_rpm=np.asarray([1000.0, 1000.0]),
+        vehicle_speed_m_s=np.asarray([0.0, 0.0]),
+        ambient_temp_c=np.asarray([20.0, 20.0]),
+        fuel_energy_rate_w=np.asarray([10000.0, 10000.0]),
+        metadata={"source_sha256": source_sha},
+    )
+    bounds = CalibrationBounds((ParameterBound("wall_heat_fraction", 0.20, 0.50),))
+
     with pytest.raises(ValueError, match="preprocessing_snapshot_sha256"):
-        ValidationRunManifest(
-            run_id="CAL-X",
-            dataset_id="PHYSICAL-X",
-            role=ValidationRole.CALIBRATION,
-            evidence_grade=EvidenceGrade.CONTROLLED_CALIBRATION,
-            dataset_fingerprint=fingerprint,
-            parameter_snapshot_sha256="b" * 64,
-            calibration_parameters=("wall_heat_fraction",),
-            physical_evidence=True,
-        ).validate()
+        run_bounded_calibration(
+            dataset,
+            manifest,
+            initial_parameters=initial,
+            bounds=bounds,
+            max_nfev=1,
+        )
 
 
 def test_cal01_lock_matches_frozen_mapping_baseline_and_stage_bounds():
