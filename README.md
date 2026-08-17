@@ -30,7 +30,7 @@ The first answer is **yes**. The controlled physical-validation program has now 
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **80 passing** on Python 3.11, 3.12, and 3.13 |
+| Automated Python/API tests | **83 passing** on Python 3.11, 3.12, and 3.13 |
 | Engineering verification checks | **21 passing** |
 | Canonical scenarios | S-01 through S-09 frozen and implemented |
 | Energy-conservation verification | Passing |
