@@ -15,7 +15,7 @@ export function MotionReveal({
   ...rest
 }: {
   children: React.ReactNode;
-  as?: "section" | "div" | "article" | "header";
+  as?: "section" | "div" | "article" | "header" | "aside";
   className?: string;
   delayMs?: number;
 } & React.HTMLAttributes<HTMLElement>) {
