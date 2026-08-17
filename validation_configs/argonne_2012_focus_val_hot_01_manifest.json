@@ -1,0 +1,34 @@
+{
+  "lock_id": "VTMS-V1-ARGONNE-VAL-HOT-01-LOCK-1",
+  "lock_status": "ready_for_blind_holdout_execution_after_staged_calibration_freeze",
+  "upstream_calibration_result": "validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json",
+  "manifest": {
+    "run_id": "VAL-HOT-01",
+    "dataset_id": "ARGONNE-D3-71207063",
+    "role": "holdout",
+    "evidence_grade": "independent_holdout",
+    "dataset_fingerprint": {
+      "file_name": "71207063 Test Data.txt",
+      "sha256_hex": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "size_bytes": 5112305
+    },
+    "parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+    "preprocessing_snapshot_sha256": "0b1a65f78213a2950fb7f1f037bdfcb39b6448e1577b711bf42378471ba46ffa",
+    "calibration_parameters": [],
+    "physical_evidence": true,
+    "notes": "Primary independent hot-start holdout reserved before physical fitting. No parameter fitting is permitted. Uses the frozen final staged parameter snapshot after CAL-RAD-01, even though CAL-RAD-01 remained outside project calibration thresholds."
+  },
+  "execution": {
+    "signal_map_file": "validation_configs/argonne_2012_focus_71207063_holdout.json",
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "initial_engine_temp_policy": "use_measured_coolant_temperature_at_first_retained_sample",
+    "acceptance_policy": "project_acceptance_evaluator_with_pre_observation_arrivals_not_evaluable"
+  },
+  "audit": {
+    "holdout_role_reserved_before_calibration": true,
+    "holdout_source_residual_not_inspected_before_final_staged_snapshot_freeze": true,
+    "parameter_fitting_prohibited": true,
+    "final_staged_parameter_snapshot_locked": true,
+    "failed_cal_rad_01_did_not_trigger_retuning_or_bound_expansion": true
+  }
+}
