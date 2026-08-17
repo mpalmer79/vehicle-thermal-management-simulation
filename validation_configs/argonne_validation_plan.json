@@ -63,7 +63,7 @@
       "calibration_parameters": ["radiator_ua_nominal_w_per_k"],
       "bounds": {"radiator_ua_nominal_w_per_k": [400.0, 2200.0]},
       "upstream_parameter_snapshot_sha256": "8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2",
-      "upstream_parameter_policy": "Use the frozen CAL-01 output snapshot for all non-radiator parameters. Do not reopen CAL-01 parameters during CAL-RAD-01.",
+      "upstream_parameter_policy": "Use the frozen output parameter snapshot from CAL-01 for all non-radiator parameters. Do not reopen CAL-01 parameters during CAL-RAD-01.",
       "selection_basis": "From Time >= 0, source ECT is complete and 91 to 99 C, dyno speed averages about 57.31 mph, and about 92.65 percent of samples are at or above 40 mph while ECT is at or above 88 C. No VTMS prediction residual was inspected when this role was assigned."
     },
     {
