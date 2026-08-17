@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { ScenarioConfigPreview } from "@/components/visuals/scenario-config-preview";
 import { runSimulation } from "@/lib/api";
 import { scenarioById, scenarios } from "@/lib/scenarios";
 import type { ThermostatMode } from "@/lib/vtms-types";
@@ -23,6 +24,12 @@ type FormState = {
   radiatorHealthPct: number;
   airflowHealthPct: number;
   engineHeatOverride: string;
+};
+
+const thermostatLabel: Record<ThermostatMode, string> = {
+  normal: "Normal",
+  stuck_closed: "Stuck closed",
+  stuck_open: "Stuck open",
 };
 
 function defaultsForScenario(id: string): FormState {
@@ -163,20 +170,73 @@ export function SimulationForm() {
           <button className="button primary" disabled={running} type="submit">{running ? "Running VTMS..." : "Run Simulation"}</button>
           <span>FastAPI executes the authoritative Python model. React only submits inputs and visualizes the returned result.</span>
         </div>
+
+        <div className="run-dock">
+          <button className="button primary" disabled={running} type="submit">{running ? "Running VTMS..." : "Run Simulation"}</button>
+          <span>Executed by the VTMS-V1 Python engine through FastAPI</span>
+        </div>
       </form>
 
       <aside className="scenario-preview">
-        <span className="eyebrow">ENGINEERING CONTEXT</span>
-        <h2>{custom ? "CUSTOM · " : ""}{scenario.id} {scenario.name}</h2>
-        <p>{scenario.purpose}</p>
-        <dl>
-          <div><dt>Ambient</dt><dd>{form.ambient} °C</dd></div>
-          <div><dt>Engine</dt><dd>{form.rpm} rpm</dd></div>
-          <div><dt>Load</dt><dd>{form.load}%</dd></div>
-          <div><dt>Vehicle</dt><dd>{form.speedKmh} km/h</dd></div>
-          <div><dt>Duration</dt><dd>{form.duration} s</dd></div>
-        </dl>
-        <div className="model-card"><strong>VTMS-V1 / EM-V1</strong><span>FastAPI execution boundary active</span><span>Generic parameter set</span><span>Numerically verified</span><span>Controlled physical validation pending</span></div>
+        <div>
+          <span className="eyebrow">CONFIGURATION PREVIEW</span>
+          <h2>{custom ? "CUSTOM · " : ""}{scenario.id} {scenario.name}</h2>
+        </div>
+
+        <div className="config-preview-stage">
+          <ScenarioConfigPreview
+            config={{
+              ambientC: form.ambient,
+              rpm: form.rpm,
+              loadPercent: form.load,
+              speedKmh: form.speedKmh,
+              fanFailed: form.fanFailed,
+              thermostatMode: form.thermostatMode,
+              pumpHealthPct: form.pumpHealthPct,
+              radiatorHealthPct: form.radiatorHealthPct,
+              airflowHealthPct: form.airflowHealthPct,
+            }}
+          />
+        </div>
+
+        <div className="config-states">
+          <div className={`config-state${form.fanFailed ? " fault" : ""}`}>
+            <span>Fan</span>
+            <strong>{form.fanFailed ? "Failed" : "Available"}</strong>
+          </div>
+          <div className={`config-state${form.thermostatMode === "normal" ? "" : " fault"}`}>
+            <span>Thermostat</span>
+            <strong>{thermostatLabel[form.thermostatMode]}</strong>
+          </div>
+          <div className={`config-state${form.pumpHealthPct < 100 ? " alert" : ""}`}>
+            <span>Pump health</span>
+            <strong>{form.pumpHealthPct}%</strong>
+          </div>
+          <div className={`config-state${form.radiatorHealthPct < 100 ? " alert" : ""}`}>
+            <span>Radiator health</span>
+            <strong>{form.radiatorHealthPct}%</strong>
+          </div>
+          <div className={`config-state${form.airflowHealthPct < 100 ? " alert" : ""}`}>
+            <span>Airflow health</span>
+            <strong>{form.airflowHealthPct}%</strong>
+          </div>
+          <div className="config-state">
+            <span>Duration</span>
+            <strong>{form.duration} s</strong>
+          </div>
+        </div>
+
+        <p className="config-preview-note">
+          Configuration only. Temperatures, flows, and heat rejection are computed by the Python
+          engine after the run.
+        </p>
+
+        <div className="model-card">
+          <strong>VTMS-V1 / EM-V1</strong>
+          <span>FastAPI execution boundary active</span>
+          <span>Generic parameter set · numerically verified</span>
+          <span>Controlled physical validation pending</span>
+        </div>
       </aside>
     </div>
   );

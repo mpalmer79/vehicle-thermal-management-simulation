@@ -40,6 +40,7 @@ The project is built around three questions:
 | Custom and fault Simulation Lab execution | Complete |
 | UI-3 production packaging and hardening | Complete |
 | UI-4 light production UX and browser QA | Complete |
+| UI-5 visual productization and engineering visuals | Complete |
 | Production dependency audit | Passing at high severity threshold |
 | API and web container smoke tests | Passing |
 | Public application deployment | Live at `https://vtms.up.railway.app` |
@@ -318,7 +319,7 @@ https://vtms-api.up.railway.app  -> FastAPI + authoritative VTMS-V1 engine
 
 The services have repository-controlled Dockerfiles, health endpoints, and `railway.json` configuration. Public domain and CORS settings remain environment configuration rather than committed source code.
 
-The live application has completed an end-to-end S-03 execution from the browser through FastAPI into the Python `SimulationRunner`, plus a browser-rendered UI-4 QA pass at mobile and desktop viewport sizes.
+The live application has completed an end-to-end S-03 execution from the browser through FastAPI into the Python `SimulationRunner`, plus browser-rendered QA passes at mobile and desktop viewport sizes. UI-5 repeated that QA at 360, 390, 430, 768, 1024, and 1440 px across every route.
 
 See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
@@ -394,6 +395,7 @@ High-temperature fault cases above the liquid-only caution boundary are therefor
 - [x] Complete UI-3 production packaging and hardening
 - [x] Deploy Railway API and web services
 - [x] Complete UI-4 light production UX and browser/device QA
+- [x] Complete UI-5 visual productization, interactive thermal schematic, and responsive visual QA
 - [x] Add dependency audit and container smoke gates
 - [x] Add controlled-validation manifests and evidence-role enforcement
 - [x] Add raw-data and parameter-snapshot provenance locks
