@@ -27,6 +27,10 @@ jobs:
       - name: Run VTMS test suite
         run: python -m pytest
 
+      - name: Run synthetic identifiability diagnostic
+        if: matrix.python-version == '3.11'
+        run: python run_synthetic_identifiability.py
+
   web-build:
     runs-on: ubuntu-latest
     defaults:
