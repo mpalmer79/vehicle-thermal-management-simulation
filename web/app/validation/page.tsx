@@ -23,9 +23,9 @@ const stages: EvidenceStage[] = [
   },
   {
     number: "03",
-    title: "Controlled calibration",
+    title: "Controlled calibration preparation",
     state: "active",
-    description: "Argonne data are received; qualify signals and freeze physical bounds before fitting.",
+    description: "Argonne data are received; qualification and staged-fit controls are being frozen before fitting.",
   },
   {
     number: "04",
@@ -46,6 +46,8 @@ const controlledPipeline = [
   ["Acquire", "complete"],
   ["Hash", "complete"],
   ["Map", "active"],
+  ["Identify", "complete"],
+  ["Bound", "queued"],
   ["Calibrate", "queued"],
   ["Freeze", "queued"],
   ["Holdout", "queued"],
@@ -57,6 +59,13 @@ const argonneFacts = [
   ["CAL candidate", "71207062"],
   ["Primary holdout", "71207063"],
   ["Heat evidence", "Direct fuel flow"],
+];
+
+const identifiabilityFacts = [
+  ["Synthetic rank", "4 of 4"],
+  ["Combined condition", "8.12"],
+  ["Wall vs Cₑ cosine", "-0.88"],
+  ["Radiator UA sensitivity", "0.94% of strongest"],
 ];
 
 export default function ValidationPage() {
@@ -113,13 +122,13 @@ export default function ValidationPage() {
             <span className="eyebrow">CONTROLLED PHYSICAL VALIDATION</span>
             <h2>Argonne D3 data received</h2>
           </div>
-          <span className="status-pill pending">Stage 3 of 7</span>
+          <span className="status-pill pending">Pre-fit controls active</span>
         </div>
 
         <p>
           Argonne supplied comprehensive 2012 Ford Focus dynamometer files on August 17, 2026.
-          The source artifacts and candidate runs are fingerprinted. Signal quality and preprocessing
-          are being frozen before any parameter fit.
+          The source artifacts and candidate runs are fingerprinted. Signal quality, calibration
+          structure, and physical bounds are being frozen before any parameter fit.
         </p>
 
         <div className="validation-metrics">
@@ -140,18 +149,43 @@ export default function ValidationPage() {
           ))}
         </ol>
 
+        <div className="section-head">
+          <div>
+            <span className="eyebrow">PRE-FIT IDENTIFIABILITY</span>
+            <h2>Warm-up profiles do not strongly identify radiator UA</h2>
+          </div>
+          <span className="fixture-badge">Synthetic only</span>
+        </div>
+
+        <div className="validation-metrics">
+          {identifiabilityFacts.map(([label, value]) => (
+            <div key={label}><span>{label}</span><strong>{value}</strong></div>
+          ))}
+        </div>
+
+        <ValidationTakeaway headline="Four-parameter CAL-01 fit blocked">
+          <p>
+            The synthetic sensitivity matrix is full-rank, but radiator UA contributes less than
+            one percent of the strongest combined RMS coolant sensitivity. CAL-01 will not fit all
+            four governed parameters simultaneously. Radiator UA remains fixed unless a separate
+            radiator-active calibration case is preregistered before its VTMS residual is inspected.
+          </p>
+        </ValidationTakeaway>
+
         <ValidationTakeaway headline="Calibration has not started">
           <p>
             CAL-01 is reserved for cold-start UDDS test 71207062 and hot-start UDDS test 71207063
             is reserved as the primary clean holdout. The received highway and US06 files have
             incomplete coolant-temperature coverage, so they are not currently qualified as
-            full-cycle formal holdouts. Physical calibration bounds must still be justified and frozen.
+            full-cycle formal holdouts. Physical bounds and the final CAL-01 fitted subset must
+            still be justified and frozen.
           </p>
         </ValidationTakeaway>
 
         <div className="hero-actions">
           <Link className="button secondary" href="/model">Review model boundary</Link>
-          <a className="button secondary" href="https://github.com/mpalmer79/vehicle-thermal-management-simulation/blob/main/docs/ARGONNE_D3_DATA_QUALIFICATION.md">Argonne qualification record ↗</a>
+          <a className="button secondary" href="https://github.com/mpalmer79/vehicle-thermal-management-simulation/blob/main/docs/PRE_ARGONNE_CALIBRATION_READINESS.md">Calibration readiness ↗</a>
+          <a className="button secondary" href="https://github.com/mpalmer79/vehicle-thermal-management-simulation/blob/main/docs/ARGONNE_D3_DATA_QUALIFICATION.md">Argonne qualification ↗</a>
         </div>
       </MotionReveal>
     </>
