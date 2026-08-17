@@ -26,7 +26,7 @@ Only these four VTMS-V1 parameters were eligible for controlled physical calibra
 
 The numerical intervals were frozen before any VTMS-vs-Argonne residual inspection. They are effective-model engineering bounds, not direct measurements of Ford component properties. Synthetic demonstration bounds remain test-only and are not physical justification.
 
-The complete four-parameter bound set is an audit record for the governed calibration universe. It does **not** authorize all four parameters to move in the same optimizer stage.
+The complete four-parameter bound set is an audit record for the governed calibration universe. It does not authorize all four parameters to move in the same optimizer stage.
 
 ## Pre-fit identifiability and staged calibration
 
@@ -111,16 +111,16 @@ If a source file changes by one byte, it is a different provenance artifact.
 
 Received third-party raw validation files remain outside version control unless redistribution terms are explicitly confirmed. The repository stores fingerprints, reviewed mappings, qualification findings, manifests, and derived result records.
 
-## Holdout protection and completed primary holdout
+## Holdout protection and completed holdouts
 
 The holdout roles were reserved before physical fitting:
 
-- `VAL-HOT-01`: test 71207063, UDDS #2 hot start
-- `VAL-SSS-01`: test 71207052, 55 mph warm-up
+- `VAL-HOT-01`: test 71207063, UDDS #2 hot start, primary independent holdout
+- `VAL-SSS-01`: test 71207052, 55 mph warm-up, secondary confirmatory holdout
 
 A holdout manifest cannot declare calibration parameters and cannot authorize fitting. Neither holdout may be repurposed for fitting after its model residual is observed.
 
-### VAL-HOT-01 formal result
+### VAL-HOT-01 primary formal result
 
 The primary hot-start holdout was opened only after the final staged parameter snapshot, source fingerprint, preprocessing map, and holdout manifest were frozen. It was evaluated once with no parameter fitting.
 
@@ -138,13 +138,35 @@ The final measured coolant temperature is 99.0 C and the frozen model predicts 9
 
 Formal decision: `formal_holdout_acceptance_fail`.
 
-**VTMS-V1 did not pass the preregistered controlled physical validation criteria.** The failed holdout remains part of the engineering record. It does not authorize post-hoc retuning, bound expansion, role reassignment, or reuse of the holdout as calibration data.
+**VTMS-V1 did not pass the preregistered controlled physical validation criteria.** The failed primary holdout remains part of the engineering record. It does not authorize post-hoc retuning, bound expansion, role reassignment, or reuse of the holdout as calibration data.
+
+### VAL-SSS-01 secondary confirmatory result
+
+The secondary 55 mph warm-up holdout had also been reserved before fitting. Its source fingerprint, mapping, final staged parameter snapshot, and no-fit manifest were frozen after the primary failure had already been recorded but before the 71207052 source was opened for model comparison.
+
+It was executed once with the same frozen final staged parameter snapshot and no parameter fitting.
+
+Confirmatory result:
+
+- RMSE 5.126 C, limit 5 C: FAIL
+- MAE 4.109 C, limit 4 C: FAIL
+- absolute mean bias 4.015 C, limit 3 C: FAIL
+- P90 absolute error 8.397 C, limit 7 C: FAIL
+- 60 C arrival timing: NOT_EVALUABLE because the measured trace begins at 63 C
+- 80 C arrival error 17.3 s, limit 60 s: PASS
+- 90 C arrival error 23.8 s, limit 60 s: PASS
+
+The final measured coolant temperature is 99.0 C and the frozen model predicts 90.58 C, an error of -8.42 C.
+
+Decision for this individual holdout: `formal_holdout_acceptance_fail`.
+
+The secondary result does not create a new calibration opportunity and cannot overturn the primary formal failure. It is confirmatory generalization evidence only. Its failure strengthens the evidence that the underprediction is not unique to the hot-start UDDS profile.
 
 ## Threshold-arrival observation-window rule
 
 Before VAL-HOT-01 was opened, the acceptance evaluator was clarified so an arrival-time criterion is `NOT_EVALUABLE` when the measured trace begins at or above that threshold. In that situation, the physical crossing occurred before the observation window and a zero-second timing error would be artificial.
 
-This clarification was made after CAL-RAD-01 exposed the issue on its already-hot calibration trace but before the primary holdout source was opened. It did not change the CAL-RAD-01 outcome because that stage already failed all four core temperature criteria.
+This clarification was made after CAL-RAD-01 exposed the issue on its already-hot calibration trace but before either holdout source was opened. It did not change the CAL-RAD-01 outcome because that stage already failed all four core temperature criteria.
 
 ## Controlled sequence and completion state
 
@@ -164,11 +186,12 @@ The governed sequence was:
 12. freeze CAL-RAD-01 mapping and immutable radiator-only manifest
 13. execute CAL-RAD-01 without reopening CAL-01 parameters
 14. freeze the final staged parameter snapshot
-15. freeze the primary holdout source, preprocessing, and parameter locks
-16. execute the untouched primary holdout without retuning
-17. publish metrics, residuals, warnings, acceptance decisions, and failures
+15. freeze and execute the untouched primary holdout without retuning
+16. record the primary formal failure
+17. freeze and execute the preregistered secondary holdout as confirmatory evidence without retuning
+18. publish metrics, warnings, acceptance decisions, and failures
 
-Steps 1 through 16 are complete for the primary validation path. Reporting is active. The secondary preregistered holdout remains available for confirmatory evidence, but it cannot change the failed primary formal decision and cannot be used for fitting.
+The controlled calibration and both qualified holdout executions are complete. Reporting and model-form interpretation are the remaining V1 validation tasks.
 
 ## Argonne D3 mapping policy
 
@@ -202,6 +225,8 @@ The production/default VTMS-V1 parameter set remains the generic V1 set and has 
 
 The KIT comparison remains `external_plausibility_not_formal_validation` and is not calibration evidence.
 
-The controlled Argonne staged calibration has been completed and frozen. The primary independent physical holdout has been executed with no fitting and failed the formal acceptance criteria. VTMS-V1 therefore has **not passed controlled physical validation**.
+The controlled Argonne staged calibration has been completed and frozen. The primary independent physical holdout failed the formal acceptance criteria. A separately preregistered secondary holdout was then executed with the same frozen parameter snapshot and also failed the core acceptance criteria.
+
+VTMS-V1 therefore has **not passed controlled physical validation**, and the second failure strengthens the case for a model-form revision rather than more V1 parameter tuning.
 
 The correct next engineering response is model-form investigation under a new governed revision, not holdout-driven retuning of VTMS-V1.
