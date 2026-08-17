@@ -30,7 +30,7 @@ The first answer is **yes**. The controlled physical-validation program has now 
 | Physics specification | Complete, VTMS-V1 Engineering Model Specification 1.0.0 |
 | Standalone Python engine | Complete |
 | Numerical integration | SciPy `solve_ivp`, RK45 |
-| Automated Python/API tests | **83 passing** on Python 3.11, 3.12, and 3.13 |
+| Automated Python/API tests | **90 passing** on Python 3.11, 3.12, and 3.13 |
 | Engineering verification checks | **21 passing** |
 | Canonical scenarios | S-01 through S-09 frozen and implemented |
 | Energy-conservation verification | Passing |
@@ -41,6 +41,7 @@ The first answer is **yes**. The controlled physical-validation program has now 
 | CAL-01 cold-start calibration | Complete, project calibration-stage thresholds met with boundary cautions |
 | CAL-RAD-01 radiator calibration | Complete, **outside project thresholds** |
 | VAL-HOT-01 primary independent holdout | Complete, **formal holdout acceptance failed** |
+| VAL-SSS-01 secondary independent holdout | Complete, **confirmatory holdout acceptance failed** |
 | Holdout-driven retuning | Prohibited |
 | UI-5 visual productization | Complete |
 | About / creator page | Complete |
@@ -207,15 +208,36 @@ Formal decision:
 
 VTMS-V1 therefore **did not pass controlled physical validation**.
 
-The failure is preserved. The holdout cannot be reused for fitting, and its result does not authorize bound expansion or post-hoc retuning.
+### VAL-SSS-01: secondary confirmatory holdout, test 71207052
 
-## What the failed holdout means
+The 55 mph warm-up holdout was also reserved before fitting. After the primary failure had been frozen, its source identity, mapping, final staged parameter snapshot, and no-fit manifest were locked before the raw source was opened for model comparison. It was then executed once with the same frozen parameter snapshot and no fitting.
 
-The result does not mean the numerical implementation is broken. It means the current two-state V1 model plus its frozen component/control topology is not sufficient to reproduce the independent Ford Focus thermal response within the project criteria after the governed calibration sequence.
+Results:
 
-The boundary-hugging calibration parameters and failed blind holdout point toward **model-form limitations**, potentially including omitted thermal states, simplified coolant/control behavior, or other dynamics that parameter fitting alone should not hide.
+- RMSE: **5.126 °C**, limit 5 °C, FAIL
+- MAE: **4.109 °C**, limit 4 °C, FAIL
+- absolute mean bias: **4.015 °C**, limit 3 °C, FAIL
+- P90 absolute error: **8.397 °C**, limit 7 °C, FAIL
+- final measured coolant: **99.0 °C**
+- final predicted coolant: **90.58 °C**
+- final error: **-8.42 °C**
+- 60 °C timing: NOT_EVALUABLE, trace begins at 63 °C
+- 80 °C arrival error: **17.3 s**, PASS
+- 90 °C arrival error: **23.8 s**, PASS
 
-The correct next step is a governed model revision, not more tuning of VTMS-V1 against the failed holdout.
+Individual decision:
+
+> **`formal_holdout_acceptance_fail`**
+
+This secondary result is confirmatory/generalization evidence only. It cannot overturn the primary formal failure and does not create another calibration opportunity.
+
+## What the failed holdouts mean
+
+The results do not mean the numerical implementation is broken. They mean the current two-state V1 model plus its frozen component/control topology is not sufficient to reproduce independent Ford Focus thermal response within the project criteria after the governed calibration sequence.
+
+The calibration parameters press against their frozen bounds, the primary holdout underpredicts final coolant temperature by about 8.53 °C, and a different 55 mph holdout independently underpredicts the final value by about 8.42 °C. That pattern strengthens the evidence for **model-form limitations** rather than more parameter tuning.
+
+The correct next step is a governed model revision, not more tuning of VTMS-V1 against observed holdouts.
 
 ## Formal acceptance criteria
 
@@ -244,6 +266,7 @@ High-temperature fault cases above the liquid-only caution boundary are qualitat
 - [`validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json)
 - [`validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_CAL_RAD_01_FORMAL_RESULT.json)
 - [`validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json`](validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json)
+- [`validation_outputs/ARGONNE_VAL_SSS_01_CONFIRMATORY_RESULT.json`](validation_outputs/ARGONNE_VAL_SSS_01_CONFIRMATORY_RESULT.json)
 
 ## Roadmap
 
@@ -262,17 +285,17 @@ Completed:
 - pre-fit physical bounds and identifiability controls
 - staged CAL-01 and CAL-RAD-01 physical calibration
 - primary untouched Argonne holdout
+- secondary preregistered confirmatory holdout
 - formal failure preservation without retuning
 
 Remaining V1 work:
 
 - publish the final controlled-validation report and residual interpretation
-- optionally execute the already-reserved secondary holdout as confirmatory evidence, without retuning
 - document the specific model-form changes proposed for a future revision
 
 ### VTMS-V2
 
-A governed model revision may add justified thermal states or control/topology improvements based on the preserved residual evidence, followed by a new preregistered calibration/validation program. Vehicle-specific OBD-II/CAN replay and stronger uncertainty/sensitivity treatment also belong here.
+A governed model revision may add justified thermal states or control/topology improvements based on the preserved residual evidence, followed by a new preregistered calibration/validation program. Because the current Argonne holdouts have now been observed, they can inform V2 development but cannot be relabeled as new blind validation evidence. Vehicle-specific OBD-II/CAN replay and stronger uncertainty/sensitivity treatment also belong here.
 
 ### Future connected model / digital twin
 
