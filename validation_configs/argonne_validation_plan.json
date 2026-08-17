@@ -1,6 +1,6 @@
 {
   "plan_id": "ARGONNE-D3-VTMS-V1-CONTROLLED-PLAN",
-  "status": "final_staged_snapshot_frozen_primary_holdout_locked",
+  "status": "primary_physical_holdout_executed_failed_no_retuning",
   "received_date": "2026-08-17",
   "rules": {
     "calibration_and_holdout_must_use_distinct_source_runs": true,
@@ -13,7 +13,8 @@
     "pre_fit_identifiability_must_precede_calibration_subset_freeze": true,
     "all_four_parameters_may_not_be_fit_simultaneously_in_cal_01": true,
     "radiator_ua_requires_separate_radiator_active_calibration_case": true,
-    "holdout_parameters_must_remain_frozen_even_after_failed_calibration_stage": true
+    "holdout_parameters_must_remain_frozen_even_after_failed_calibration_stage": true,
+    "failed_holdout_may_not_trigger_retuning": true
   },
   "calibration_bounds_status": "frozen_before_argonne_residual_inspection",
   "calibration_bound_set": {
@@ -24,6 +25,7 @@
   },
   "pre_fit_identifiability_status": "broad_preflight_complete_and_warmup_stage_requires_staged_calibration",
   "final_staged_parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
+  "formal_validation_status": "failed_primary_independent_holdout",
   "runs": [
     {
       "run_id": "CAL-01",
@@ -45,8 +47,7 @@
       "calibrated_parameter_snapshot_sha256": "8cef9aa350922a589b9794679c479db643a300842ee0c9c8aebcb517cd145ad2",
       "overall_project_threshold_pass": true,
       "formal_validation_pass": false,
-      "boundary_parameter_names": ["wall_heat_fraction", "engine_coolant_ua_w_per_k"],
-      "boundary_interpretation": "Two effective parameters are within 1 percent of their frozen upper bounds. Bounds were not widened."
+      "boundary_parameter_names": ["wall_heat_fraction", "engine_coolant_ua_w_per_k"]
     },
     {
       "run_id": "CAL-RAD-01",
@@ -65,8 +66,7 @@
       "overall_project_threshold_pass": false,
       "formal_validation_pass": false,
       "boundary_parameter_names": ["radiator_ua_nominal_w_per_k"],
-      "upstream_parameter_policy": "Use the frozen output parameter snapshot from CAL-01 for all non-radiator parameters. Do not reopen CAL-01 parameters during CAL-RAD-01.",
-      "failure_interpretation": "The constrained radiator-only fit improves RMSE but remains outside all four core project criteria and lands within 1 percent of the frozen lower radiator-UA bound. The bound was not widened and prior parameters were not reopened."
+      "upstream_parameter_policy": "Use the frozen output parameter snapshot from CAL-01 for all non-radiator parameters. Do not reopen CAL-01 parameters during CAL-RAD-01."
     },
     {
       "run_id": "VAL-CS-01",
@@ -85,10 +85,23 @@
       "source_test_id": "71207063",
       "mapping_file": "argonne_2012_focus_71207063_holdout.json",
       "execution_manifest": "argonne_2012_focus_val_hot_01_manifest.json",
+      "result_file": "../validation_outputs/ARGONNE_VAL_HOT_01_FORMAL_RESULT.json",
       "qualification_status": "qualified_holdout_candidate_reserved_before_fit",
-      "execution_status": "locked_ready_for_blind_execution",
+      "execution_status": "executed_blind_failed_formal_acceptance",
       "parameter_snapshot_sha256": "ae983fdbc636cc4d7e597bc22108e47a5833960761d16bb6e38e30bc5784c287",
-      "calibration_parameters": []
+      "calibration_parameters": [],
+      "metrics": {
+        "rmse_c": 8.58743511202901,
+        "mae_c": 8.068711761211592,
+        "bias_c": -8.037497881594627,
+        "p90_abs_error_c": 10.051192841867021,
+        "final_error_c": -8.527446948955287,
+        "arrival_90c_error_s": 125.59830113135133
+      },
+      "overall_project_threshold_pass": false,
+      "formal_validation_pass": false,
+      "claim_label": "formal_holdout_acceptance_fail",
+      "retuning_permitted": false
     },
     {
       "run_id": "VAL-SSS-01",
@@ -96,7 +109,7 @@
       "evidence_grade": "independent_holdout",
       "target_condition": "approximately 72 F steady-state 55 mph warm-up",
       "source_test_id": "71207052",
-      "qualification_status": "secondary_holdout_candidate_reserved_before_fit_complete_ect",
+      "qualification_status": "secondary_holdout_candidate_reserved_before_fit_complete_ect_unexecuted",
       "calibration_parameters": []
     },
     {
@@ -135,6 +148,7 @@
     "physical_bounds_frozen_before_argonne_residual_inspection": true,
     "existing_holdout_roles_preserved": true,
     "holdout_source_data_opened_during_calibration": false,
-    "failed_calibration_stage_triggered_retuning": false
+    "failed_calibration_stage_triggered_retuning": false,
+    "primary_holdout_triggered_retuning": false
   }
 }
