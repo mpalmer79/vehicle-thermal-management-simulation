@@ -1,0 +1,42 @@
+{
+  "dataset_id": "ARGONNE-D3-71207063",
+  "source_name": "Argonne National Laboratory Downloadable Dynamometer Database (D3)",
+  "file_format": "tsv",
+  "delimiter": "\t",
+  "columns": {
+    "time_s": "Time [s]",
+    "engine_coolant_temp_c": "EngineCoolantTemp[C]",
+    "engine_speed_rpm": "Eng_Spd[RPM]",
+    "vehicle_speed_m_s": "Dyno_Spd[mph]",
+    "ambient_temp_c": "Cell_Temp[C]",
+    "fuel_rate_kg_s": "Eng_FuelFlow_Direct[cc/s]"
+  },
+  "units": {
+    "time_s": "s",
+    "engine_coolant_temp_c": "C",
+    "engine_speed_rpm": "rpm",
+    "vehicle_speed_m_s": "mph",
+    "ambient_temp_c": "C",
+    "fuel_rate_kg_s": "cc/s"
+  },
+  "row_selection": {
+    "start_time_s": 0.0,
+    "end_time_s": 1374.0,
+    "exclude_time_intervals_s": []
+  },
+  "metadata": {
+    "vehicle": "2012 Ford Focus 2.0 L Ti-VCT GDI I-4",
+    "source_test_id": "71207063",
+    "cycle": "UDDS #2 hot start, 2 bag",
+    "average_test_cell_temp_c_from_master_summary": 21,
+    "validation_use": "VAL-HOT-01 independent holdout candidate",
+    "mapping_status": "reviewed_data_quality_only_before_fit",
+    "fuel_density_g_ml": 0.743,
+    "fuel_net_heating_value_j_per_kg_reference": 42668144.0,
+    "fuel_net_heating_value_use": "Must still be supplied explicitly to the controlled runner.",
+    "source_file_sha256_expected": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+    "ect_qc_basis": "Complete ECT coverage and no greater-than-10 C sample-to-sample ECT discontinuities from t=0. No VTMS residual was inspected.",
+    "physical_evidence_status": "reserved_holdout_not_yet_executed",
+    "attribution": "Argonne National Laboratory Downloadable Dynamometer Database (D3)"
+  }
+}

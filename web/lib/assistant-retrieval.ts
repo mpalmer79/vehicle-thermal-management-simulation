@@ -1,14 +1,14 @@
 /**
- * VTMS Knowledge Assistant — local deterministic retrieval.
+ * VTMS Knowledge Assistant local deterministic retrieval.
  *
  * A question is canonicalized, spell-repaired against a closed VTMS vocabulary, and
  * scored against every knowledge-base topic. Unlike the first implementation this
- * returns a *ranked candidate list* rather than a single winner, so the answer composer
+ * returns a ranked candidate list rather than a single winner, so the answer composer
  * can synthesize across two or three related topics when the intent calls for it, and
  * can ask for clarification when the top candidates are near-tied and unrelated.
  *
  * There is no model, no generation, and no network access. Every fact ultimately comes
- * from a verbatim knowledge-base entry.
+ * from a curated knowledge-base entry or an explicit current-project status override.
  */
 
 import {
@@ -20,6 +20,7 @@ import {
 import { type Entity, extractEntities } from "./assistant-entities";
 import { canonicalize, contentTokens } from "./assistant-text";
 import type { ConversationContext } from "./assistant-context";
+import { withCurrentProjectStatus } from "./assistant-status-overrides";
 
 export { canonicalize };
 
@@ -36,20 +37,9 @@ const WEIGHT = {
   contextRelated: 1,
 } as const;
 
-/**
- * Confidence floor. One exact single-word keyword hit is exactly enough; anything
- * weaker falls back rather than guessing.
- */
 export const MIN_CONFIDENCE = 4;
-
-/**
- * Two candidates this close are treated as a tie. Combined with the unrelatedness and
- * brevity checks below, a tie on a short question produces a clarification instead of
- * a coin flip.
- */
 export const AMBIGUITY_MARGIN = 1.0;
 
-/** Topic ids that a component entity supports, so entity hits reinforce the right topic. */
 const ENTITY_TOPIC_HINTS: Record<string, string[]> = {
   engine: ["engine-thermal-state", "engine-to-coolant"],
   coolant: ["coolant-thermal-state", "two-state-model"],
@@ -70,7 +60,6 @@ const ENTITY_TOPIC_HINTS: Record<string, string[]> = {
   "vtms-v1": ["vtms-v1"],
   "em-v1": ["vtms-v1"],
   "michael-palmer": ["creator"],
-  // Operating conditions point at the mechanisms that dominate them.
   idle: ["cooling-fan", "ram-airflow"],
   highway: ["ram-airflow", "radiator-heat-rejection"],
   "cold-start": ["thermostat", "two-state-model"],
@@ -100,8 +89,13 @@ function indexTerms(terms: string[]): { phrases: string[]; tokens: string[] } {
   return { phrases, tokens };
 }
 
-/** Built once at module load; the knowledge base is static. */
-const INDEX: IndexedTopic[] = knowledgeTopics.map((topic) => {
+/**
+ * Built once at module load. Current-project overrides are applied before indexing so
+ * the Assistant 2.0 composer cannot regress to stale validation status after the
+ * Argonne data-receipt milestone.
+ */
+const INDEX: IndexedTopic[] = knowledgeTopics.map((baseTopic) => {
+  const topic = withCurrentProjectStatus(baseTopic);
   const keywords = indexTerms(topic.keywords);
   const synonyms = indexTerms(topic.synonyms);
 
@@ -163,27 +157,21 @@ export type Candidate = {
   topic: KnowledgeTopic;
   score: number;
   matchedTerms: string[];
-  /** Normalized 0–1 view of the score, for display and threshold checks. */
   confidence: number;
 };
 
 export type RetrievalContext = {
-  /** Bounded conversation context; recent topics contribute a small boost. */
   conversation?: ConversationContext;
-  /** Legacy single-topic hint, still honoured. */
   lastTopicId?: string | null;
 };
 
 export type Retrieval = {
-  /** Ranked, above-floor candidates. Empty when nothing cleared the floor. */
   candidates: Candidate[];
-  /** Every topic that scored at all, ranked. Used for supporting synthesis only. */
   scored: Candidate[];
   entities: Entity[];
   repairs: { from: string; to: string }[];
   canonicalQuery: string;
   repairedQuery: string;
-  /** True when the top two candidates are near-tied and genuinely unrelated. */
   ambiguous: boolean;
 };
 
@@ -195,14 +183,6 @@ function relatedness(a: KnowledgeTopic, b: KnowledgeTopic): boolean {
   return false;
 }
 
-/**
- * Rank knowledge-base topics for a question.
- *
- * Entity hits add a small, bounded boost so "raditor" repaired to "radiator" reinforces
- * the radiator topic even when the surrounding wording is unusual. Context adds a
- * smaller boost still — enough to disambiguate a follow-up, never enough on its own to
- * lift a topic over the confidence floor.
- */
 export function rankTopics(question: string, context: RetrievalContext = {}): Retrieval {
   const canonicalQuery = canonicalize(question);
   const { entities, repairs, repairedQuery } = extractEntities(question);
@@ -228,10 +208,6 @@ export function rankTopics(question: string, context: RetrievalContext = {}): Re
   }
 
   const scored: Candidate[] = [];
-
-  // Context is only allowed to contribute when the question itself carries a VTMS
-  // signal — a recognized entity or a real keyword hit. Without that guard, memory
-  // could drag an unrelated question into a VTMS topic.
   const baseScores = INDEX.map((entry) => scoreTopic(entry, repairedQuery, queryTokens));
   const hasDomainSignal =
     entities.length > 0 || baseScores.some((result) => result.score > 0) || entityTopicBoost.size > 0;
@@ -271,8 +247,6 @@ export function rankTopics(question: string, context: RetrievalContext = {}): Re
   return { candidates, scored, entities, repairs, canonicalQuery, repairedQuery, ambiguous };
 }
 
-/* ------------------------------------------------- single-topic compatibility */
-
 export type RetrievalMatch = {
   kind: "match";
   topic: KnowledgeTopic;
@@ -288,12 +262,6 @@ export type RetrievalFallback = {
 
 export type RetrievalResult = RetrievalMatch | RetrievalFallback;
 
-/**
- * Resolve a question to a single best topic.
- *
- * Retained as the primitive underneath the composer, and still the simplest way to ask
- * "what is this question about?" without response formatting.
- */
 export function retrieveAnswer(question: string, context: RetrievalContext = {}): RetrievalResult {
   const { candidates } = rankTopics(question, context);
   const best = candidates[0];
