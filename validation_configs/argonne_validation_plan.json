@@ -1,6 +1,6 @@
 {
   "plan_id": "ARGONNE-D3-VTMS-V1-CONTROLLED-PLAN",
-  "status": "data_received_qualification_in_progress",
+  "status": "pre_fit_structure_and_bounds_frozen",
   "received_date": "2026-08-17",
   "rules": {
     "calibration_and_holdout_must_use_distinct_source_runs": true,
@@ -8,25 +8,60 @@
     "preferred_environment_f": 72,
     "preferred_climate_control": "off_when_documented",
     "maf_proxy_permitted_for_formal_controlled_evidence": false,
-    "source_role_selection_may_use_data_quality_but_not_model_residuals": true,
-    "calibration_bounds_must_be_frozen_before_first_argonne_fit": true
+    "source_role_selection_may_use_data_quality_and_operating_conditions_but_not_model_residuals": true,
+    "calibration_bounds_must_be_frozen_before_first_argonne_fit": true,
+    "pre_fit_identifiability_must_precede_calibration_subset_freeze": true,
+    "all_four_parameters_may_not_be_fit_simultaneously_in_cal_01": true,
+    "radiator_ua_requires_separate_radiator_active_calibration_case": true
   },
-  "calibration_bounds_status": "unresolved_must_be_physically_justified_and_frozen_before_fit",
+  "calibration_bounds_status": "frozen_before_argonne_residual_inspection",
+  "calibration_bound_set": {
+    "wall_heat_fraction": [0.20, 0.50],
+    "engine_thermal_capacitance_j_per_k": [25000.0, 100000.0],
+    "engine_coolant_ua_w_per_k": [400.0, 2200.0],
+    "radiator_ua_nominal_w_per_k": [400.0, 2200.0]
+  },
+  "pre_fit_identifiability_status": "broad_preflight_complete_and_warmup_stage_requires_staged_calibration",
   "runs": [
     {
       "run_id": "CAL-01",
       "role": "calibration",
       "evidence_grade": "controlled_calibration",
-      "target_condition": "approximately 72 F cold-start UDDS #1",
+      "target_condition": "approximately 72 F cold-start UDDS #1 warm-up",
       "source_test_id": "71207062",
       "mapping_file": "argonne_2012_focus_71207062_calibration.json",
-      "qualification_status": "qualified_candidate_after_explicit_ect_qc",
+      "qualification_status": "qualified_candidate_after_explicit_ect_qc_pre_fit_subset_frozen",
       "calibration_parameters": [
         "wall_heat_fraction",
         "engine_thermal_capacitance_j_per_k",
-        "engine_coolant_ua_w_per_k",
+        "engine_coolant_ua_w_per_k"
+      ],
+      "excluded_from_this_fit": [
         "radiator_ua_nominal_w_per_k"
-      ]
+      ],
+      "bounds": {
+        "wall_heat_fraction": [0.20, 0.50],
+        "engine_thermal_capacitance_j_per_k": [25000.0, 100000.0],
+        "engine_coolant_ua_w_per_k": [400.0, 2200.0]
+      },
+      "subset_basis": "Synthetic-only warm-up-stage sensitivity analysis found the three warm-up parameters materially excited while radiator UA contributed less than 2 percent of the strongest RMS coolant sensitivity. No Argonne prediction residual was inspected."
+    },
+    {
+      "run_id": "CAL-RAD-01",
+      "role": "calibration",
+      "evidence_grade": "controlled_calibration",
+      "target_condition": "approximately 72 F radiator-active sustained highway operation",
+      "source_test_id": "71207057",
+      "mapping_file": "argonne_2012_focus_71207057_radiator_calibration.json",
+      "qualification_status": "preregistered_radiator_active_candidate_from_source_measurements_before_residual_inspection",
+      "calibration_parameters": [
+        "radiator_ua_nominal_w_per_k"
+      ],
+      "bounds": {
+        "radiator_ua_nominal_w_per_k": [400.0, 2200.0]
+      },
+      "upstream_parameter_policy": "Use the frozen output parameter snapshot from CAL-01 for all non-radiator parameters. Do not reopen CAL-01 parameters during CAL-RAD-01.",
+      "selection_basis": "From Time >= 0, source ECT is complete and 91 to 99 C, dyno speed averages about 57.31 mph, and about 92.65 percent of samples are at or above 40 mph while ECT is at or above 88 C. No VTMS prediction residual was inspected."
     },
     {
       "run_id": "VAL-CS-01",
@@ -85,8 +120,11 @@
     }
   ],
   "selection_audit": {
-    "model_predictions_run_during_source_qc": false,
-    "model_residuals_inspected_during_source_qc": false,
-    "roles_selected_from_test_documentation_and_measurement_quality_only": true
+    "model_predictions_run_during_source_qc_or_role_selection": false,
+    "model_residuals_inspected_during_source_qc_or_role_selection": false,
+    "roles_selected_from_test_documentation_measurement_quality_and_source_operating_conditions_only": true,
+    "pre_fit_sensitivity_used_physical_argonne_data": false,
+    "physical_bounds_frozen_before_argonne_residual_inspection": true,
+    "existing_holdout_roles_preserved": true
   }
 }
