@@ -1,37 +1,38 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-import { type RelatedRoute } from "@/lib/assistant-knowledge";
-import { retrieveAnswer } from "@/lib/assistant-retrieval";
+import {
+  type AssistantResponse,
+  answerQuestion,
+} from "@/lib/assistant-compose";
+import { type ConversationContext, emptyContext } from "@/lib/assistant-context";
+import { readRunForPathname } from "@/lib/assistant-run-context";
 
 /**
  * Conversation state for the VTMS Knowledge Assistant.
  *
  * One provider sits in the application shell so the floating panel and the /assistant
- * route share a single transcript for the browser session. Answers are resolved
+ * route share a single transcript for the browser session. Answers are composed
  * synchronously from the bundled knowledge base — there is nothing to await and no
  * request to make.
+ *
+ * On a computed-result route the provider also hands the composer the run that is
+ * already in session storage, so readout questions ("what is the final coolant
+ * temperature?") can be answered from that authoritative record.
  */
 
 export type AssistantTurn =
   | { id: string; role: "user"; text: string }
-  | {
-      id: string;
-      role: "assistant";
-      /** Topic title, or undefined for the fallback response. */
-      heading?: string;
-      text: string;
-      facts: string[];
-      routes: RelatedRoute[];
-      suggestions: string[];
-    };
+  | { id: string; role: "assistant"; response: AssistantResponse };
 
 type AssistantState = {
   turns: AssistantTurn[];
-  /** Last matched topic, used to keep short follow-ups in context. */
-  lastTopicId: string | null;
+  conversation: ConversationContext;
   panelOpen: boolean;
+  /** Suggestions attached to the most recent answer. */
+  followUps: string[];
   ask: (question: string) => void;
   reset: () => void;
   setPanelOpen: (open: boolean) => void;
@@ -44,8 +45,9 @@ let turnCounter = 0;
 const nextId = (prefix: string) => `${prefix}-${(turnCounter += 1)}`;
 
 export function AssistantProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [turns, setTurns] = useState<AssistantTurn[]>([]);
-  const [lastTopicId, setLastTopicId] = useState<string | null>(null);
+  const [conversation, setConversation] = useState<ConversationContext>(emptyContext);
   const [panelOpen, setPanelOpen] = useState(false);
 
   const ask = useCallback(
@@ -53,42 +55,33 @@ export function AssistantProvider({ children }: { children: React.ReactNode }) {
       const trimmed = question.trim();
       if (!trimmed) return;
 
-      const result = retrieveAnswer(trimmed, { lastTopicId });
+      const run = readRunForPathname(pathname);
+      const outcome = answerQuestion(trimmed, { context: conversation, run });
 
-      const answer: AssistantTurn =
-        result.kind === "match"
-          ? {
-              id: nextId("a"),
-              role: "assistant",
-              heading: result.topic.title,
-              text: result.topic.shortAnswer,
-              facts: result.topic.detail,
-              routes: result.topic.relatedRoutes,
-              suggestions: result.suggestions,
-            }
-          : {
-              id: nextId("a"),
-              role: "assistant",
-              text: result.answer,
-              facts: [],
-              routes: [],
-              suggestions: result.suggestions,
-            };
-
-      setTurns((current) => [...current, { id: nextId("q"), role: "user", text: trimmed }, answer]);
-      setLastTopicId(result.kind === "match" ? result.topic.id : null);
+      setTurns((current) => [
+        ...current,
+        { id: nextId("q"), role: "user", text: trimmed },
+        { id: nextId("a"), role: "assistant", response: outcome.response },
+      ]);
+      setConversation(outcome.context);
     },
-    [lastTopicId],
+    [conversation, pathname],
   );
 
   const reset = useCallback(() => {
     setTurns([]);
-    setLastTopicId(null);
+    setConversation(emptyContext());
   }, []);
 
+  const followUps = useMemo(() => {
+    const last = turns[turns.length - 1];
+    if (!last || last.role !== "assistant") return [];
+    return last.response.suggestions;
+  }, [turns]);
+
   const value = useMemo<AssistantState>(
-    () => ({ turns, lastTopicId, panelOpen, ask, reset, setPanelOpen }),
-    [turns, lastTopicId, panelOpen, ask, reset],
+    () => ({ turns, conversation, panelOpen, followUps, ask, reset, setPanelOpen }),
+    [turns, conversation, panelOpen, followUps, ask, reset],
   );
 
   return <AssistantContext.Provider value={value}>{children}</AssistantContext.Provider>;

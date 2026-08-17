@@ -65,17 +65,7 @@ export const CREATOR_LINKS = {
   repository: GITHUB_REPO,
 } as const;
 
-/**
- * The five starter questions shown when the assistant is first opened.
- * Each one is covered by a dedicated topic and asserted in the retrieval tests.
- */
-export const PRESET_QUESTIONS = [
-  "What is VTMS and what does it simulate?",
-  "How does VTMS model engine and coolant temperature?",
-  "What happens in the built-in fault scenarios?",
-  "How has VTMS been verified and validated?",
-  "Is VTMS a digital twin?",
-] as const;
+/* Starter prompts live in `assistant-prompts.ts`, next to the route-aware ones. */
 
 export const FALLBACK_ANSWER =
   "I don't have a reliable VTMS knowledge-base answer for that yet. Try asking about the thermal model, scenarios, validation, system architecture, or the project creator.";
@@ -98,7 +88,7 @@ export const knowledgeTopics: KnowledgeTopic[] = [
     title: "What VTMS is",
     category: "Project",
     keywords: ["what is vtms", "what does vtms simulate", "what vtms does", "vtms overview", "about vtms"],
-    synonyms: ["what is this project", "what is this site", "what is this app", "explain vtms", "purpose of vtms"],
+    synonyms: ["what is this project", "what is this site", "what is this app", "explain vtms"],
     shortAnswer:
       "VTMS is a physics-based vehicle thermal-management simulation platform. It computes how engine and coolant temperatures evolve over time for a given operating condition, then visualizes the result as playback.",
     detail: [
@@ -178,6 +168,7 @@ export const knowledgeTopics: KnowledgeTopic[] = [
       "why does vtms exist",
       "why does the project exist",
       "project exist",
+      "purpose of vtms",
       "intended purpose",
       "goal of the project",
       "what is vtms for",
@@ -237,7 +228,14 @@ export const knowledgeTopics: KnowledgeTopic[] = [
     id: "engine-thermal-state",
     title: "Engine thermal state",
     category: "Physics",
-    keywords: ["engine thermal state", "engine structure", "engine thermal mass", "engine block temperature", "q engine"],
+    keywords: [
+      "engine thermal state",
+      "engine structure",
+      "engine thermal mass",
+      "engine temperature",
+      "engine block temperature",
+      "q engine",
+    ],
     synonyms: ["engine metal", "engine heat", "combustion heat", "engine thermal storage", "engine node"],
     shortAnswer:
       "The engine is represented as one effective thermal mass. It receives combustion-derived wall heat and rejects energy to the coolant and directly to ambient.",
@@ -258,7 +256,14 @@ export const knowledgeTopics: KnowledgeTopic[] = [
     id: "coolant-thermal-state",
     title: "Coolant thermal state",
     category: "Physics",
-    keywords: ["coolant thermal state", "bulk coolant", "coolant temperature", "coolant node", "coolant storage"],
+    keywords: [
+      "coolant thermal state",
+      "bulk coolant",
+      "coolant temperature",
+      "coolant loop",
+      "coolant node",
+      "coolant storage",
+    ],
     synonyms: ["coolant heat", "coolant loop temperature", "coolant state", "engine side coolant"],
     shortAnswer:
       "Bulk engine-side coolant is the second transient state. It gains the heat handed over by the engine and loses heat through the radiator model.",

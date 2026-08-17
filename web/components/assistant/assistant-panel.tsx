@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { ASSISTANT_DISCLOSURE, PRESET_QUESTIONS } from "@/lib/assistant-knowledge";
+import { ASSISTANT_DISCLOSURE } from "@/lib/assistant-knowledge";
+import { quickQuestionsForRoute } from "@/lib/assistant-prompts";
 
 import { useAssistant } from "./assistant-context";
 import { AssistantMessage } from "./assistant-message";
-import { PresetQuestions } from "./preset-questions";
+import { FollowUpQuestions, PresetQuestions } from "./preset-questions";
 
 /**
  * The conversational surface itself.
@@ -14,6 +16,9 @@ import { PresetQuestions } from "./preset-questions";
  * `panel` renders inside the floating launcher sheet; `page` renders the /assistant
  * route. Both share one transcript through the assistant context, so a visitor can open
  * a question in the panel and continue it on the dedicated route.
+ *
+ * The starter prompts are route-aware: on a product route the assistant offers three
+ * questions about that page, while /assistant keeps the five global starters.
  */
 export function AssistantPanel({
   variant = "panel",
@@ -24,10 +29,13 @@ export function AssistantPanel({
   onClose?: () => void;
   autoFocus?: boolean;
 }) {
-  const { turns, ask, reset } = useAssistant();
+  const pathname = usePathname();
+  const { turns, followUps, ask, reset } = useAssistant();
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const transcriptRef = useRef<HTMLDivElement | null>(null);
+
+  const starters = useMemo(() => quickQuestionsForRoute(pathname), [pathname]);
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
@@ -44,9 +52,6 @@ export function AssistantPanel({
     setDraft("");
     inputRef.current?.focus();
   };
-
-  const lastTurn = turns[turns.length - 1];
-  const followUps = lastTurn && lastTurn.role === "assistant" ? lastTurn.suggestions : [];
 
   return (
     <section className={`assistant-surface ${variant}`} aria-label="VTMS Knowledge Assistant">
@@ -83,24 +88,20 @@ export function AssistantPanel({
         {turns.length === 0 ? (
           <div className="assistant-intro">
             <p>
-              Ask about the thermal model, the canonical scenarios, verification and validation
-              evidence, the system architecture, or the person who built it.
+              {starters.routeSpecific
+                ? "Questions about this page, or ask anything about the model, scenarios, evidence, or architecture."
+                : "Ask about the thermal model, scenarios, evidence, architecture, or the creator."}
             </p>
-            <PresetQuestions label="START HERE" onSelect={submit} questions={PRESET_QUESTIONS} />
+            <PresetQuestions label={starters.label} onSelect={submit} prompts={starters.prompts} />
           </div>
         ) : (
           <>
             <ul aria-live="polite" className="assistant-turns" role="log">
               {turns.map((turn) => (
-                <AssistantMessage key={turn.id} turn={turn} />
+                <AssistantMessage key={turn.id} onSelect={submit} turn={turn} />
               ))}
             </ul>
-            <PresetQuestions
-              label="ASK NEXT"
-              onSelect={submit}
-              questions={followUps}
-              variant="follow-up"
-            />
+            <FollowUpQuestions onSelect={submit} questions={followUps} />
           </>
         )}
       </div>
