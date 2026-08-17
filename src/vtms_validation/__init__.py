@@ -13,6 +13,12 @@ from .calibration import (
 )
 from .dataset import ValidationDataset
 from .heat_input import MafStoichiometricHeatEstimator
+from .identifiability import (
+    IdentifiabilityDiagnostics,
+    PairwiseSensitivity,
+    ParameterSensitivity,
+    analyze_synthetic_identifiability,
+)
 from .manifest import (
     ALLOWED_CALIBRATION_PARAMETERS,
     AcceptanceCriteria,
@@ -56,6 +62,10 @@ __all__ = [
     "CalibratedParameter",
     "BoundedCalibrationResult",
     "run_bounded_calibration",
+    "ParameterSensitivity",
+    "PairwiseSensitivity",
+    "IdentifiabilityDiagnostics",
+    "analyze_synthetic_identifiability",
     "SyntheticCase",
     "SyntheticCalibrationHarnessResult",
     "generate_synthetic_dataset",
