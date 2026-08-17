@@ -1,15 +1,15 @@
 {
   "acceptance": {
     "checks": [
-      {"check_id": "rmse_c", "limit": 5.0, "observed": 3.715958772996405, "status": "pass"},
-      {"check_id": "mae_c", "limit": 4.0, "observed": 3.2853693378142057, "status": "pass"},
-      {"check_id": "abs_bias_c", "limit": 3.0, "observed": 2.413732045953712, "status": "pass"},
-      {"check_id": "p90_abs_error_c", "limit": 7.0, "observed": 5.9066163460775485, "status": "pass"},
-      {"check_id": "arrival_60c", "limit_s": 60.0, "observed_abs_error_s": 13.416550336028962, "signed_error_s": 13.416550336028962, "status": "pass"},
-      {"check_id": "arrival_80c", "limit_s": 60.0, "observed_abs_error_s": 8.697193775098015, "signed_error_s": -8.697193775098015, "status": "pass"},
-      {"check_id": "arrival_90c", "limit_s": 60.0, "observed_abs_error_s": 34.001244835474324, "signed_error_s": -34.001244835474324, "status": "pass"}
+      {"check_id": "rmse", "label": "RMSE", "status": "pass", "observed": 3.715958772996405, "limit": 5.0, "units": "degC", "note": ""},
+      {"check_id": "mae", "label": "MAE", "status": "pass", "observed": 3.2853693378142057, "limit": 4.0, "units": "degC", "note": ""},
+      {"check_id": "abs_bias", "label": "Absolute mean bias", "status": "pass", "observed": 2.413732045953712, "limit": 3.0, "units": "degC", "note": ""},
+      {"check_id": "p90_abs_error", "label": "P90 absolute error", "status": "pass", "observed": 5.9066163460775485, "limit": 7.0, "units": "degC", "note": ""},
+      {"check_id": "arrival_60c", "label": "60 degC arrival-time error", "status": "pass", "observed": 13.416550336028962, "limit": 60.0, "units": "s", "note": ""},
+      {"check_id": "arrival_80c", "label": "80 degC arrival-time error", "status": "pass", "observed": 8.697193775098015, "limit": 60.0, "units": "s", "note": ""},
+      {"check_id": "arrival_90c", "label": "90 degC arrival-time error", "status": "pass", "observed": 34.001244835474324, "limit": 60.0, "units": "s", "note": ""}
     ],
-    "claim_label": "controlled_calibration_not_formal_validation",
+    "claim_label": "calibration_fit_within_project_thresholds",
     "formal_validation_pass": false,
     "overall_threshold_pass": true,
     "role": "calibration"
