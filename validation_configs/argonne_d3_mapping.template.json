@@ -1,30 +1,35 @@
 {
   "dataset_id": "ARGONNE-D3-REPLACE-WITH-TEST-ID",
-  "source_name": "Argonne National Laboratory Downloadable Dynamometer Database",
-  "file_format": "csv",
-  "delimiter": ",",
+  "source_name": "Argonne National Laboratory Downloadable Dynamometer Database (D3)",
+  "file_format": "tsv",
+  "delimiter": "\t",
   "columns": {
-    "time_s": "REPLACE_WITH_D3_TIME_COLUMN",
-    "engine_coolant_temp_c": "REPLACE_WITH_D3_ECT_COLUMN",
-    "engine_speed_rpm": "REPLACE_WITH_D3_RPM_COLUMN",
-    "vehicle_speed_m_s": "REPLACE_WITH_D3_SPEED_COLUMN",
-    "ambient_temp_c": "REPLACE_WITH_D3_AMBIENT_COLUMN",
-    "fuel_rate_kg_s": "REPLACE_WITH_D3_FUEL_RATE_COLUMN"
+    "time_s": "Time [s]",
+    "engine_coolant_temp_c": "EngineCoolantTemp[C]",
+    "engine_speed_rpm": "Eng_Spd[RPM]",
+    "vehicle_speed_m_s": "Dyno_Spd[mph]",
+    "ambient_temp_c": "Cell_Temp[C]",
+    "fuel_rate_kg_s": "Eng_FuelFlow_Direct[cc/s]"
   },
   "units": {
     "time_s": "s",
     "engine_coolant_temp_c": "C",
     "engine_speed_rpm": "rpm",
-    "vehicle_speed_m_s": "m/s",
+    "vehicle_speed_m_s": "mph",
     "ambient_temp_c": "C",
-    "fuel_rate_kg_s": "kg/s"
+    "fuel_rate_kg_s": "cc/s"
+  },
+  "row_selection": {
+    "start_time_s": null,
+    "end_time_s": null,
+    "exclude_time_intervals_s": []
   },
   "metadata": {
-    "vehicle": "2012 Ford Focus 2.0 L gasoline",
-    "test_temperature_f": 72,
-    "climate_control": "off",
+    "vehicle": "2012 Ford Focus 2.0 L Ti-VCT GDI I-4",
     "validation_use": "REPLACE_WITH_CALIBRATION_HOLDOUT_OR_CHALLENGE",
-    "mapping_status": "template_unresolved",
-    "note": "Do not use this template as-is. Replace every REPLACE_WITH value only from the received Argonne signal dictionary and test documentation. Remove unavailable optional channels rather than guessing them."
+    "mapping_status": "template_requires_reviewed_test_specific_qc",
+    "fuel_density_g_ml": 0.743,
+    "fuel_net_heating_value_j_per_kg_reference": 42668144.0,
+    "note": "The source column names and units reflect the received comprehensive Argonne D3 files. Set the test-specific dataset ID, role, source-time selection, and any measurement exclusions from reviewed source evidence only. Do not infer ECT cleanup or use this template as a calibration authorization. The lower heating value must still be supplied explicitly to the controlled runner."
   }
 }
