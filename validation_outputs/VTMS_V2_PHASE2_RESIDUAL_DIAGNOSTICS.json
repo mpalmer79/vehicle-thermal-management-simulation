@@ -1,0 +1,165 @@
+{
+  "record_type": "vtms_v2_development_residual_diagnostics",
+  "claim_status": "development_falsification_evidence_not_validation",
+  "raw_argonne_redistributed": false,
+  "residual_definition": "predicted_minus_measured_degC",
+  "source_identity": {
+    "CAL-01": {
+      "source_test_id": "71207062",
+      "sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+      "hash_match": true
+    },
+    "CAL-RAD-01": {
+      "source_test_id": "71207057",
+      "sha256": "57034f3e01e45bae7271cc4f96d3b7eb88055e17bb1bf3522e28c6734b631e3d",
+      "hash_match": true
+    },
+    "VAL-HOT-01": {
+      "source_test_id": "71207063",
+      "sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "hash_match": true
+    },
+    "VAL-SSS-01": {
+      "source_test_id": "71207052",
+      "sha256": "b5a837449f824ad76b00a6ab7da7ae92486b4feec0b4e3a81eb126bac14b0f02",
+      "hash_match": true
+    }
+  },
+  "reconstruction_environment": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0"
+  },
+  "runs": {
+    "CAL-01": {
+      "n": 13638,
+      "duration_s": 1365.3,
+      "metrics": {
+        "rmse_c": 3.7178434586974984,
+        "mae_c": 3.28595629812872,
+        "bias_c": -2.416779017205932,
+        "p90_abs_error_c": 5.910050448217774,
+        "final_error_c": -4.6270111795600855,
+        "bias_fraction_of_mse": 0.42256321098784605
+      },
+      "frozen_rmse_c": 3.715958772996405,
+      "rmse_delta_c": 0.001884685701093236,
+      "correlations": {
+        "measured_ect": -0.12039938805295501,
+        "rpm": 0.06814652221918185,
+        "dyno_speed": 0.17386719319013044,
+        "fuel_energy": 0.04986486827977935,
+        "load": 0.1091998972484139,
+        "oil_temperature": -0.339390483918228
+      }
+    },
+    "CAL-RAD-01": {
+      "n": 12876,
+      "duration_s": 1287.5,
+      "metrics": {
+        "rmse_c": 5.738018998335381,
+        "mae_c": 5.353026313659384,
+        "bias_c": -5.281349931922428,
+        "p90_abs_error_c": 8.111056083897736,
+        "final_error_c": -5.173447853052309,
+        "bias_fraction_of_mse": 0.8471609412370397
+      },
+      "frozen_rmse_c": 5.732676575424179,
+      "rmse_delta_c": 0.005342422911201794,
+      "correlations": {
+        "measured_ect": -0.47150365820521556,
+        "rpm": 0.32296056960516095,
+        "dyno_speed": 0.21748377057883458,
+        "fuel_energy": 0.10700810747841856,
+        "load": 0.10197716954707661,
+        "oil_temperature": 0.11777198588187258,
+        "v1_thermostat_fraction": 0.9022319908776447,
+        "v1_radiator_flow": 0.8057835206665821
+      },
+      "temperature_bins": [
+        {"measured_ect_c": "88_to_92", "n": 30, "bias_c": 4.079072953754317, "rmse_c": 4.103075746106926},
+        {"measured_ect_c": "92_to_96", "n": 295, "bias_c": 0.6596285010155049, "rmse_c": 1.861999901708481},
+        {"measured_ect_c": "96_to_100", "n": 12551, "bias_c": -5.4433610325747255, "rmse_c": 5.801353276305039}
+      ]
+    },
+    "VAL-HOT-01": {
+      "n": 13741,
+      "duration_s": 1374.0,
+      "metrics": {
+        "rmse_c": 8.584269101553605,
+        "mae_c": 8.065838329282357,
+        "bias_c": -8.034516700247092,
+        "p90_abs_error_c": 10.045838362622206,
+        "final_error_c": -8.533197227744878,
+        "bias_fraction_of_mse": 0.8760176744384037
+      },
+      "frozen_rmse_c": 8.58743511202901,
+      "rmse_delta_c": -0.003166010475405433,
+      "correlations": {
+        "measured_ect": -0.963,
+        "rpm": -0.034,
+        "dyno_speed": 0.009,
+        "fuel_energy": 0.147,
+        "load": 0.169,
+        "oil_temperature": -0.918
+      },
+      "temperature_bins": [
+        {"measured_ect_c": "88_to_92", "n": 852, "bias_c": -0.5096517302787782, "rmse_c": 1.1965207396923174},
+        {"measured_ect_c": "92_to_96", "n": 1467, "bias_c": -2.4181879565854483, "rmse_c": 2.581909187375846},
+        {"measured_ect_c": "96_to_100", "n": 11422, "bias_c": -9.317158901382149, "rmse_c": 9.364179290561168}
+      ]
+    },
+    "VAL-SSS-01": {
+      "n": 4462,
+      "duration_s": 446.1,
+      "metrics": {
+        "rmse_c": 5.1299539546685615,
+        "mae_c": 4.1133359582569184,
+        "bias_c": -4.020115712099811,
+        "p90_abs_error_c": 8.399670525961906,
+        "final_error_c": -8.421806080750187,
+        "bias_fraction_of_mse": 0.6141156618379457
+      },
+      "frozen_rmse_c": 5.125896933289166,
+      "rmse_delta_c": 0.004057021379395407,
+      "correlations": {
+        "measured_ect": -0.500,
+        "rpm": 0.397,
+        "dyno_speed": 0.378,
+        "fuel_energy": 0.430,
+        "load": 0.467,
+        "oil_temperature": -0.679
+      },
+      "temperature_bins": [
+        {"measured_ect_c": "below_80", "n": 530, "bias_c": -3.699051050581082, "rmse_c": 3.805813258486149},
+        {"measured_ect_c": "80_to_88", "n": 518, "bias_c": -1.9354424482959738, "rmse_c": 2.389947667668842},
+        {"measured_ect_c": "88_to_92", "n": 752, "bias_c": -0.13041808925775747, "rmse_c": 0.6449118074247606},
+        {"measured_ect_c": "92_to_96", "n": 1128, "bias_c": -2.333294703707767, "rmse_c": 2.4858152139856218},
+        {"measured_ect_c": "96_to_100", "n": 1534, "bias_c": -7.982183333415823, "rmse_c": 8.053987403405584}
+      ]
+    }
+  },
+  "thermostat_shift_counterfactual": {
+    "status": "post_hoc_falsification_only_not_calibration",
+    "baseline_open_c": 88.0,
+    "baseline_full_c": 98.0,
+    "results": [
+      {"shift_c": 4, "open_c": 92, "full_c": 102, "val_hot_rmse_c": 5.081, "val_sss_rmse_c": 3.365},
+      {"shift_c": 5, "open_c": 93, "full_c": 103, "val_hot_rmse_c": 4.279, "val_sss_rmse_c": 3.232},
+      {"shift_c": 6, "open_c": 94, "full_c": 104, "val_hot_rmse_c": 3.579, "val_sss_rmse_c": 3.266},
+      {"shift_c": 7, "open_c": 95, "full_c": 105, "val_hot_rmse_c": 2.997, "val_sss_rmse_c": 3.476},
+      {"shift_c": 8, "open_c": 96, "full_c": 106, "val_hot_rmse_c": 2.503, "val_sss_rmse_c": 3.809},
+      {"shift_c": 9, "open_c": 97, "full_c": 107, "val_hot_rmse_c": 2.224, "val_sss_rmse_c": 4.247},
+      {"shift_c": 10, "open_c": 98, "full_c": 108, "val_hot_rmse_c": 2.309, "val_sss_rmse_c": 4.757}
+    ],
+    "interpretation": "Static thermostat/control assumptions have enough numerical leverage that state-count necessity cannot be inferred until vehicle-specific control behavior is independently constrained."
+  },
+  "model_hierarchy_decision": {
+    "M0": ["T_engine", "T_coolant"],
+    "M1": ["T_engine", "T_hot", "T_cold"],
+    "M2": ["T_head", "T_slow", "T_hot", "T_cold"],
+    "M3": ["T_head", "T_slow", "T_hot", "T_cold", "x_th"],
+    "minimum_proven_state_count": null,
+    "next_gate": "freeze_model_hierarchy_and_vehicle_specific_control_evidence_before_implementation"
+  }
+}
