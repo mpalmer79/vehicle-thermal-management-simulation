@@ -1,0 +1,92 @@
+{
+  "result_id": "VTMS-V2-M1-I1",
+  "status": "synthetic_prefit_identifiability_complete",
+  "physical_data_used": false,
+  "reserved_blind_evidence_used": false,
+  "physical_calibration_authorized": false,
+  "synthetic_cases": [
+    "SYN-M0-WARMUP",
+    "SYN-M0-CONSTANT-FAN",
+    "SYN-M0-SPEED-MATCHED"
+  ],
+  "topology_only": {
+    "parameters": ["hot_coolant_capacitance_fraction"],
+    "numerical_rank": 1,
+    "condition_number": 1.0,
+    "strongest_abs_pairwise_cosine": 0.0,
+    "rms_fractional_sensitivity_c": {
+      "hot_coolant_capacitance_fraction": 1.1388699644648965
+    },
+    "peak_abs_fractional_sensitivity_c": {
+      "hot_coolant_capacitance_fraction": 4.726890331411937
+    },
+    "mathematical_subset_authorized": true
+  },
+  "topology_engine": {
+    "parameters": [
+      "hot_coolant_capacitance_fraction",
+      "engine_thermal_capacitance_j_per_k",
+      "engine_coolant_ua_w_per_k"
+    ],
+    "numerical_rank": 3,
+    "condition_number": 4.49814219930926,
+    "strongest_abs_pairwise_cosine": 0.8768905926092192,
+    "pairwise_cosines": {
+      "hot_fraction_vs_engine_capacitance": 0.5241213538736781,
+      "hot_fraction_vs_engine_coolant_ua": -0.39237353953703885,
+      "engine_capacitance_vs_engine_coolant_ua": -0.8768905926092192
+    },
+    "rms_fractional_sensitivity_c": {
+      "hot_coolant_capacitance_fraction": 1.1388699644648965,
+      "engine_thermal_capacitance_j_per_k": 9.06634529591299,
+      "engine_coolant_ua_w_per_k": 4.6909742193278525
+    },
+    "mathematical_subset_authorized": true,
+    "caution": "The engine-capacitance versus engine-coolant-UA signature remains strongly related even though it is below the preregistered 0.95 rejection threshold. Any physical stage must preserve parameter bounds and report covariance/bound pressure."
+  },
+  "topology_heat_rejection": {
+    "parameters": [
+      "hot_coolant_capacitance_fraction",
+      "radiator_ua_nominal_w_per_k",
+      "f_open",
+      "gamma"
+    ],
+    "numerical_rank": 4,
+    "condition_number": 12.917852245091677,
+    "strongest_abs_pairwise_cosine": 0.9828329125410904,
+    "dominant_confounding": "radiator_ua_nominal_w_per_k_vs_f_open",
+    "simultaneous_fit_authorized": false
+  },
+  "all_candidates": {
+    "parameters": [
+      "hot_coolant_capacitance_fraction",
+      "engine_thermal_capacitance_j_per_k",
+      "engine_coolant_ua_w_per_k",
+      "radiator_ua_nominal_w_per_k",
+      "f_open",
+      "gamma"
+    ],
+    "numerical_rank": 6,
+    "condition_number": 15.692815737168468,
+    "strongest_abs_pairwise_cosine": 0.9828329125410904,
+    "simultaneous_fit_authorized": false
+  },
+  "decision": {
+    "m1_topology_parameter_is_synthetically_distinguishable": true,
+    "fit_all_m1_candidates_together": false,
+    "radiator_ua_and_f_open_same_stage": false,
+    "next_gate": "freeze_M1_physical_development_manifest_using_consumed_evidence_only"
+  },
+  "ci": {
+    "workflow_run_id": 32541829018,
+    "workflow_conclusion": "success",
+    "python_3_11_test_count": 118,
+    "python_3_11_test_result": "pass",
+    "python_3_12_result": "pass",
+    "python_3_13_result": "pass",
+    "api_container_result": "pass",
+    "web_build_result": "pass",
+    "web_container_result": "pass"
+  },
+  "interpretation": "The M1 hot/cold coolant-capacitance split creates a nonzero, distinguishable ECT signature under synthetic excitation and is not strongly confounded with the retained heat-rejection controls. The full candidate set is not jointly identifiable because radiator UA and full-open radiator-flow fraction remain nearly collinear. Physical fitting remains unauthorized until a separate development manifest freezes consumed datasets, hidden-state initialization, parameter stages, bounds, objectives, and nuisance-case handling."
+}
