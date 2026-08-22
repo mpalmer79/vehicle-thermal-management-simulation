@@ -40,16 +40,39 @@ export function AssistantLauncher() {
     <>
       <button
         aria-expanded={panelOpen}
-        aria-label={panelOpen ? "Close the VTMS Assistant" : "Ask the VTMS Assistant"}
+        aria-label={panelOpen ? "Close the VTMS Assistant" : "Ask the VTMS AI Assistant"}
         className={panelOpen ? "assistant-launcher open" : "assistant-launcher"}
         onClick={() => setPanelOpen(!panelOpen)}
         type="button"
       >
         <span className="assistant-launcher-glyph" aria-hidden="true">
           <svg viewBox="0 0 24 24" role="presentation">
-            <circle className="al-ring" cx="12" cy="12" r="9" />
-            <path className="al-loop" d="M6.6,15 Q12,19.6 17.4,15" />
-            <circle className="al-core" cx="12" cy="9.8" r="3.2" />
+            <path
+              d="M5.4 4.8h13.2a2.2 2.2 0 0 1 2.2 2.2v7.7a2.2 2.2 0 0 1-2.2 2.2h-6.1l-4.1 2.7v-2.7h-3a2.2 2.2 0 0 1-2.2-2.2V7a2.2 2.2 0 0 1 2.2-2.2Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.45"
+              strokeLinejoin="round"
+              opacity="0.72"
+            />
+            <text
+              x="11.8"
+              y="11.2"
+              fill="currentColor"
+              fontSize="6.1"
+              fontWeight="900"
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              AI
+            </text>
+            <path
+              d="M17.8 6.9v2.1M16.75 7.95h2.1"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.35"
+              strokeLinecap="round"
+            />
           </svg>
         </span>
         <span className="assistant-launcher-label">Ask VTMS</span>
