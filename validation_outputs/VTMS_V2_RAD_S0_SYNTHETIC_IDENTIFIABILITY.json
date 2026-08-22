@@ -1,0 +1,122 @@
+{
+  "gate": "VTMS-V2-RAD-S0",
+  "status": "FAIL",
+  "claim_status": "synthetic_development_falsification_not_physical_evidence",
+  "execution_environment": {
+    "python": "3.11.16",
+    "numpy": "2.4.6",
+    "scipy": "1.17.1",
+    "github_actions_run": 32603432565
+  },
+  "candidate": {
+    "model": "RAD-UA-A",
+    "law": "UA_eff = UA_ref * (m_air / m_air_ref)^n_air for active flow",
+    "baseline_n_air": 0.5,
+    "authorized_physical_exponents": [0.4, 0.5, 0.6],
+    "ua_ref_w_per_k": 1100.0,
+    "air_mass_flow_reference_kg_s": 1.8,
+    "coolant_side_exponent_included": false
+  },
+  "verification": {
+    "status": "PASS",
+    "zero_flow_pass": true,
+    "reference_flow_pass": true,
+    "reference_flow_heat_error_w": 0.0,
+    "n_air_zero_constant_ua_collapse_pass": true,
+    "n_air_zero_max_heat_error_w": 0.0,
+    "monotonic_heat_rejection_with_airflow_pass": true,
+    "effectiveness_bounds_pass": true,
+    "normalized_energy_residual": 0.000559722443237863,
+    "deterministic_repeat_max_error_c": 0.0,
+    "tight_vs_default_solver_noise_rms_c": 0.0018880372106853324,
+    "tight_vs_default_solver_noise_peak_c": 0.010164998902297384
+  },
+  "identifiability": {
+    "status": "FAIL",
+    "parameter_names": [
+      "radiator_ua_nominal_w_per_k",
+      "n_air",
+      "eta_pack",
+      "f_open",
+      "gamma"
+    ],
+    "perturbation_fraction": 0.01,
+    "sensitivities": [
+      {
+        "name": "radiator_ua_nominal_w_per_k",
+        "rms_fractional_sensitivity_c": 45.159135863833455,
+        "peak_abs_fractional_sensitivity_c": 63.66670674625823,
+        "relative_rms_to_strongest": 1.0
+      },
+      {
+        "name": "n_air",
+        "rms_fractional_sensitivity_c": 10.891034912208967,
+        "peak_abs_fractional_sensitivity_c": 20.38401674379884,
+        "relative_rms_to_strongest": 0.24117013543058644
+      },
+      {
+        "name": "eta_pack",
+        "rms_fractional_sensitivity_c": 40.66744656527898,
+        "peak_abs_fractional_sensitivity_c": 55.43242872271037,
+        "relative_rms_to_strongest": 0.9005364205351917
+      },
+      {
+        "name": "f_open",
+        "rms_fractional_sensitivity_c": 14.060001290106646,
+        "peak_abs_fractional_sensitivity_c": 22.84224189437296,
+        "relative_rms_to_strongest": 0.3113434529062117
+      },
+      {
+        "name": "gamma",
+        "rms_fractional_sensitivity_c": 0.7974957782991255,
+        "peak_abs_fractional_sensitivity_c": 2.340329545067732,
+        "relative_rms_to_strongest": 0.017659677561231085
+      }
+    ],
+    "pairwise_cosine_matrix": [
+      [1.0, -0.9337611050696197, 0.9985133676392867, 0.9924831241965211, -0.24589321022991034],
+      [-0.9337611050696197, 1.0, -0.9506930192758996, -0.9470939898474827, 0.2622884142602059],
+      [0.9985133676392867, -0.9506930192758996, 1.0, 0.992089604540567, -0.2505543169073301],
+      [0.9924831241965211, -0.9470939898474827, 0.992089604540567, 1.0, -0.2688400963423695],
+      [-0.24589321022991034, 0.2622884142602059, -0.2505543169073301, -0.2688400963423695, 1.0]
+    ],
+    "singular_values": [
+      1.9989763766909923,
+      0.9552023915070852,
+      0.287027435183377,
+      0.09628766385110886,
+      0.00507680338873598
+    ],
+    "normalized_jacobian_condition_number": 393.7470537319146,
+    "condition_number_limit": 100.0,
+    "max_abs_pairwise_cosine_involving_n_air": 0.9506930192758996,
+    "n_air_pairwise_cosine_limit_exclusive": 0.95,
+    "n_air_relative_rms_to_strongest": 0.24117013543058644,
+    "n_air_relative_rms_min": 0.02,
+    "all_columns_active": true,
+    "discrete_candidate_separation": [
+      {
+        "pair": [0.4, 0.5],
+        "rms_trace_separation_c": 2.122179637928154,
+        "peak_trace_separation_c": 3.890695428348778,
+        "rms_required_c": 0.03776074421370665,
+        "peak_required_c": 0.20329997804594768,
+        "pass": true
+      },
+      {
+        "pair": [0.5, 0.6],
+        "rms_trace_separation_c": 2.237664617400455,
+        "peak_trace_separation_c": 4.090359905991647,
+        "rms_required_c": 0.03776074421370665,
+        "peak_required_c": 0.20329997804594768,
+        "pass": true
+      }
+    ]
+  },
+  "failed_preregistered_requirements": [
+    "normalized_jacobian_condition_number_must_be_lte_100",
+    "max_abs_pairwise_cosine_involving_n_air_must_be_lt_0.95"
+  ],
+  "interpretation": "RAD-UA-A is numerically coherent and the discrete air-side exponent candidates produce coolant-trace differences well above solver noise, but the preregistered five-direction synthetic system remains too collinear for governed physical execution. In particular, n_air is strongly confounded with eta_pack and f_open, while UA_ref, eta_pack, and f_open are themselves nearly collinear. The RAD-UA-A physical feasibility path is therefore blocked under the frozen RAD-S0 gate.",
+  "governance_consequence": "Preserve the negative result and resume the previously frozen independent M2 Stage B execution without adding variable UA or changing its grid, solver settings, or acceptance criteria."
+}
