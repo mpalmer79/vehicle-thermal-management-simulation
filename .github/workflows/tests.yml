@@ -31,6 +31,18 @@ jobs:
         if: matrix.python-version == '3.11'
         run: python run_identifiability_preflight.py
 
+      - name: Run VTMS-V2 M0 synthetic identifiability preflight
+        if: matrix.python-version == '3.11'
+        run: python run_m0_identifiability_preflight.py
+
+      - name: Run VTMS-V2 M1 synthetic identifiability preflight
+        if: matrix.python-version == '3.11'
+        run: python run_m1_identifiability_preflight.py
+
+      - name: Run VTMS-V2 M2 synthetic identifiability preflight
+        if: matrix.python-version == '3.11'
+        run: python run_m2_identifiability_preflight.py
+
   web-build:
     runs-on: ubuntu-latest
     defaults:

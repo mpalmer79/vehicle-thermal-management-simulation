@@ -1,0 +1,66 @@
+{
+  "dataset_id": "ARGONNE-D3-71207054",
+  "source_name": "Argonne National Laboratory Downloadable Dynamometer Database (D3)",
+  "file_format": "tsv",
+  "delimiter": "\t",
+  "columns": {
+    "time_s": "Time [s]",
+    "engine_coolant_temp_c": "EngineCoolantTemp[C]",
+    "engine_speed_rpm": "Eng_Spd[RPM]",
+    "vehicle_speed_m_s": "Dyno_Spd[mph]",
+    "ambient_temp_c": "Cell_Temp[C]",
+    "fuel_rate_kg_s": "Eng_FuelFlow_Direct[cc/s]"
+  },
+  "units": {
+    "time_s": "s",
+    "engine_coolant_temp_c": "C",
+    "engine_speed_rpm": "rpm",
+    "vehicle_speed_m_s": "mph",
+    "ambient_temp_c": "C",
+    "fuel_rate_kg_s": "cc/s"
+  },
+  "row_selection": {
+    "start_time_s": 0.0,
+    "end_time_s": 1147.5,
+    "exclude_time_intervals_s": []
+  },
+  "metadata": {
+    "vehicle": "2012 Ford Focus 2.0 L Ti-VCT GDI I-4",
+    "source_test_id": "71207054",
+    "cycle": "1.2 UDDS ED",
+    "average_test_cell_temp_c_from_master_summary": 22,
+    "validation_use": "V2-M0 primary blind holdout",
+    "evidence_role": "reserved_blind_v2_m0_holdout",
+    "prediction_inspected": false,
+    "prediction_generation_authorized": false,
+    "source_file_sha256_expected": "664a6ee52569fc0ca807675f5850136ef06a3f3075fc2b67c7d84143fb8db250",
+    "source_file_size_bytes_expected": 3335603,
+    "source_qc": {
+      "source_rows_total": 11576,
+      "selected_rows_from_t0": 11476,
+      "selected_time_start_s": 0.0,
+      "selected_time_end_s": 1147.5,
+      "median_sample_interval_s": 0.1,
+      "ect_min_c": 91.0,
+      "ect_max_c": 99.0,
+      "ect_zero_samples": 0,
+      "ect_sample_jumps_over_10c": 0,
+      "measured_ect_samples_96_to_100c": 10191,
+      "engine_oil_temperature_nonzero_fraction": 1.0,
+      "qc_basis": "source-only qualification before any VTMS-V2 M0 prediction"
+    },
+    "fuel_density_g_ml": 0.743,
+    "fuel_net_heating_value_j_per_kg_reference": 42668144.0,
+    "fuel_net_heating_value_use": "Must be supplied explicitly to the controlled runner.",
+    "airflow_boundary_class": "UNKNOWN",
+    "airflow_boundary_note": "The exact test-specific external cooling-fan/core-airflow boundary has not yet been frozen. Dyno_Spd may not be treated automatically as radiator-core airflow.",
+    "blind_execution_blocked_until": [
+      "M0 parameter snapshot frozen",
+      "M0 preprocessing hash frozen",
+      "M0 acceptance and hot-region evaluability rules frozen",
+      "71207054 cooling-air boundary treatment frozen or explicitly bounded under the approved uncertainty policy"
+    ],
+    "governance_note": "Source-only values may be reviewed for qualification. No M0 prediction may be generated until all blind-execution prerequisites are frozen.",
+    "attribution": "Argonne National Laboratory Downloadable Dynamometer Database (D3)"
+  }
+}

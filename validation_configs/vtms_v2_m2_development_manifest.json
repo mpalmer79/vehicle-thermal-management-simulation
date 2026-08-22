@@ -1,0 +1,184 @@
+{
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "status": "frozen_before_M2_physical_development_execution",
+  "purpose": "Test whether adding a second engine solid thermal-storage state creates any bounded M2 configuration that satisfies the already-consumed cold-start and hot-start evidence jointly before any M2 optimizer or blind prediction is permitted.",
+  "evidence_class": "consumed_physical_development_only_not_validation",
+  "physical_parameter_identification_authorized": false,
+  "reserved_blind_evidence_permitted": false,
+  "model": {
+    "model_id": "VTMS-V2-M2",
+    "equation_set": "EM-V2-M2",
+    "state_vector": ["T_head", "T_block", "T_hot", "T_cold"],
+    "observation": "ECT_pred = T_hot",
+    "dynamic_thermostat_state_present": false
+  },
+  "development_runs": [
+    {
+      "source_test_id": "71207062",
+      "role": "consumed_cold_start_development",
+      "source_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+      "source_size_bytes": 5112912,
+      "signal_map_sha256": "838e8a9c4280785a8a1715bccec25c97fcafbb457005c73c6a09d26bcf23970f",
+      "row_selection": {
+        "source_time_start_s": 8.7,
+        "source_time_end_s": 1374.0,
+        "excluded_intervals_s": [
+          [315.5, 315.6],
+          [450.5, 450.6],
+          [453.1, 453.1],
+          [757.1, 757.2],
+          [829.7, 829.8],
+          [1136.6, 1136.7],
+          [1151.0, 1151.2],
+          [1309.7, 1309.8]
+        ]
+      },
+      "initialization": {
+        "T_head": "first_retained_measured_ECT",
+        "T_block": "first_retained_measured_ECT",
+        "T_hot": "first_retained_measured_ECT",
+        "T_cold": "first_retained_measured_ECT"
+      }
+    },
+    {
+      "source_test_id": "71207063",
+      "role": "consumed_hot_start_development",
+      "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "source_size_bytes": 5112305,
+      "signal_map_sha256": "0b1a65f78213a2950fb7f1f037bdfcb39b6448e1577b711bf42378471ba46ffa",
+      "row_selection": {
+        "source_time_start_s": 0.0,
+        "source_time_end_s": 1374.0,
+        "excluded_intervals_s": []
+      },
+      "initialization": {
+        "T_hot": "first_retained_measured_ECT",
+        "T_head_minus_ECT_offsets_c": [0.0, 15.0, 30.0],
+        "T_block_minus_ECT_offsets_c": [0.0, 10.0, 20.0],
+        "T_cold_minus_ECT_offsets_c": [0.0, -5.0, -10.0],
+        "case_count": 27,
+        "policy": "Evaluate the full Cartesian product as fixed engineering sensitivity cases. Do not fit or select a hidden initial temperature continuously per run. A configuration is conditional if at least one preregistered initialization passes and robust only if every preregistered initialization passes."
+      }
+    }
+  ],
+  "required_channels": {
+    "time": "Time [s]",
+    "ect": "EngineCoolantTemp[C]",
+    "engine_speed": "Eng_Spd[RPM]",
+    "dyno_speed": "Dyno_Spd[mph]",
+    "ambient": "Cell_Temp[C]",
+    "direct_fuel_flow": "Eng_FuelFlow_Direct[cc/s]"
+  },
+  "heat_input": {
+    "fuel_density_g_per_ml": 0.743,
+    "fuel_lhv_j_per_kg": 42668144.0,
+    "maf_proxy_permitted": false,
+    "engine_heat_formula": "direct_fuel_energy_rate * wall_heat_fraction",
+    "operating_dependent_heat_partition_added": false
+  },
+  "airflow_boundary": {
+    "class": "CONSTANT_SPEED_EXTERNAL_FAN",
+    "hood_position": "up",
+    "external_fan_capacity_m3_s": 2.50,
+    "external_fan_capacity_interpretation": "protocol_capacity_not_measured_radiator_core_flow",
+    "dyno_speed_as_core_airflow_prohibited": true
+  },
+  "identifiability_governance": {
+    "source_result": "validation_outputs/VTMS_V2_M2_IDENTIFIABILITY_RESULT.json",
+    "continuous_fit_of_new_M2_topology_prohibited": true,
+    "head_block_ua_role": "discrete_nuisance_model_form_case",
+    "head_storage_and_heat_partition_role": "discrete_paired_model_form_cases_not_individually_identified_properties",
+    "best_fit_topology_ranking_prohibited": true
+  },
+  "stage_A_primary_structural_screen": {
+    "optimization_performed": false,
+    "evaluation_order": "cold_first_then_hot_on_exact_cold_survivors",
+    "evaluation_order_equivalence": "Joint feasibility requires the identical global parameter configuration to pass both traces. Discarding cold failures before hot evaluation changes computation order only and preserves the exact joint feasible set.",
+    "global_structural_grid": {
+      "head_thermal_capacitance_fraction": [0.15, 0.35, 0.50, 0.60],
+      "head_heat_fraction": [0.50, 0.70, 0.95],
+      "head_block_ua_w_per_k": [100.0, 800.0, 3000.0],
+      "hot_coolant_capacitance_fraction": [0.20, 0.35, 0.50, 0.65, 0.80],
+      "wall_heat_fraction": [0.20, 0.35, 0.50],
+      "engine_thermal_capacitance_j_per_k": [25000.0, 52393.90776670539, 100000.0],
+      "engine_coolant_ua_w_per_k": [400.0, 1000.0, 1600.0, 2200.0]
+    },
+    "topology_case_count": 36,
+    "retained_M1_thermal_case_count": 180,
+    "global_configuration_count": 6480,
+    "fixed_control_reference": {
+      "thermostat_open_c": 87.8,
+      "thermostat_full_c": 99.5,
+      "f_closed": 0.02,
+      "f_open": 0.95,
+      "gamma": 1.0,
+      "eta_pack": 0.40,
+      "radiator_ua_nominal_w_per_k": 1100.0
+    },
+    "classification": {
+      "robust_joint_survivor": "same global parameter configuration passes cold start and passes hot start under all 27 preregistered hidden-state initializations",
+      "conditional_joint_survivor": "same global parameter configuration passes cold start and passes hot start under at least one but not all preregistered hidden-state initializations",
+      "non_survivor": "fails cold start or fails hot start under every preregistered hidden-state initialization"
+    }
+  },
+  "stage_B_control_robustness_if_needed": {
+    "opening_rule": "Open only if Stage A has zero robust joint survivors. If Stage A has conditional-only survivors, Stage B may evaluate those exact conditional structural configurations for control robustness but blind execution remains blocked. If Stage A has zero conditional survivors, Stage B must cross the complete Stage A structural grid with the complete frozen control grid before M2 can be rejected.",
+    "optimization_performed": false,
+    "control_uncertainty_grid": {
+      "thermostat_full_c": [97.0, 99.5, 102.0],
+      "eta_pack": [0.25, 0.40, 0.80],
+      "radiator_ua_nominal_w_per_k": [400.0, 1100.0, 2200.0],
+      "f_open": [0.85, 0.95, 1.0],
+      "gamma": [0.5, 1.0, 2.0]
+    },
+    "control_case_count_per_structural_configuration": 243,
+    "complete_cross_if_required": 1574640,
+    "f_closed": 0.02,
+    "thermostat_open_c": 87.8,
+    "interpretation_rule": "A Stage B-only survivor demonstrates M2 family feasibility only under control-boundary uncertainty. It does not identify a topology parameter set and does not automatically authorize the blind rung."
+  },
+  "acceptance": {
+    "whole_trace": {
+      "rmse_c_max": 5.0,
+      "mae_c_max": 4.0,
+      "abs_mean_bias_c_max": 3.0,
+      "p90_abs_error_c_max": 7.0,
+      "threshold_arrival_abs_error_s_max": 60.0,
+      "arrival_thresholds_c": [60.0, 80.0, 90.0]
+    },
+    "hot_region": {
+      "measured_ect_range_c": [96.0, 100.0],
+      "abs_mean_residual_c_max": 3.0,
+      "minimum_samples": 30,
+      "minimum_coverage_s": 30.0
+    }
+  },
+  "numerics": {
+    "solver": "scipy.solve_ivp_RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "vectorized_independent_systems_allowed": true,
+    "vectorized_requirement": "Every configuration must use the same frozen equations and parameter values. Scalar equivalence must be spot-checked before a final physical conclusion is frozen."
+  },
+  "governance": {
+    "rank_or_report_best_fit_configuration": false,
+    "parameter_optimizer_used": false,
+    "fit_hidden_initial_state_per_run": false,
+    "widen_parameter_ranges_after_result": false,
+    "add_operating_dependent_heat_partition_after_result": false,
+    "add_dynamic_thermostat_inside_M2": false,
+    "fit_radiator_ua_and_f_open_together": false,
+    "use_reserved_blind_prediction": false,
+    "formal_validation_claim": false,
+    "m3_promotion_pre_authorized": false
+  },
+  "gate_interpretation": {
+    "one_or_more_stage_A_robust_survivors": "M2 is structurally viable at the central control boundary. Freeze a separate calibration/initialization/holdout protocol before any blind rung.",
+    "stage_A_conditional_only": "M2 is viable only conditionally on hidden hot-start states. Do not open blind evidence until initialization treatment is independently constrained; execute the permitted Stage B robustness check if useful.",
+    "zero_stage_A_conditional_survivors": "Execute complete Stage B exactly as preregistered before considering M2 rejection.",
+    "zero_stage_B_conditional_survivors": "The governed M2 family is rejected on consumed development evidence and M3 dynamic-thermostat model-form planning may begin without opening the M2 blind reserve.",
+    "stage_B_only_survivors": "M2 remains control-boundary-dependent. Do not report unique topology properties or open blind evidence without a separately frozen boundary/initialization protocol."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "result_id": "VTMS-V2-M0-TFEAS-01",
+  "status": "completed_development_falsification",
+  "evidence_role": "consumed_development_only_not_validation",
+  "plan_file": "validation_configs/vtms_v2_m0_thermal_envelope_plan.json",
+  "plan_status_at_execution": "frozen_before_execution",
+  "development_tests": {
+    "hot_screen": "71207063",
+    "cold_joint_check_if_hot_survivors_exist": "71207062"
+  },
+  "grid": {
+    "thermal_configurations": 36,
+    "control_configurations": 810,
+    "total_hot_screen_configurations": 29160
+  },
+  "result": {
+    "hot_screen_evaluated": 29160,
+    "hot_whole_trace_pass_count": 0,
+    "hot_region_pass_count": 0,
+    "hot_all_criteria_pass_count": 0,
+    "hot_survivor_fraction": 0.0,
+    "cold_joint_check_opened": false,
+    "joint_survivor_count": 0
+  },
+  "solver_verification": {
+    "vectorized_batch_used": true,
+    "scalar_equation_spot_check_completed": true,
+    "scalar_batch_pass_fail_equivalence": true,
+    "spot_check_scope": "deterministic low, middle, and high preregistered grid locations"
+  },
+  "governance": {
+    "parameter_ranking_performed": false,
+    "best_fit_parameter_selected": false,
+    "vehicle_specific_parameter_identification_performed": false,
+    "reserved_blind_prediction_generated": false,
+    "reserved_blind_prediction_inspected": false,
+    "formal_validation_claim": false
+  },
+  "interpretation": "The complete preregistered M0 thermal/control envelope produced zero configurations satisfying the consumed hot-start criteria. Under the frozen TFEAS-01 interpretation rule, further M0 tuning is rejected and formal M0-to-M1 promotion is authorized without opening the reserved blind holdout.",
+  "next_model": "VTMS-V2-M1",
+  "next_state_vector": ["T_engine", "T_hot", "T_cold"]
+}

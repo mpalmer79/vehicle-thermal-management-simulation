@@ -1,0 +1,87 @@
+{
+  "checkpoint_id": "VTMS-V2-M2-STAGE-B-INDEPENDENT-RESTART-1K",
+  "status": "partial_authoritative_stage_B_restart_checkpoint_not_a_gate_decision",
+  "model_id": "VTMS-V2-M2",
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "numerical_execution_amendment": "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+  "evidence_class": "consumed_physical_development_only_not_validation",
+  "reserved_blind_evidence_used": false,
+  "blind_prediction_inspected": false,
+  "gate_decision_authorized_from_this_checkpoint": false,
+  "stage_B_complete_cross_required": 1574640,
+  "cold_screen": {
+    "global_index_range": [0, 1000],
+    "coverage": "contiguous_complete_prefix",
+    "configuration_count": 1000,
+    "cold_start_pass_count": 0,
+    "cold_start_pass_fraction": 0.0,
+    "acceptance_semantics": "repository-strict acceptance including failure when measured threshold crosses but prediction does not"
+  },
+  "hot_screen": {
+    "cold_survivor_count_requiring_hot_evaluation": 0,
+    "hidden_state_initialization_case_count": 27,
+    "configuration_initialization_evaluations": 0,
+    "conditional_joint_survivor_count": 0,
+    "robust_joint_survivor_count": 0,
+    "note": "No hot-start execution is required for configurations that fail the cold-start predicate because joint feasibility requires the identical global configuration to pass both consumed development traces."
+  },
+  "authoritative_numerics": {
+    "one_scipy_solve_ivp_integration_per_configuration": true,
+    "state_dimension_per_integration": 4,
+    "solver": "scipy.solve_ivp RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "source_profile_interpolation": "authoritative ValidationDataset linear interpolation semantics retained",
+    "adaptive_controller_shared_between_configurations": false,
+    "parallelism": "independent process parallelism only"
+  },
+  "rhs_acceleration": {
+    "compiled_rhs_used": true,
+    "compiler": "numba 0.65.1",
+    "integrator_changed": false,
+    "equations_changed": false,
+    "interpolation_implementation": "Numba np.interp",
+    "equivalence_spot_checks": [
+      {
+        "global_index": 3257,
+        "python_scalar_pass": false,
+        "compiled_scalar_pass": false,
+        "python_and_compiled_arrival_90_error_s": -63.23516743658951,
+        "python_and_compiled_rmse_c": 3.050971
+      },
+      {
+        "global_index": 3550,
+        "python_scalar_pass": true,
+        "compiled_scalar_pass": true,
+        "python_and_compiled_arrival_90_error_s": -1.016029263568555,
+        "python_and_compiled_rmse_c": 4.136585
+      }
+    ],
+    "interpretation": "Compiled RHS changes only arithmetic execution speed. SciPy solve_ivp remains the RK45 integrator and each configuration retains its own adaptive controller."
+  },
+  "local_execution": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "numba": "0.65.1",
+    "configuration_count": 1000,
+    "sum_worker_batch_wall_time_s": 98.9366283416748,
+    "checkpoint_files_verified_for_complete_contiguous_coverage": true
+  },
+  "prior_checkpoint_disposition": {
+    "superseded_historical_checkpoint": "validation_outputs/VTMS_V2_M2_STAGE_B_CHECKPOINT_116K.json",
+    "historical_checkpoint_exact_counts_used_here": false
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "configuration_ranking_performed": false,
+    "hidden_initial_state_fitted_per_run": false,
+    "parameter_ranges_widened_after_result": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "m2_rejected": false,
+    "m3_authorized": false,
+    "next_required_action": "continue_independent_stage_B_from_global_index_1000_and_hot_screen_every_future_cold_survivor_across_all_27_frozen_initializations"
+  }
+}
