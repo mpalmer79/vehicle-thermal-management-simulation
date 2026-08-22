@@ -1,0 +1,78 @@
+{
+  "checkpoint_id": "VTMS-V2-M2-STAGE-B-116K",
+  "status": "partial_exact_stage_B_execution_checkpoint_not_a_gate_decision",
+  "model_id": "VTMS-V2-M2",
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "evidence_class": "consumed_physical_development_only_not_validation",
+  "reserved_blind_evidence_used": false,
+  "blind_prediction_inspected": false,
+  "gate_decision_authorized_from_this_checkpoint": false,
+  "stage_B_complete_cross_required": 1574640,
+  "cold_screen": {
+    "global_index_range": [0, 116000],
+    "coverage": "contiguous_complete_prefix",
+    "configuration_count": 116000,
+    "cold_start_pass_count": 7251,
+    "cold_start_pass_fraction": 0.06250862068965517,
+    "acceptance_semantics": "repository_strict_acceptance_including_failure_when_measured_threshold_crosses_but_prediction_does_not"
+  },
+  "hot_screen": {
+    "source": "all_7251_exact_cold_survivors_in_this_checkpoint",
+    "hidden_state_initialization_case_count": 27,
+    "configuration_initialization_evaluations": 195777,
+    "hot_start_any_initialization_pass_count": 0,
+    "hot_start_all_initializations_pass_count": 0,
+    "conditional_joint_survivor_count": 0,
+    "robust_joint_survivor_count": 0
+  },
+  "execution": {
+    "solver": "scipy.solve_ivp RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "source_profile_interpolation": "authoritative ValidationDataset linear interpolation semantics retained",
+    "vectorized_independent_systems": true,
+    "blas_threading": "one BLAS thread per shard to avoid oversubscription; no equation or solver change",
+    "checkpoint_binding": "hot results are bound to exact cold-survivor configurations; recovered out-of-order cold shards are tested directly rather than inferred by mutable survivor-list indices"
+  },
+  "supporting_diagnostics_not_used_as_stopping_rules": {
+    "least_cooling_warm_corner": {
+      "thermostat_full_c": 102.0,
+      "eta_pack": 0.25,
+      "radiator_ua_nominal_w_per_k": 400.0,
+      "f_open": 0.85,
+      "gamma": 2.0,
+      "head_initial_offset_c": 30.0,
+      "block_initial_offset_c": 20.0,
+      "cold_initial_offset_c": 0.0,
+      "all_6480_structures_hot_pass_count": 0,
+      "best_mean_bias_c": -4.264,
+      "minimum_rmse_c": 5.865,
+      "minimum_mae_c": 5.525,
+      "minimum_p90_abs_error_c": 7.103,
+      "best_96_100c_region_bias_c": -6.229,
+      "maximum_final_predicted_ect_c": 93.49,
+      "measured_final_ect_c": 99.0,
+      "role": "diagnostic_only_not_a_manifest_stopping_rule"
+    },
+    "control_trajectory_dominance_spot_check": {
+      "structural_topologies_checked": 6,
+      "control_cases_per_topology": 243,
+      "hot_start_initialization": "warmest_preregistered_head_block_cold_case",
+      "least_cooling_corner_pointwise_ect_dominance_violations": 0,
+      "role": "supporting_diagnostic_only_not_a_proof_or_pruning_rule"
+    }
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "configuration_ranking_performed": false,
+    "hidden_initial_state_fitted_per_run": false,
+    "parameter_ranges_widened_after_result": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "m2_rejected": false,
+    "m3_authorized": false,
+    "next_required_action": "continue_exact_stage_B_complete_cross_and_test_every_new_cold_survivor_across_all_27_frozen_hot_start_initializations"
+  },
+  "interpretation": "The executed 116,000-configuration prefix contains no joint-feasible M2 configuration. This is strong accumulating falsification evidence but is intentionally not promoted into an M2 rejection because the frozen manifest requires the complete Stage B cross after Stage A produced zero conditional survivors."
+}
