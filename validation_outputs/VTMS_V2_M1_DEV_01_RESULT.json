@@ -31,6 +31,7 @@
     "abs_mean_bias_c_max": 3.0,
     "p90_abs_error_c_max": 7.0,
     "threshold_arrival_abs_error_s_max": 60.0,
+    "threshold_missing_prediction_policy": "FAIL if measured trace reaches an evaluable threshold but prediction does not",
     "hot_region": {
       "measured_ect_range_c": [96.0, 100.0],
       "abs_mean_residual_c_max": 3.0,
@@ -59,15 +60,15 @@
       "f_open": [0.85, 0.95, 1.0],
       "gamma": [0.5, 1.0, 2.0]
     },
-    "cold_start_pass_count": 2957,
-    "cold_start_pass_fraction": 0.06760402377686328,
+    "cold_start_pass_count": 2753,
+    "cold_start_pass_fraction": 0.06294010059442158,
     "cold_start_segment_counts": [
-      {"structural_range": [0, 30], "evaluated": 7290, "passes": 414},
-      {"structural_range": [30, 60], "evaluated": 7290, "passes": 581},
-      {"structural_range": [60, 90], "evaluated": 7290, "passes": 628},
+      {"structural_range": [0, 30], "evaluated": 7290, "passes": 366},
+      {"structural_range": [30, 60], "evaluated": 7290, "passes": 543},
+      {"structural_range": [60, 90], "evaluated": 7290, "passes": 586},
       {"structural_range": [90, 120], "evaluated": 7290, "passes": 253},
-      {"structural_range": [120, 150], "evaluated": 7290, "passes": 548},
-      {"structural_range": [150, 180], "evaluated": 7290, "passes": 533}
+      {"structural_range": [120, 150], "evaluated": 7290, "passes": 513},
+      {"structural_range": [150, 180], "evaluated": 7290, "passes": 492}
     ],
     "filter_order": "cold_first_then_hot_on_exact_cold_survivors",
     "filter_order_equivalence": "Joint feasibility requires the same configuration to pass both physical traces. Evaluating the cold predicate first and applying the hot predicate only to cold survivors preserves the exact joint feasible set and does not rank or optimize configurations.",
@@ -75,8 +76,11 @@
       "engine_structure_minus_ect": [0.0, 10.0, 20.0],
       "cold_coolant_minus_ect": [0.0, -5.0, -10.0]
     },
-    "hot_start_configuration_initialization_evaluations": 26613,
-    "hot_start_pass_count_by_initialization": [
+    "hot_start_original_superset_evaluated": 2957,
+    "hot_start_strict_cold_subset_count": 2753,
+    "hot_start_original_superset_initialization_evaluations": 26613,
+    "hot_start_strict_subset_initialization_evaluations_implied": 24777,
+    "hot_start_superset_pass_count_by_initialization": [
       {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": 0.0, "passes": 0},
       {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": -5.0, "passes": 0},
       {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": -10.0, "passes": 0},
@@ -90,7 +94,8 @@
     "hot_start_any_initialization_pass_count": 0,
     "hot_start_all_initializations_pass_count": 0,
     "conditional_joint_survivor_count": 0,
-    "robust_joint_survivor_count": 0
+    "robust_joint_survivor_count": 0,
+    "subset_invariance_note": "The original hot screen evaluated a 2,957-configuration superset under a more permissive missing-threshold rule and found zero passes for every initialization. The corrected strict cold-pass set contains 2,753 configurations and is a subset of that already-tested superset. Therefore the strict joint survivor count is necessarily zero without rerunning the hot trace."
   },
   "execution": {
     "python_version": "3.13.5",
@@ -102,9 +107,10 @@
     "max_step_s": 1.0,
     "vectorized_independent_systems": true,
     "local_runner_sha256": {
-      "stage_B_equations_and_acceptance": "1fd4a1192884d831b6c3e750c7f2ac29b1f2aabc9f5f676cb514a8354149e7ce",
-      "cold_segment_driver": "7a31d565d3efbf1c143483c1438a385b1976293b0dba4fcb60ff2e1abe059cf9",
-      "hot_survivor_driver": "d6131d843d0cdb012b9962fbe210311805a3d1e4f1a0a5254a0d7fae37476fc8"
+      "original_stage_B_equations_and_acceptance": "1fd4a1192884d831b6c3e750c7f2ac29b1f2aabc9f5f676cb514a8354149e7ce",
+      "original_cold_segment_driver": "7a31d565d3efbf1c143483c1438a385b1976293b0dba4fcb60ff2e1abe059cf9",
+      "original_hot_survivor_driver": "d6131d843d0cdb012b9962fbe210311805a3d1e4f1a0a5254a0d7fae37476fc8",
+      "strict_acceptance_core": "177ac866b5bbf774afc91a3d4e5f6bafb71a907f0fa618139e503927509e41b3"
     }
   },
   "execution_corrections": [
@@ -117,8 +123,14 @@
     {
       "id": "EC-02",
       "issue": "An initial local screening helper applied the hot-region criterion when sample count was sufficient but before enforcing the frozen 30-second coverage requirement.",
-      "resolution": "The partial result was invalidated before any Stage B conclusion. The coverage rule was corrected to require both at least 30 samples and at least 30 seconds of measured-temperature coverage, and Stage B was restarted from the amended manifest.",
+      "resolution": "The partial result was invalidated before any Stage B conclusion. The coverage rule was corrected to require both at least 30 samples and at least 30 seconds of measured-temperature coverage, and Stage B was restarted.",
       "invalidated_results_used": false
+    },
+    {
+      "id": "EC-03",
+      "issue": "A later acceptance audit found that the final batch helper did not explicitly fail threshold-arrival acceptance when the measured trace reached an evaluable threshold but a prediction never crossed it.",
+      "resolution": "The 2,957 previously retained cold candidates were re-evaluated with the repository acceptance semantics. The strict cold-pass count is 2,753. Because the 2,753 are a subset of the 2,957 configurations already evaluated on hot start and that entire superset produced zero hot passes under every initialization, the zero-joint-survivor decision is invariant and no hot rerun is required.",
+      "decision_changed": false
     }
   ],
   "governance": {
@@ -135,7 +147,7 @@
     "m1_additional_tuning_authorized": false,
     "m1_blind_rung_authorized": false,
     "m2_model_form_planning_authorized": true,
-    "reason": "The preregistered Stage B rule states that zero conditional joint survivors rejects M1 and permits M2 model-form planning. Although 2,957 Stage B configurations satisfy the cold-start trace, none satisfy the hot-start trace under any of nine frozen hidden-state initialization combinations, leaving an empty joint feasible set."
+    "reason": "The preregistered Stage B rule states that zero conditional joint survivors rejects M1 and permits M2 model-form planning. Under strict repository arrival-time semantics, 2,753 Stage B configurations satisfy the cold-start trace. Every one belongs to the 2,957-configuration hot-screen superset that already produced zero hot-start passes for all nine frozen hidden-state initialization combinations, so the strict joint feasible set is empty."
   },
   "interpretation": "The governed M1 family shows that hot/cold coolant separation alone is insufficient to reconcile the consumed cold-start and hot-start evidence inside the frozen structural, thermal, cooling-control, and hidden-state envelopes. This does not prove every conceivable three-state model impossible. It does prohibit further M1 tuning in this project hierarchy and provides the preregistered evidence required to test the next nested model, M2, with a second engine thermal-storage state."
 }
