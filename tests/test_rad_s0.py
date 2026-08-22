@@ -1,12 +1,14 @@
+import json
+
 from vtms_v2.rad_s0 import evaluate_rad_s0
 
 
 def test_rad_s0_candidate_passes_preregistered_synthetic_gate() -> None:
     report = evaluate_rad_s0()
 
-    assert report["verification"]["status"] == "PASS"
-    assert report["identifiability"]["status"] == "PASS"
-    assert report["overall_status"] == "PASS"
+    assert report["verification"]["status"] == "PASS", json.dumps(report, indent=2)
+    assert report["identifiability"]["status"] == "PASS", json.dumps(report, indent=2)
+    assert report["overall_status"] == "PASS", json.dumps(report, indent=2)
 
 
 def test_rad_s0_constant_ua_collapse_is_exact() -> None:
