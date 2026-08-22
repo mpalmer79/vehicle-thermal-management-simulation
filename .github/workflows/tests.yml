@@ -103,7 +103,7 @@ jobs:
         run: docker build -f web/Dockerfile --build-arg NEXT_PUBLIC_VTMS_API_URL=http://127.0.0.1:8000 -t vtms-web:ci web
 
       - name: Boot web container
-        run: docker run -d --name vtms-web-ci -p 3000:3000 vtms-web-ci
+        run: docker run -d --name vtms-web-ci -p 3000:3000 vtms-web:ci
 
       - name: Verify web health
         run: |
