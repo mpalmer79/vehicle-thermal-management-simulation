@@ -4,6 +4,7 @@ import { MotionReveal } from "@/components/motion-reveal";
 import { PlaybackWorkspace } from "@/components/playback-workspace";
 import { PathGlyph } from "@/components/visuals/path-glyph";
 import { ThermalSystemHero } from "@/components/visuals/thermal-system-hero";
+import { MODEL_STANDING } from "@/lib/model-standing";
 
 const productPath = [
   {
@@ -29,15 +30,15 @@ const productPath = [
     step: "03",
     eyebrow: "REVIEW THE EVIDENCE",
     title: "Separate verification from validation",
-    copy: "Numerical verification is complete. Controlled physical validation is not.",
+    copy: "The numerical verification suite passes. Controlled physical validation was executed and failed its preregistered acceptance gate.",
     href: "/validation",
     cta: "Validation Evidence",
   },
 ];
 
 const modelFacts = [
-  ["MODEL", "VTMS-V1"],
-  ["EQUATIONS", "EM-V1"],
+  ["MODEL", MODEL_STANDING.productionModelId],
+  ["EQUATIONS", MODEL_STANDING.equationSet],
   ["STATES", "2 transient"],
   ["SOLVER", "RK45"],
   ["RADIATOR", "ε-NTU"],
@@ -67,9 +68,9 @@ export default function OverviewPage() {
           </dl>
           <p className="hero-standing">
             <span className="standing-dot verified" aria-hidden="true" />
-            <span>Numerically verified</span>
-            <span className="standing-dot pending" aria-hidden="true" />
-            <span>Controlled validation pending</span>
+            <span>{MODEL_STANDING.numericalVerification.label}: {MODEL_STANDING.numericalVerification.status}</span>
+            <span className="standing-dot" style={{ background: "#c92a2a" }} aria-hidden="true" />
+            <span>{MODEL_STANDING.controlledPhysicalValidation.label}: {MODEL_STANDING.controlledPhysicalValidation.status}</span>
             <Link href="/model">Model boundary →</Link>
           </p>
         </div>

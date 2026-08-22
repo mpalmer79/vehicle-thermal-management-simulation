@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { AssistantLauncher } from "@/components/assistant/assistant-launcher";
 import { AssistantProvider } from "@/components/assistant/assistant-context";
+import { MODEL_STANDING } from "@/lib/model-standing";
 
 const navigation = [
   ["Overview", "/"],
@@ -64,9 +65,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="sidebar-status">
             <span className="eyebrow">MODEL STATUS</span>
-            <strong>VTMS-V1 / EM-V1</strong>
-            <span className="status-line"><i className="status-dot verified" />Numerically verified</span>
-            <span className="status-line"><i className="status-dot pending" />Controlled validation pending</span>
+            <strong>{MODEL_STANDING.productionModelId} / {MODEL_STANDING.equationSet}</strong>
+            <span className="status-line"><i className="status-dot verified" />{MODEL_STANDING.numericalVerification.label}: {MODEL_STANDING.numericalVerification.status}</span>
+            <span className="status-line"><i className="status-dot" style={{ background: "#c92a2a" }} />{MODEL_STANDING.controlledPhysicalValidation.label}: {MODEL_STANDING.controlledPhysicalValidation.status}</span>
+            <span className="status-line"><i className="status-dot pending" />{MODEL_STANDING.v2Development.label}: {MODEL_STANDING.v2Development.status}</span>
           </div>
         </aside>
 

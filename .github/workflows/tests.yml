@@ -31,6 +31,16 @@ jobs:
         if: matrix.python-version == '3.11'
         run: python run_identifiability_preflight.py
 
+      - name: Run numerical verification suite
+        if: matrix.python-version == '3.11'
+        run: python run_verification.py
+
+      - name: Verify generated UI previews are current
+        if: matrix.python-version == '3.11'
+        run: |
+          python generate_ui_previews.py
+          git diff --exit-code -- web/lib/fixtures/canonical-previews.json
+
   web-build:
     runs-on: ubuntu-latest
     defaults:

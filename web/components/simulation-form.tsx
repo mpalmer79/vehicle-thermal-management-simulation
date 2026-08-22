@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { ScenarioConfigPreview } from "@/components/visuals/scenario-config-preview";
 import { runSimulation } from "@/lib/api";
+import { MODEL_STANDING } from "@/lib/model-standing";
 import { scenarioById, scenarios } from "@/lib/scenarios";
 import type { ThermostatMode } from "@/lib/vtms-types";
 
@@ -232,10 +233,11 @@ export function SimulationForm() {
         </p>
 
         <div className="model-card">
-          <strong>VTMS-V1 / EM-V1</strong>
+          <strong>{MODEL_STANDING.productionModelId} / {MODEL_STANDING.equationSet}</strong>
           <span>FastAPI execution boundary active</span>
-          <span>Generic parameter set · numerically verified</span>
-          <span>Controlled physical validation pending</span>
+          <span>Generic parameter set · {MODEL_STANDING.numericalVerification.label}: {MODEL_STANDING.numericalVerification.status}</span>
+          <span>{MODEL_STANDING.controlledPhysicalValidation.label}: {MODEL_STANDING.controlledPhysicalValidation.status}</span>
+          <span>{MODEL_STANDING.v2Development.label}: {MODEL_STANDING.v2Development.status}</span>
         </div>
       </aside>
     </div>
