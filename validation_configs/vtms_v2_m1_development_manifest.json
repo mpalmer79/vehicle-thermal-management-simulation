@@ -14,19 +14,11 @@
       "row_selection": {
         "source_time_start_s": 8.7,
         "source_time_end_s": 1374.0,
-        "excluded_intervals_s": [
-          [315.5, 315.6],
-          [450.5, 450.6],
-          [453.1, 453.1],
-          [757.1, 757.2],
-          [829.7, 829.8],
-          [1136.6, 1136.7],
-          [1151.0, 1151.2],
-          [1309.7, 1309.8]
-        ]
+        "excluded_intervals_s": [[315.5,315.6],[450.5,450.6],[453.1,453.1],[757.1,757.2],[829.7,829.8],[1136.6,1136.7],[1151.0,1151.2],[1309.7,1309.8]]
       },
       "initial_hot_coolant_policy": "first_retained_measured_ECT",
-      "initial_cold_coolant_policy": "equal_to_initial_hot_for_cold_start_only"
+      "initial_cold_coolant_policy": "equal_to_initial_hot_for_cold_start_only",
+      "initial_engine_structure_policy": "equal_to_initial_hot_for_cold_start_only"
     },
     {
       "source_test_id": "71207063",
@@ -34,14 +26,11 @@
       "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
       "source_size_bytes": 5112305,
       "signal_map_sha256": "0b1a65f78213a2950fb7f1f037bdfcb39b6448e1577b711bf42378471ba46ffa",
-      "row_selection": {
-        "source_time_start_s": 0.0,
-        "source_time_end_s": 1374.0,
-        "excluded_intervals_s": []
-      },
+      "row_selection": {"source_time_start_s": 0.0,"source_time_end_s": 1374.0,"excluded_intervals_s": []},
       "initial_hot_coolant_policy": "first_retained_measured_ECT",
-      "initial_cold_coolant_sensitivity_offsets_c": [0.0, -5.0, -10.0],
-      "initial_cold_coolant_policy": "evaluate_all_preregistered_offsets_without_per_run_fitting"
+      "initial_cold_coolant_sensitivity_offsets_c": [0.0,-5.0,-10.0],
+      "initial_engine_structure_sensitivity_offsets_c": [0.0,10.0,20.0],
+      "hidden_state_policy": "evaluate_all_3x3_preregistered_engine_and_cold_side_initialization_combinations_without_per_run_fitting"
     }
   ],
   "required_channels": {
@@ -68,10 +57,10 @@
   "stage_A_primary_structural_screen": {
     "optimization_performed": false,
     "global_parameter_grid": {
-      "hot_coolant_capacitance_fraction": [0.20, 0.35, 0.50, 0.65, 0.80],
-      "wall_heat_fraction": [0.20, 0.35, 0.50],
-      "engine_thermal_capacitance_j_per_k": [25000.0, 52393.90776670539, 100000.0],
-      "engine_coolant_ua_w_per_k": [400.0, 1000.0, 1600.0, 2200.0]
+      "hot_coolant_capacitance_fraction": [0.20,0.35,0.50,0.65,0.80],
+      "wall_heat_fraction": [0.20,0.35,0.50],
+      "engine_thermal_capacitance_j_per_k": [25000.0,52393.90776670539,100000.0],
+      "engine_coolant_ua_w_per_k": [400.0,1000.0,1600.0,2200.0]
     },
     "fixed_control_reference": {
       "thermostat_open_c": 87.8,
@@ -83,22 +72,22 @@
       "radiator_ua_nominal_w_per_k": 1100.0
     },
     "global_configuration_count": 180,
-    "hot_start_initialization_case_count": 3,
+    "hot_start_initialization_case_count": 9,
     "classification": {
-      "robust_joint_survivor": "same global parameter configuration passes cold start and passes hot start under all three preregistered T_cold(0) offsets",
-      "conditional_joint_survivor": "same global parameter configuration passes cold start and passes hot start under at least one but not all preregistered T_cold(0) offsets",
-      "non_survivor": "fails cold start or fails hot start under every preregistered T_cold(0) offset"
+      "robust_joint_survivor": "same global parameter configuration passes cold start and passes hot start under all nine preregistered hidden-state initialization combinations",
+      "conditional_joint_survivor": "same global parameter configuration passes cold start and passes hot start under at least one but not all nine preregistered hidden-state initialization combinations",
+      "non_survivor": "fails cold start or fails hot start under every preregistered hidden-state initialization combination"
     }
   },
   "stage_B_control_robustness_if_needed": {
     "opening_rule": "Open only if Stage A has zero robust survivors. Apply only to Stage A conditional survivors, or if none exist, to the full Stage A structural grid for falsification.",
     "optimization_performed": false,
     "control_uncertainty_grid": {
-      "thermostat_full_c": [97.0, 99.5, 102.0],
-      "eta_pack": [0.25, 0.40, 0.80],
-      "radiator_ua_nominal_w_per_k": [400.0, 1100.0, 2200.0],
-      "f_open": [0.85, 0.925, 1.0],
-      "gamma": [0.5, 1.0, 2.0]
+      "thermostat_full_c": [97.0,99.5,102.0],
+      "eta_pack": [0.25,0.40,0.80],
+      "radiator_ua_nominal_w_per_k": [400.0,1100.0,2200.0],
+      "f_open": [0.85,0.925,1.0],
+      "gamma": [0.5,1.0,2.0]
     },
     "f_closed": 0.02,
     "thermostat_open_c": 87.8,
@@ -111,22 +100,16 @@
       "abs_mean_bias_c_max": 3.0,
       "p90_abs_error_c_max": 7.0,
       "threshold_arrival_abs_error_s_max": 60.0,
-      "arrival_thresholds_c": [60.0, 80.0, 90.0]
+      "arrival_thresholds_c": [60.0,80.0,90.0]
     },
     "hot_region": {
-      "measured_ect_range_c": [96.0, 100.0],
+      "measured_ect_range_c": [96.0,100.0],
       "abs_mean_residual_c_max": 3.0,
       "minimum_samples": 30,
       "minimum_coverage_s": 30.0
     }
   },
-  "numerics": {
-    "solver": "scipy.solve_ivp_RK45",
-    "rtol": 1e-6,
-    "atol": 1e-8,
-    "max_step_s": 1.0,
-    "output_interval_s": 1.0
-  },
+  "numerics": {"solver": "scipy.solve_ivp_RK45","rtol": 1e-6,"atol": 1e-8,"max_step_s": 1.0,"output_interval_s": 1.0},
   "governance": {
     "rank_or_report_best_fit_configuration": false,
     "fit_hidden_initial_state_per_run": false,
@@ -138,7 +121,7 @@
   },
   "gate_interpretation": {
     "one_or_more_stage_A_robust_survivors": "M1 is structurally viable on consumed development evidence; freeze a separate calibration/holdout protocol before any blind rung.",
-    "stage_A_conditional_only": "M1 adequacy is initialization-sensitive; do not open blind evidence until hidden-state treatment is independently constrained.",
+    "stage_A_conditional_only": "M1 adequacy is hidden-state-initialization-sensitive; do not open blind evidence until hidden-state treatment is independently constrained.",
     "zero_stage_A_survivors": "Execute Stage B exactly as preregistered before considering M1 rejection.",
     "zero_stage_B_conditional_survivors": "M1 is rejected by the governed development envelope and M2 model-form planning may begin.",
     "stage_B_only_survivors": "M1 remains control-boundary-dependent and blind prediction remains blocked pending stronger physical boundary evidence."
