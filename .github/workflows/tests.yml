@@ -43,6 +43,10 @@ jobs:
         if: matrix.python-version == '3.11'
         run: python run_m2_identifiability_preflight.py
 
+      - name: Run VTMS-V2 RAD-S0 synthetic preflight
+        if: matrix.python-version == '3.11'
+        run: python run_rad_s0_preflight.py
+
   web-build:
     runs-on: ubuntu-latest
     defaults:
