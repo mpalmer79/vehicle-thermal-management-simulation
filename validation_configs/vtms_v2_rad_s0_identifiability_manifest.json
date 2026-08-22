@@ -1,0 +1,83 @@
+{
+  "manifest_id": "VTMS-V2-RAD-S0",
+  "status": "frozen_before_synthetic_variable_ua_execution",
+  "purpose": "Verify the minimum RAD-UA-A candidate numerically and test whether the air-side exponent has a distinguishable coolant-trace signature from UA_ref, eta_pack, f_open, and gamma before any consumed Argonne feasibility execution.",
+  "evidence_class": "synthetic_only_not_physical_evidence",
+  "physical_data_permitted": false,
+  "parameter_fitting_permitted": false,
+  "optimizer_permitted": false,
+  "candidate_model": {
+    "id": "RAD-UA-A",
+    "law": "UA_eff = UA_ref * (m_air / m_air_ref)^n_air for active flow",
+    "ua_ref_w_per_k": 1100.0,
+    "air_mass_flow_reference_kg_s": 1.8,
+    "authorized_physical_exponents": [0.4, 0.5, 0.6],
+    "verification_only_constant_ua_exponent": 0.0,
+    "coolant_side_exponent_included": false,
+    "zero_flow_rule": "if coolant or air capacity rate is below FLOW_EPS, heat transfer is zero and outlet temperature is undefined"
+  },
+  "reference_m0_parameters": {
+    "thermostat_open_c": 87.8,
+    "thermostat_full_c": 99.5,
+    "f_closed": 0.02,
+    "f_open": 0.925,
+    "gamma": 1.0,
+    "eta_pack": 0.6,
+    "external_fan_capacity_m3_s": 2.5,
+    "ags_static_restriction_factor": 1.0
+  },
+  "synthetic_excitation": {
+    "duration_s": 900.0,
+    "output_interval_s": 5.0,
+    "initial_engine_temp_c": 72.0,
+    "initial_coolant_temp_c": 70.0,
+    "ambient_temp_c": 24.0,
+    "engine_speed_rpm_segments": [1200.0, 2200.0, 3200.0, 1600.0, 2800.0, 1100.0],
+    "engine_heat_override_w_segments": [30000.0, 55000.0, 80000.0, 42000.0, 70000.0, 26000.0],
+    "external_fan_volume_flow_m3_s_segments": [0.5, 1.5, 2.5, 0.8, 2.0, 1.0],
+    "segment_edges_s": [0.0, 150.0, 300.0, 450.0, 600.0, 750.0, 900.0],
+    "internal_vehicle_fan": "disabled_for_identifiability_excitation",
+    "vehicle_speed_role": "operating_input_only_not_radiator_core_airflow"
+  },
+  "local_sensitivity": {
+    "baseline_n_air": 0.5,
+    "fractional_perturbation": 0.01,
+    "parameters": [
+      "radiator_ua_nominal_w_per_k",
+      "n_air",
+      "eta_pack",
+      "f_open",
+      "gamma"
+    ],
+    "normalization": "each coolant-temperature sensitivity column normalized by its Euclidean norm for cosine and SVD diagnostics"
+  },
+  "verification_requirements": {
+    "zero_flow_heat_w": 0.0,
+    "reference_flow_matches_constant_ua": true,
+    "n_air_zero_matches_constant_ua_over_active_flow_domain": true,
+    "effectiveness_bounds": [0.0, 1.0],
+    "monotonic_heat_rejection_with_airflow": true,
+    "normalized_energy_residual_max": 0.001,
+    "deterministic_repeat_required": true
+  },
+  "identifiability_acceptance": {
+    "all_five_sensitivity_columns_active": true,
+    "normalized_jacobian_condition_number_max": 100.0,
+    "max_abs_pairwise_cosine_involving_n_air_exclusive": 0.95,
+    "n_air_relative_rms_to_strongest_min": 0.02,
+    "discrete_candidate_separation": {
+      "pairs": [[0.4, 0.5], [0.5, 0.6]],
+      "rms_trace_separation_rule": "greater_than_max_0.02C_or_20x_tight_vs_default_solver_noise_rms",
+      "peak_trace_separation_rule": "greater_than_max_0.05C_or_20x_tight_vs_default_solver_noise_peak"
+    }
+  },
+  "interpretation_guards": {
+    "passing_RAD_S0_does_not_validate_variable_ua": true,
+    "passing_RAD_S0_does_not_identify_a_Ford_specific_exponent": true,
+    "failure_blocks_physical_RAD_UA_A_execution": true,
+    "bounds_must_not_change_after_result_inspection": true,
+    "coolant_side_exponent_remains_excluded": true
+  },
+  "next_gate_if_pass": "VTMS-V2-RAD-F0 consumed-development feasibility protocol freeze",
+  "next_gate_if_fail": "preserve_negative_result_and_resume_frozen_M2_Stage_B_without_variable_UA"
+}
