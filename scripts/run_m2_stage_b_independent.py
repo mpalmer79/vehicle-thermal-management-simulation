@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import asdict
 import json
 from pathlib import Path
 import platform
@@ -16,9 +15,13 @@ from vtms_validation.adapters.argonne import ArgonneD3Adapter, ArgonneSignalMap
 from vtms_v2.m2.stage_b import (
     GLOBAL_CASE_COUNT,
     HOT_INITIALIZATION_GRID,
-    StageBCase,
     case_from_global_index,
     run_stage_b_case_reference,
+)
+from vtms_v2.m2.stage_b_accel import (
+    compare_stage_b_acceleration,
+    numba_available,
+    run_stage_b_case_accelerated,
 )
 
 
@@ -26,9 +29,16 @@ EXPECTED_COLD_SHA256 = "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd
 EXPECTED_HOT_SHA256 = "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d"
 COLD_MAP = Path("validation_configs/argonne_2012_focus_71207062_calibration.json")
 HOT_MAP = Path("validation_configs/argonne_2012_focus_71207063_holdout.json")
+ACCELERATION_TRACE_ATOL_C = 1.0e-9
+ACCELERATION_COLD_ANCHOR_INDICES = (0, 3248, 3257, 3505, 3550)
+ACCELERATION_HOT_ANCHORS = (
+    (3248, (0.0, 0.0, 0.0)),
+    (3550, (30.0, 20.0, -10.0)),
+)
 
 _COLD_DATASET = None
 _HOT_DATASET = None
+_RUNNER_MODE = "reference"
 
 
 def _load_dataset(source: Path, mapping_path: Path, expected_sha256: str):
@@ -42,10 +52,33 @@ def _load_dataset(source: Path, mapping_path: Path, expected_sha256: str):
     return dataset
 
 
-def _init_worker(cold_source: str, hot_source: str) -> None:
-    global _COLD_DATASET, _HOT_DATASET
+def _init_worker(cold_source: str, hot_source: str, runner_mode: str) -> None:
+    global _COLD_DATASET, _HOT_DATASET, _RUNNER_MODE
     _COLD_DATASET = _load_dataset(Path(cold_source), COLD_MAP, EXPECTED_COLD_SHA256)
     _HOT_DATASET = _load_dataset(Path(hot_source), HOT_MAP, EXPECTED_HOT_SHA256)
+    _RUNNER_MODE = runner_mode
+
+
+def _run_case(
+    dataset,
+    case,
+    *,
+    head_offset_c=0.0,
+    block_offset_c=0.0,
+    cold_offset_c=0.0,
+):
+    runner = (
+        run_stage_b_case_accelerated
+        if _RUNNER_MODE == "numba"
+        else run_stage_b_case_reference
+    )
+    return runner(
+        dataset,
+        case,
+        initial_head_offset_c=head_offset_c,
+        initial_block_offset_c=block_offset_c,
+        initial_cold_offset_c=cold_offset_c,
+    )
 
 
 def _compact_metrics(run) -> dict[str, object]:
@@ -65,7 +98,7 @@ def _evaluate_index(global_index: int) -> dict[str, object]:
     if _COLD_DATASET is None or _HOT_DATASET is None:
         raise RuntimeError("worker datasets were not initialized")
     case = case_from_global_index(global_index)
-    cold = run_stage_b_case_reference(_COLD_DATASET, case)
+    cold = _run_case(_COLD_DATASET, case)
     if not cold.acceptance.passed:
         return {
             "global_index": global_index,
@@ -77,12 +110,12 @@ def _evaluate_index(global_index: int) -> dict[str, object]:
 
     hot_passes: list[dict[str, object]] = []
     for head_offset_c, block_offset_c, cold_offset_c in HOT_INITIALIZATION_GRID:
-        hot = run_stage_b_case_reference(
+        hot = _run_case(
             _HOT_DATASET,
             case,
-            initial_head_offset_c=head_offset_c,
-            initial_block_offset_c=block_offset_c,
-            initial_cold_offset_c=cold_offset_c,
+            head_offset_c=head_offset_c,
+            block_offset_c=block_offset_c,
+            cold_offset_c=cold_offset_c,
         )
         if hot.acceptance.passed:
             hot_passes.append(
@@ -106,6 +139,55 @@ def _evaluate_index(global_index: int) -> dict[str, object]:
     }
 
 
+def _acceleration_preflight(cold_dataset, hot_dataset) -> dict[str, object]:
+    if not numba_available():
+        raise RuntimeError(
+            "--runner numba requires the optional 'accelerate' dependency"
+        )
+
+    checks: list[dict[str, object]] = []
+    for global_index in ACCELERATION_COLD_ANCHOR_INDICES:
+        comparison = compare_stage_b_acceleration(
+            cold_dataset,
+            case_from_global_index(global_index),
+            trace_atol_c=ACCELERATION_TRACE_ATOL_C,
+        )
+        row = comparison.to_dict()
+        row["dataset"] = "71207062"
+        checks.append(row)
+
+    for global_index, offsets in ACCELERATION_HOT_ANCHORS:
+        head_offset_c, block_offset_c, cold_offset_c = offsets
+        comparison = compare_stage_b_acceleration(
+            hot_dataset,
+            case_from_global_index(global_index),
+            initial_head_offset_c=head_offset_c,
+            initial_block_offset_c=block_offset_c,
+            initial_cold_offset_c=cold_offset_c,
+            trace_atol_c=ACCELERATION_TRACE_ATOL_C,
+        )
+        row = comparison.to_dict()
+        row["dataset"] = "71207063"
+        checks.append(row)
+
+    failed = [row for row in checks if not bool(row["equivalent"])]
+    if failed:
+        raise RuntimeError(
+            "compiled Stage B path failed the committed reference equivalence preflight: "
+            + json.dumps(failed, sort_keys=True)
+        )
+
+    return {
+        "status": "pass",
+        "trace_atol_c": ACCELERATION_TRACE_ATOL_C,
+        "check_count": len(checks),
+        "checks": checks,
+        "maximum_observed_abs_trace_error_c": max(
+            float(row["max_abs_trace_error_c"]) for row in checks
+        ),
+    }
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Authoritative committed-source VTMS-V2 M2 Stage B independent executor."
@@ -115,6 +197,12 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--start", type=int, required=True)
     parser.add_argument("--stop", type=int, required=True)
     parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument(
+        "--runner",
+        choices=("reference", "numba"),
+        default="reference",
+        help="RHS execution path. Both retain one independent SciPy RK45 solve per case.",
+    )
     parser.add_argument("--runner-commit", required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser
@@ -132,18 +220,23 @@ def main() -> int:
     # Verify source identity once in the parent before any process is launched.
     cold = _load_dataset(args.cold_source, COLD_MAP, EXPECTED_COLD_SHA256)
     hot = _load_dataset(args.hot_source, HOT_MAP, EXPECTED_HOT_SHA256)
+    acceleration_preflight = (
+        _acceleration_preflight(cold, hot)
+        if args.runner == "numba"
+        else {"status": "not_required_reference_runner"}
+    )
     del cold, hot
 
     started = time.perf_counter()
     indices = range(args.start, args.stop)
     if args.workers == 1:
-        _init_worker(str(args.cold_source), str(args.hot_source))
+        _init_worker(str(args.cold_source), str(args.hot_source), args.runner)
         rows = [_evaluate_index(index) for index in indices]
     else:
         with ProcessPoolExecutor(
             max_workers=args.workers,
             initializer=_init_worker,
-            initargs=(str(args.cold_source), str(args.hot_source)),
+            initargs=(str(args.cold_source), str(args.hot_source), args.runner),
         ) as executor:
             rows = list(executor.map(_evaluate_index, indices, chunksize=1))
     elapsed = time.perf_counter() - started
@@ -165,17 +258,30 @@ def main() -> int:
         "runner_commit": args.runner_commit,
         "runner_path": "scripts/run_m2_stage_b_independent.py",
         "stage_b_contract_path": "src/vtms_v2/m2/stage_b.py",
+        "accelerated_rhs_path": (
+            "src/vtms_v2/m2/stage_b_accel.py"
+            if args.runner == "numba"
+            else None
+        ),
+        "runner_mode": args.runner,
+        "acceleration_reference_equivalence_preflight": acceleration_preflight,
         "reserved_blind_evidence_used": False,
         "global_index_range": [args.start, args.stop],
         "coverage": "contiguous_complete_range",
         "configuration_count": args.stop - args.start,
         "cold_start_pass_count": len(cold_survivors),
-        "cold_start_pass_indices": [int(row["global_index"]) for row in cold_survivors],
+        "cold_start_pass_indices": [
+            int(row["global_index"]) for row in cold_survivors
+        ],
         "hot_start_configuration_initialization_evaluations": hot_evaluations,
         "conditional_joint_survivor_count": len(conditional),
-        "conditional_joint_survivor_indices": [int(row["global_index"]) for row in conditional],
+        "conditional_joint_survivor_indices": [
+            int(row["global_index"]) for row in conditional
+        ],
         "robust_joint_survivor_count": len(robust),
-        "robust_joint_survivor_indices": [int(row["global_index"]) for row in robust],
+        "robust_joint_survivor_indices": [
+            int(row["global_index"]) for row in robust
+        ],
         "cold_survivor_details": cold_survivors,
         "source_identity": {
             "cold_test_id": "71207062",
@@ -192,6 +298,11 @@ def main() -> int:
             "output_interval_s": 1.0,
             "adaptive_controller_shared_between_configurations": False,
             "parallelism": "independent process parallelism only",
+            "compiled_rhs_role": (
+                "arithmetic acceleration only; SciPy remains integrator"
+                if args.runner == "numba"
+                else "not_used"
+            ),
         },
         "execution_environment": {
             "python": platform.python_version(),
@@ -211,12 +322,16 @@ def main() -> int:
         },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    args.output.write_text(
+        json.dumps(payload, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
     print(
         json.dumps(
             {
                 "output": str(args.output),
                 "range": [args.start, args.stop],
+                "runner": args.runner,
                 "cold_passes": len(cold_survivors),
                 "conditional_joint_survivors": len(conditional),
                 "robust_joint_survivors": len(robust),
