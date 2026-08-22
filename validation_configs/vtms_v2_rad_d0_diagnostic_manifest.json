@@ -11,6 +11,11 @@
     "model_id": "VTMS-V2-M0",
     "selection_basis": "pre_result_central_reference_from_the_already_frozen_FEAS_01_grid_not_a_best_fit",
     "topology": ["T_engine", "T_coolant"],
+    "initial_state_policy": {
+      "T_engine_0": "equal_to_first_selected_measured_ECT",
+      "T_coolant_0": "equal_to_first_selected_measured_ECT",
+      "reason": "M0 has one unmeasured engine-solid state. RAD-D1 uses the existing controlled-comparison default rather than adding a post-review hidden-state degree of freedom."
+    },
     "thermal_snapshot": {
       "wall_heat_fraction": 0.4999228433,
       "engine_thermal_capacitance_j_per_k": 52393.9078,
