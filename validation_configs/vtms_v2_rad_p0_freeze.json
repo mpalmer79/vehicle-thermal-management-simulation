@@ -1,0 +1,53 @@
+{
+  "freeze_id": "VTMS-V2-RAD-P0",
+  "status": "frozen_before_RAD_S0_synthetic_execution",
+  "candidate_id": "RAD-UA-A",
+  "model_form": "air_flow_dependent_effective_radiator_UA",
+  "equation": "UA_eff = radiator_health * UA_ref * (m_air / m_air_ref)^n_air for m_air > 0; existing zero-flow branch for m_air = 0",
+  "ua_ref_w_per_k": 1100.0,
+  "air_mass_flow_reference_kg_s": 1.8,
+  "air_exponent_discrete": [0.4, 0.5, 0.6],
+  "collapse_test_exponent": 0.0,
+  "coolant_flow_exponent_authorized": false,
+  "ua_ref_physical_fit_authorized": false,
+  "air_exponent_physical_fit_authorized": false,
+  "parameter_optimizer_authorized": false,
+  "argonne_physical_execution_authorized": false,
+  "blind_prediction_authorized": false,
+  "retained_components": {
+    "effectiveness_correlation": "crossflow_both_unmixed_V1",
+    "coolant_properties": "VTMS_V1_constant_properties",
+    "air_properties": "VTMS_V1_ideal_gas_density_and_constant_cp",
+    "M0_airflow_boundary": true,
+    "M0_hydraulic_split": true,
+    "static_thermostat": true
+  },
+  "RAD_S0_required_parameters_for_identifiability": [
+    "n_air",
+    "UA_ref",
+    "eta_pack",
+    "f_open",
+    "gamma"
+  ],
+  "RAD_S0_required_invariants": [
+    "zero_air_flow_zero_heat",
+    "positive_UA_for_positive_flow",
+    "reference_flow_reduces_to_UA_ref",
+    "finite_continuous_near_zero",
+    "effectiveness_bounded_0_1",
+    "heat_rejection_nondecreasing_with_airflow",
+    "equal_temperature_zero_heat",
+    "energy_conservation",
+    "n_air_zero_exact_constant_UA_collapse"
+  ],
+  "source_notes": {
+    "Davenport_louver_j_exponent": -0.42,
+    "derived_air_h_exponent": 0.58,
+    "Chang_Wang_louver_j_exponent": -0.49,
+    "derived_air_h_exponent_2": 0.51,
+    "Chang_1994_louver_j_exponent": -0.589,
+    "derived_air_h_exponent_3": 0.411,
+    "low_Re_warning": "ASHRAE RP-1535 reports distinct low-Re flow regimes; one power law is not extrapolated to stagnant flow."
+  },
+  "next_gate": "VTMS-V2-RAD-S0"
+}
