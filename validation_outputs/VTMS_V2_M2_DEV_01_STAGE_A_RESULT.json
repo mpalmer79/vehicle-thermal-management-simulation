@@ -1,0 +1,89 @@
+{
+  "result_id": "VTMS-V2-M2-DEV-01-STAGE-A",
+  "status": "stage_A_complete_open_stage_B",
+  "evidence_role": "consumed_physical_development_only_not_validation",
+  "model_id": "VTMS-V2-M2",
+  "reserved_blind_evidence_used": false,
+  "physical_parameter_identification_performed": false,
+  "source_tests": ["71207062", "71207063"],
+  "structural_configuration_count": 6480,
+  "control_boundary": {
+    "thermostat_open_c": 87.8,
+    "thermostat_full_c": 99.5,
+    "f_closed": 0.02,
+    "f_open": 0.95,
+    "gamma": 1.0,
+    "eta_pack": 0.40,
+    "radiator_ua_nominal_w_per_k": 1100.0
+  },
+  "cold_screen": {
+    "pass_count": 108,
+    "pass_fraction": 0.016666666666666666,
+    "segments": [
+      {"structural_range": [0, 3240], "evaluated": 3240, "passes": 54},
+      {"structural_range": [3240, 6480], "evaluated": 3240, "passes": 54}
+    ]
+  },
+  "hot_screen": {
+    "input_configuration_count": 108,
+    "hidden_state_initialization_count": 27,
+    "configuration_initialization_evaluations": 2916,
+    "head_minus_ect_offsets_c": [0.0, 15.0, 30.0],
+    "block_minus_ect_offsets_c": [0.0, 10.0, 20.0],
+    "cold_minus_ect_offsets_c": [0.0, -5.0, -10.0],
+    "pass_count_by_initialization": [
+      {"head_offset_c": 0.0, "block_offset_c": 0.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 0.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 0.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 10.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 10.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 10.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 20.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 20.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 0.0, "block_offset_c": 20.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 0.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 0.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 0.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 10.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 10.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 10.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 20.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 20.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 15.0, "block_offset_c": 20.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 0.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 0.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 0.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 10.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 10.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 10.0, "cold_offset_c": -10.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 20.0, "cold_offset_c": 0.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 20.0, "cold_offset_c": -5.0, "passes": 0},
+      {"head_offset_c": 30.0, "block_offset_c": 20.0, "cold_offset_c": -10.0, "passes": 0}
+    ],
+    "conditional_configuration_count": 0,
+    "robust_configuration_count": 0
+  },
+  "vectorized_equivalence_check": {
+    "performed": true,
+    "method": "Three deterministic cold-pass configurations were evaluated both in one vectorized batch and individually with the identical local equations and acceptance helper.",
+    "pass_fail_equivalent": true
+  },
+  "local_runner_sha256": {
+    "m2_equations_and_acceptance": "147ded0bbab6fb2fa86cbf5417c841f3c519bb7b48a348d1822be4192e78adbf",
+    "cold_segment_driver": "87913156b2c7ecd95ab103624abc51b27537a40d14e1cc413c43f34a0aa7b850",
+    "hot_expanded_driver": "379c32df16ac2be984731bd44977101a0b620db4b595d60dbe2c86bcea018341"
+  },
+  "governance": {
+    "optimization_performed": false,
+    "best_fit_configuration_reported": false,
+    "hidden_initial_state_fitted": false,
+    "parameter_ranges_widened": false,
+    "blind_prediction_generated": false
+  },
+  "decision": {
+    "stage_A_joint_survivor_count": 0,
+    "m2_rejected": false,
+    "stage_B_authorized_and_required": true,
+    "reason": "The preregistered M2 manifest requires the complete frozen Stage B control-uncertainty cross when Stage A produces zero conditional joint survivors."
+  }
+}
