@@ -3,12 +3,19 @@ from __future__ import annotations
 import json
 
 from vtms_v2.m0.config import M0Parameters
-from vtms_v2.m0.identifiability import evaluate_m0_staged_identifiability
+from vtms_v2.m0.identifiability import (
+    evaluate_m0_identifiability,
+    evaluate_m0_staged_identifiability,
+)
 
 
 if __name__ == "__main__":
     parameters = M0Parameters()
     diagnostics = evaluate_m0_staged_identifiability(parameters=parameters)
+    diagnostics["hydraulic_open_shape"] = evaluate_m0_identifiability(
+        parameters=parameters,
+        parameter_names=("f_open", "gamma"),
+    )
     payload = {
         "status": "VTMS_V2_M0_SYNTHETIC_PREFIT_IDENTIFIABILITY",
         "physical_data_used": False,
