@@ -3,13 +3,15 @@ from __future__ import annotations
 from dataclasses import asdict
 
 import numpy as np
+from scipy.linalg import expm
 
 from .config import ModelParameters
 from .radiator import RadiatorModel
+from .scenario import Scenario
 from .scenarios import canonical_scenarios
 from .simulation import SimulationRunner
 from .thermostat import ThermostatModel
-from .types import ThermostatMode
+from .types import FaultState, ThermostatMode
 
 
 class VerificationFailure(AssertionError):
@@ -19,6 +21,46 @@ class VerificationFailure(AssertionError):
 def _check(condition: bool, message: str) -> None:
     if not condition:
         raise VerificationFailure(message)
+
+
+def _analytic_two_state_solution(
+    parameters: ModelParameters,
+    time_s: np.ndarray,
+    *,
+    initial_engine_temp_c: float,
+    initial_coolant_temp_c: float,
+    ambient_temp_c: float,
+    engine_heat_w: float,
+) -> np.ndarray:
+    """Exact solution for the constant-input, no-radiator two-state VTMS system."""
+
+    c_engine = parameters.engine_thermal_capacitance_j_per_k
+    c_coolant = parameters.coolant_thermal_capacitance_j_per_k
+    ua_ec = parameters.engine_coolant_ua_w_per_k
+    ua_ea = parameters.engine_ambient_ua_w_per_k
+
+    a = np.array(
+        [
+            [-(ua_ec + ua_ea) / c_engine, ua_ec / c_engine],
+            [ua_ec / c_coolant, -ua_ec / c_coolant],
+        ],
+        dtype=float,
+    )
+    b = np.array(
+        [
+            (engine_heat_w + ua_ea * ambient_temp_c) / c_engine,
+            0.0,
+        ],
+        dtype=float,
+    )
+    steady = -np.linalg.solve(a, b)
+    initial = np.array(
+        [initial_engine_temp_c, initial_coolant_temp_c],
+        dtype=float,
+    )
+    return np.vstack(
+        [steady + expm(a * float(t)) @ (initial - steady) for t in time_s]
+    )
 
 
 def run_verification_suite() -> dict[str, object]:
@@ -113,6 +155,43 @@ def run_verification_suite() -> dict[str, object]:
         "V-NUM-01/S-01",
         max_diff < 0.05,
         f"maximum one-second state difference={max_diff:.9f} C",
+    )
+
+    analytic_scenario = Scenario(
+        scenario_id="V-ANALYTIC-01",
+        name="Constant-input analytic two-state benchmark",
+        duration_s=120.0,
+        ambient_temp_c=25.0,
+        engine_speed_rpm=0.0,
+        effective_load=0.0,
+        vehicle_speed_m_s=0.0,
+        initial_engine_temp_c=80.0,
+        initial_coolant_temp_c=70.0,
+        engine_heat_override_w=12000.0,
+        faults=FaultState(fan_failed=True, radiator_health=0.0),
+        output_interval_s=1.0,
+    )
+    analytic_numeric = runner.run(analytic_scenario)
+    analytic_time = np.array([point.time_s for point in analytic_numeric.time_series], dtype=float)
+    exact = _analytic_two_state_solution(
+        parameters,
+        analytic_time,
+        initial_engine_temp_c=analytic_scenario.initial_engine_temp_c,
+        initial_coolant_temp_c=analytic_scenario.initial_coolant_temp_c,
+        ambient_temp_c=25.0,
+        engine_heat_w=12000.0,
+    )
+    numeric = np.column_stack(
+        [
+            [point.engine_structure_temp_c for point in analytic_numeric.time_series],
+            [point.coolant_temp_c for point in analytic_numeric.time_series],
+        ]
+    )
+    analytic_max_error = float(np.max(np.abs(numeric - exact)))
+    record(
+        "V-ANALYTIC-01",
+        analytic_max_error < 1e-6,
+        f"maximum state error against exact matrix-exponential solution={analytic_max_error:.12g} C",
     )
 
     summary = {}
