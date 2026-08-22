@@ -7,12 +7,54 @@
   "parameter_fitting_permitted": false,
   "model_form_execution_permitted": false,
   "residual_definition": "predicted_minus_measured_degC",
+  "diagnostic_model_baseline": {
+    "model_id": "VTMS-V2-M0",
+    "selection_basis": "pre_result_central_reference_from_the_already_frozen_FEAS_01_grid_not_a_best_fit",
+    "topology": ["T_engine", "T_coolant"],
+    "thermal_snapshot": {
+      "wall_heat_fraction": 0.4999228433,
+      "engine_thermal_capacitance_j_per_k": 52393.9078,
+      "engine_coolant_ua_w_per_k": 2198.4326
+    },
+    "thermostat_open_c": 87.8,
+    "thermostat_full_c": 99.5,
+    "external_fan_protocol_capacity_m3_s": 2.5,
+    "eta_pack": 0.6,
+    "radiator_ua_nominal_w_per_k": 1100.0,
+    "f_closed": 0.02,
+    "f_open": 0.925,
+    "gamma": 1.0,
+    "pump_model": "retained_V1_rpm_based_map",
+    "active_grille_shutter_case": "ABSENT_OR_FULL_OPEN",
+    "note": "Every varied quantity is a value already present in the frozen M0/FEAS-01 design. This snapshot is not reported as calibrated, fitted, optimal, or Ford-specific."
+  },
+  "airflow_sensitivity_snapshots": [
+    {
+      "id": "ETA_PACK_LOW",
+      "eta_pack": 0.25,
+      "all_other_diagnostic_model_terms_equal_to_primary": true
+    },
+    {
+      "id": "ETA_PACK_HIGH",
+      "eta_pack": 1.0,
+      "all_other_diagnostic_model_terms_equal_to_primary": true
+    }
+  ],
   "source_runs": [
     {
       "run_id": "CAL-01",
       "source_test_id": "71207062",
       "source_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
-      "role": "consumed_cold_start_development",
+      "role": "PRIMARY_RAD_DIAGNOSTIC_consumed_cold_start_development",
+      "airflow_boundary_class": "CONSTANT_SPEED_EXTERNAL_FAN",
+      "hood_position": "up",
+      "dyno_speed_as_core_airflow_prohibited": true
+    },
+    {
+      "run_id": "VAL-HOT-01",
+      "source_test_id": "71207063",
+      "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "role": "PRIMARY_RAD_DIAGNOSTIC_consumed_primary_holdout_now_development_evidence",
       "airflow_boundary_class": "CONSTANT_SPEED_EXTERNAL_FAN",
       "hood_position": "up",
       "dyno_speed_as_core_airflow_prohibited": true
@@ -21,26 +63,19 @@
       "run_id": "CAL-RAD-01",
       "source_test_id": "71207057",
       "source_sha256": "57034f3e01e45bae7271cc4f96d3b7eb88055e17bb1bf3522e28c6734b631e3d",
-      "role": "consumed_radiator_development",
+      "role": "SUPPLEMENTARY_RESIDUAL_CONTEXT_ONLY_until_airflow_boundary_is_documented",
       "airflow_boundary_class": "UNKNOWN_UNLESS_SEPARATELY_DOCUMENTED",
-      "dyno_speed_as_core_airflow_prohibited": true
-    },
-    {
-      "run_id": "VAL-HOT-01",
-      "source_test_id": "71207063",
-      "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
-      "role": "consumed_primary_holdout_now_development_evidence",
-      "airflow_boundary_class": "CONSTANT_SPEED_EXTERNAL_FAN",
-      "hood_position": "up",
-      "dyno_speed_as_core_airflow_prohibited": true
+      "dyno_speed_as_core_airflow_prohibited": true,
+      "may_determine_radiator_hypothesis_outcome": false
     },
     {
       "run_id": "VAL-SSS-01",
       "source_test_id": "71207052",
       "source_sha256": "b5a837449f824ad76b00a6ab7da7ae92486b4feec0b4e3a81eb126bac14b0f02",
-      "role": "consumed_confirmatory_holdout_now_development_evidence",
+      "role": "SUPPLEMENTARY_RESIDUAL_CONTEXT_ONLY_until_airflow_boundary_is_documented",
       "airflow_boundary_class": "UNKNOWN_UNLESS_SEPARATELY_DOCUMENTED",
-      "dyno_speed_as_core_airflow_prohibited": true
+      "dyno_speed_as_core_airflow_prohibited": true,
+      "may_determine_radiator_hypothesis_outcome": false
     }
   ],
   "required_diagnostics": {
@@ -89,7 +124,9 @@
     "modeled_airflow_is_a_boundary_assumption_and_must_be_labelled_as_such": true,
     "oil_temperature_is_auxiliary_observable_not_automatically_a_state": true,
     "no_best_parameter_or_parameter_ranking": true,
-    "no_residual_driven_bounds_change": true
+    "no_residual_driven_bounds_change": true,
+    "supplementary_unknown_airflow_runs_cannot_decide_outcome": true,
+    "airflow_sensitivity_snapshots_are_not_fits": true
   },
   "publication_policy": {
     "raw_argonne_rows_may_be_committed": false,
@@ -105,7 +142,7 @@
     "RADIATOR_HYPOTHESIS_INCONCLUSIVE",
     "RADIATOR_HYPOTHESIS_NOT_SUPPORTED"
   ],
-  "outcome_rule": "Classification must be based on the complete preregistered diagnostic set and cross-run consistency. No single Pearson correlation or single run can prove the radiator model-form hypothesis.",
+  "outcome_rule": "Classification must be based on the complete preregistered diagnostic set for the two documented constant-external-fan primary runs, with the central M0 reference as the primary model snapshot and the two frozen eta_pack cases used only as boundary sensitivity. No single Pearson correlation, supplementary unknown-airflow run, or single snapshot can prove the radiator model-form hypothesis.",
   "next_gate_if_supported_or_inconclusive": "VTMS-V2-RAD-P0 physical-law and bounds provenance freeze",
   "next_gate_if_not_supported": "resume frozen M2 Stage B from durable independent checkpoint without changing its grid or thresholds"
 }
