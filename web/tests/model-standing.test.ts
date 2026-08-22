@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 
-import { MODEL_STANDING } from "../lib/model-standing.ts";
+import { MODEL_STANDING } from "../lib/model-standing";
 
 type ValidationArtifact = {
   acceptance: {
