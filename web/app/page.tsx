@@ -69,7 +69,7 @@ export default function OverviewPage() {
           <p className="hero-standing">
             <span className="standing-dot verified" aria-hidden="true" />
             <span>{MODEL_STANDING.numericalVerification.label}: {MODEL_STANDING.numericalVerification.status}</span>
-            <span className="standing-dot failed" aria-hidden="true" />
+            <span className="standing-dot" style={{ background: "#c92a2a" }} aria-hidden="true" />
             <span>{MODEL_STANDING.controlledPhysicalValidation.label}: {MODEL_STANDING.controlledPhysicalValidation.status}</span>
             <Link href="/model">Model boundary →</Link>
           </p>
