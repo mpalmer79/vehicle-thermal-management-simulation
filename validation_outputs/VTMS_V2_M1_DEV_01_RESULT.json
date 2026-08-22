@@ -1,0 +1,141 @@
+{
+  "result_id": "VTMS-V2-M1-DEV-01",
+  "status": "completed_consumed_development_falsification",
+  "model": {
+    "model_id": "VTMS-V2-M1",
+    "equation_set": "EM-V2-M1",
+    "state_vector": ["T_engine", "T_hot", "T_cold"],
+    "observation": "ECT_pred = T_hot"
+  },
+  "evidence_role": "consumed_physical_development_only_not_validation",
+  "physical_validation_claim": false,
+  "reserved_blind_evidence_used": false,
+  "blind_prediction_inspected": false,
+  "source_records": {
+    "71207062": {
+      "role": "consumed_cold_start_development",
+      "source_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+      "retained_rows": 13638,
+      "duration_s": 1365.3
+    },
+    "71207063": {
+      "role": "consumed_hot_start_development",
+      "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "retained_rows": 13741,
+      "duration_s": 1374.0
+    }
+  },
+  "acceptance": {
+    "rmse_c_max": 5.0,
+    "mae_c_max": 4.0,
+    "abs_mean_bias_c_max": 3.0,
+    "p90_abs_error_c_max": 7.0,
+    "threshold_arrival_abs_error_s_max": 60.0,
+    "hot_region": {
+      "measured_ect_range_c": [96.0, 100.0],
+      "abs_mean_residual_c_max": 3.0,
+      "minimum_samples": 30,
+      "minimum_coverage_s": 30.0
+    }
+  },
+  "stage_A": {
+    "structural_configuration_count": 180,
+    "hot_start_initialization_case_count": 9,
+    "cold_start_pass_count": 6,
+    "hot_start_any_initialization_pass_count": 0,
+    "hot_start_all_initializations_pass_count": 0,
+    "conditional_joint_survivor_count": 0,
+    "robust_joint_survivor_count": 0,
+    "decision": "open_stage_B_per_manifest"
+  },
+  "stage_B": {
+    "structural_configuration_count": 180,
+    "control_configuration_count_per_structural_case": 243,
+    "global_configuration_count": 43740,
+    "control_grid": {
+      "thermostat_full_c": [97.0, 99.5, 102.0],
+      "eta_pack": [0.25, 0.40, 0.80],
+      "radiator_ua_nominal_w_per_k": [400.0, 1100.0, 2200.0],
+      "f_open": [0.85, 0.95, 1.0],
+      "gamma": [0.5, 1.0, 2.0]
+    },
+    "cold_start_pass_count": 2957,
+    "cold_start_pass_fraction": 0.06760402377686328,
+    "cold_start_segment_counts": [
+      {"structural_range": [0, 30], "evaluated": 7290, "passes": 414},
+      {"structural_range": [30, 60], "evaluated": 7290, "passes": 581},
+      {"structural_range": [60, 90], "evaluated": 7290, "passes": 628},
+      {"structural_range": [90, 120], "evaluated": 7290, "passes": 253},
+      {"structural_range": [120, 150], "evaluated": 7290, "passes": 548},
+      {"structural_range": [150, 180], "evaluated": 7290, "passes": 533}
+    ],
+    "filter_order": "cold_first_then_hot_on_exact_cold_survivors",
+    "filter_order_equivalence": "Joint feasibility requires the same configuration to pass both physical traces. Evaluating the cold predicate first and applying the hot predicate only to cold survivors preserves the exact joint feasible set and does not rank or optimize configurations.",
+    "hot_start_initialization_offsets_c": {
+      "engine_structure_minus_ect": [0.0, 10.0, 20.0],
+      "cold_coolant_minus_ect": [0.0, -5.0, -10.0]
+    },
+    "hot_start_configuration_initialization_evaluations": 26613,
+    "hot_start_pass_count_by_initialization": [
+      {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": 0.0, "passes": 0},
+      {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": -5.0, "passes": 0},
+      {"engine_structure_offset_c": 0.0, "cold_coolant_offset_c": -10.0, "passes": 0},
+      {"engine_structure_offset_c": 10.0, "cold_coolant_offset_c": 0.0, "passes": 0},
+      {"engine_structure_offset_c": 10.0, "cold_coolant_offset_c": -5.0, "passes": 0},
+      {"engine_structure_offset_c": 10.0, "cold_coolant_offset_c": -10.0, "passes": 0},
+      {"engine_structure_offset_c": 20.0, "cold_coolant_offset_c": 0.0, "passes": 0},
+      {"engine_structure_offset_c": 20.0, "cold_coolant_offset_c": -5.0, "passes": 0},
+      {"engine_structure_offset_c": 20.0, "cold_coolant_offset_c": -10.0, "passes": 0}
+    ],
+    "hot_start_any_initialization_pass_count": 0,
+    "hot_start_all_initializations_pass_count": 0,
+    "conditional_joint_survivor_count": 0,
+    "robust_joint_survivor_count": 0
+  },
+  "execution": {
+    "python_version": "3.13.5",
+    "numpy_version": "2.3.5",
+    "scipy_version": "1.17.0",
+    "solver": "scipy.solve_ivp RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "vectorized_independent_systems": true,
+    "local_runner_sha256": {
+      "stage_B_equations_and_acceptance": "1fd4a1192884d831b6c3e750c7f2ac29b1f2aabc9f5f676cb514a8354149e7ce",
+      "cold_segment_driver": "7a31d565d3efbf1c143483c1438a385b1976293b0dba4fcb60ff2e1abe059cf9",
+      "hot_survivor_driver": "d6131d843d0cdb012b9962fbe210311805a3d1e4f1a0a5254a0d7fae37476fc8"
+    }
+  },
+  "execution_corrections": [
+    {
+      "id": "EC-01",
+      "issue": "An initial Stage B control grid omitted the Stage A reference f_open=0.95 and used 0.925 instead.",
+      "resolution": "The partial result was invalidated before any Stage B conclusion, the manifest was amended to the nested grid [0.85, 0.95, 1.0], and Stage B was restarted from scratch.",
+      "invalidated_results_used": false
+    },
+    {
+      "id": "EC-02",
+      "issue": "An initial local screening helper applied the hot-region criterion when sample count was sufficient but before enforcing the frozen 30-second coverage requirement.",
+      "resolution": "The partial result was invalidated before any Stage B conclusion. The coverage rule was corrected to require both at least 30 samples and at least 30 seconds of measured-temperature coverage, and Stage B was restarted from the amended manifest.",
+      "invalidated_results_used": false
+    }
+  ],
+  "governance": {
+    "best_fit_configuration_reported": false,
+    "configuration_ranking_performed": false,
+    "parameter_optimizer_used": false,
+    "hidden_initial_state_fitted_per_run": false,
+    "parameter_ranges_widened_after_result": false,
+    "reserved_blind_prediction_generated": false
+  },
+  "decision": {
+    "joint_feasible_configuration_count": 0,
+    "m1_governed_family_status": "rejected_on_consumed_development_envelope",
+    "m1_additional_tuning_authorized": false,
+    "m1_blind_rung_authorized": false,
+    "m2_model_form_planning_authorized": true,
+    "reason": "The preregistered Stage B rule states that zero conditional joint survivors rejects M1 and permits M2 model-form planning. Although 2,957 Stage B configurations satisfy the cold-start trace, none satisfy the hot-start trace under any of nine frozen hidden-state initialization combinations, leaving an empty joint feasible set."
+  },
+  "interpretation": "The governed M1 family shows that hot/cold coolant separation alone is insufficient to reconcile the consumed cold-start and hot-start evidence inside the frozen structural, thermal, cooling-control, and hidden-state envelopes. This does not prove every conceivable three-state model impossible. It does prohibit further M1 tuning in this project hierarchy and provides the preregistered evidence required to test the next nested model, M2, with a second engine thermal-storage state."
+}
