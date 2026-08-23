@@ -1,0 +1,59 @@
+{
+  "audit_id": "VTMS-V2-M2-STAGE-B-A2-SOURCE-AUDIT",
+  "status": "completed_before_first_A2_checkpoint_promotion",
+  "scope": "Exact source and input identity for the committed-source M2 Stage B A2 executor",
+  "runner_commit": "35c3a892a1eceaf29d6084fea132f42211f2ee73",
+  "checkpoint": "validation_outputs/VTMS_V2_M2_STAGE_B_A2_CHECKPOINT_200.json",
+  "repository": "mpalmer79/vehicle-thermal-management-simulation",
+  "branch": "vtms-v2-model-form-spec",
+  "source_files_checked": 27,
+  "source_file_mismatch_count": 0,
+  "git_blob_sha1": {
+    "scripts/run_m2_stage_b_independent.py": "ae9e5379fe886548cb1f07715691c7200076c140",
+    "src/vtms_v2/m2/stage_b.py": "c87c564191407f65f15a756cd93e3f99094793a4",
+    "src/vtms_v2/m2/stage_b_accel.py": "37290d475d967cd5560d3ff5d4efa4dd50091a33",
+    "src/vtms_v2/m2/config.py": "f74a22e5132abeca36d23102b4d4a5250ba51ba4",
+    "src/vtms_v2/m2/simulation.py": "5b8e6dcf0ed499cb99fedb53f04e454f0ecf0b5b",
+    "src/vtms_v2/m2/thermal.py": "b6f4e369d30ef607fc25164888bfb28c369f99cc",
+    "src/vtms_v2/m2/types.py": "94040f9d47a7ae21762c0539a9496264a47c9a88",
+    "src/vtms_v2/m1/config.py": "827726740a4713e0dfe11cc127c33ea737e51884",
+    "src/vtms_v2/m0/config.py": "4e63edac658ffc57fa2c7509efec92588a299a9d",
+    "src/vtms_v2/m0/airflow.py": "1de905750d530c6b5ec4f9df4e2f0171a54340be",
+    "src/vtms_v2/m0/hydraulics.py": "826265b848f7b36ce51736ea1d370c7ebcfba8e3",
+    "src/vtms_v2/m0/thermostat.py": "a80b7eebefbca011aa4aa1741063df819eb11aa4",
+    "src/vtms_v1/config.py": "b8f9f385014eb61801254fb216311b8dd9cfbc57",
+    "src/vtms_v1/constants.py": "f5f6b870af7abdd57e3fa2166ade20f0f9e4250f",
+    "src/vtms_v1/engine.py": "ca70d8e1acde6f8c2c98828419e179b9786cde19",
+    "src/vtms_v1/fan.py": "ffa1b6ae53ceae835845dd98dc756f3809ab0783",
+    "src/vtms_v1/pump.py": "17a361c4aae8cae222f894dc66fbb8484da7cd2e",
+    "src/vtms_v1/radiator.py": "3569f50e2b959f553f306ef5b375becb721f837b",
+    "src/vtms_v1/scenario.py": "9e612bb10d47bfdee10c57d74778683e64421277",
+    "src/vtms_v1/types.py": "d984402d1c86bcc3f52c30b88198fbe098eafeff",
+    "src/vtms_v1/utils.py": "49352071b676bc5c91d5d7c8ead251810c7ec7e8",
+    "src/vtms_validation/dataset.py": "14af2322232876605eafaf14f8477cdbe4cf1cc2",
+    "src/vtms_validation/metrics.py": "5270931f15cda9e749b0c0b4f997009e39e9c582",
+    "src/vtms_validation/manifest.py": "ab9a524860f14c47108296ca7869272b0f801cf7",
+    "src/vtms_validation/adapters/argonne.py": "45c4ecdf861327d5e012477fe3cd408e1cbfa95f",
+    "validation_configs/argonne_2012_focus_71207062_calibration.json": "69cb6ae7d7a461b1a67f2748ffa5354d1ad92ac9",
+    "validation_configs/argonne_2012_focus_71207063_holdout.json": "e961d337bf0d236b5a99bd6fed152f4d00386fd2"
+  },
+  "raw_source_sha256": {
+    "71207062": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+    "71207063": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d"
+  },
+  "checkpoint_file_sha256_before_commit": "807ae8e8aa75059020785f39748f30d3a4f9fddcb5d060270a61d42299d58f71",
+  "acceleration_preflight": {
+    "status": "pass",
+    "physical_anchor_count": 7,
+    "maximum_abs_reference_vs_compiled_trace_difference_c": 0.0,
+    "trace_tolerance_c": 1e-9
+  },
+  "governance": {
+    "raw_Argonne_files_committed": false,
+    "blind_evidence_opened": false,
+    "model_form_changed": false,
+    "parameter_grid_changed": false,
+    "acceptance_thresholds_changed": false,
+    "checkpoint_is_gate_decision": false
+  }
+}
