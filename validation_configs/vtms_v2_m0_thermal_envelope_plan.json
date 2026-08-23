@@ -1,0 +1,84 @@
+{
+  "plan_id": "VTMS-V2-M0-TFEAS-01",
+  "status": "frozen_before_execution",
+  "purpose": "Exhaust the remaining major two-state thermal-parameter escape route after FEAS-01 by testing a preregistered discrete thermal envelope crossed with the complete FEAS-01 corrected-control grid, without selecting or identifying a best parameter set.",
+  "evidence_role": "consumed_development_only_not_validation",
+  "physical_parameter_identification_authorized": false,
+  "reserved_blind_prediction_authorized": false,
+  "development_tests": {
+    "hot_screen": "71207063",
+    "cold_joint_check_if_hot_survivors_exist": "71207062"
+  },
+  "fixed_terms": {
+    "thermostat_open_c": 87.8,
+    "f_closed": 0.02,
+    "pump_model": "V1_RPM_BASED_FIXED",
+    "ags_primary_case": "ABSENT_OR_FULL_OPEN",
+    "external_fan_capacity_m3_s": 2.50,
+    "engine_ambient_ua_w_per_k": 12.0
+  },
+  "thermal_design_grid": {
+    "wall_heat_fraction": [0.20, 0.35, 0.50],
+    "engine_thermal_capacitance_j_per_k": [25000.0, 52393.90776670539, 100000.0],
+    "engine_coolant_ua_w_per_k": [400.0, 1000.0, 1600.0, 2200.0]
+  },
+  "control_design_grid": {
+    "thermostat_full_c": [97.0, 99.5, 102.0],
+    "eta_pack": [0.10, 0.25, 0.40, 0.60, 0.80, 1.00],
+    "radiator_ua_nominal_w_per_k": [400.0, 700.0, 1100.0, 1600.0, 2200.0],
+    "f_open": [0.85, 0.925, 1.00],
+    "gamma": [0.50, 1.00, 2.00]
+  },
+  "thermal_grid_size": 36,
+  "control_grid_size": 810,
+  "total_hot_screen_configurations": 29160,
+  "staged_execution": {
+    "stage_1": "Evaluate all 29,160 global M0 configurations on consumed hot-start test 71207063.",
+    "stage_2": "If and only if one or more stage-1 configurations satisfy all frozen hot-start whole-trace and hot-region criteria, evaluate those surviving exact configurations on consumed cold-start test 71207062.",
+    "early_stop_allowed": false,
+    "parameter_ranking_allowed": false
+  },
+  "acceptance": {
+    "whole_trace": {
+      "rmse_c_max": 5.0,
+      "mae_c_max": 4.0,
+      "absolute_mean_bias_c_max": 3.0,
+      "p90_absolute_error_c_max": 7.0,
+      "threshold_arrival_error_s_max": 60.0
+    },
+    "hot_region": {
+      "measured_ect_c": [96.0, 100.0],
+      "absolute_mean_residual_c_max": 3.0,
+      "minimum_comparison_samples": 30,
+      "minimum_total_time_coverage_s": 30.0
+    }
+  },
+  "interpretation": {
+    "zero_hot_survivors": "The preregistered broad discrete M0 thermal/control envelope cannot satisfy the consumed hot-start evidence. Combined with CAL-01 bound pressure and FEAS-01, this is sufficient development evidence to reject further M0 tuning and authorize formal M0-to-M1 promotion without opening the M0 blind holdout.",
+    "hot_survivors_but_zero_joint_survivors": "Some M0 configurations can satisfy hot start but none generalize to the consumed cold start. Reject further M0 tuning and authorize M0-to-M1 promotion without opening the blind holdout.",
+    "one_or_more_joint_survivors": "M0 remains structurally viable on consumed development evidence. Do not promote M1; further independent boundary constraints are required before blind M0 execution."
+  },
+  "outputs_allowed": [
+    "hot_survivor_count",
+    "joint_survivor_count",
+    "survivor_fraction",
+    "unranked parameter min/max ranges among survivors",
+    "criterion failure counts"
+  ],
+  "outputs_prohibited": [
+    "best fit parameter set",
+    "minimum-error parameter set",
+    "parameter ranking",
+    "posterior distribution",
+    "vehicle-specific parameter identification",
+    "blind validation claim"
+  ],
+  "solver_policy": {
+    "method": "RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "vectorized_batch_execution_allowed": true,
+    "vectorized_batch_requirement": "Use the same independent equations and frozen parameter values for every configuration. Verify pass/fail equivalence against scalar M0 execution at deterministic sample configurations before freezing conclusions."
+  }
+}

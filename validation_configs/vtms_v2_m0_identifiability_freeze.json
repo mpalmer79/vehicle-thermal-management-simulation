@@ -1,0 +1,88 @@
+{
+  "freeze_id": "VTMS-V2-M0-I1-SYNTHETIC-IDENTIFIABILITY-FREEZE",
+  "status": "passed_with_stage_restrictions",
+  "physical_data_used": false,
+  "reserved_blind_prediction_inspected": false,
+  "physical_calibration_authorized": false,
+  "synthetic_cases": [
+    "SYN-M0-WARMUP",
+    "SYN-M0-CONSTANT-FAN",
+    "SYN-M0-SPEED-MATCHED"
+  ],
+  "all_heat_rejection_controls": {
+    "parameter_names": [
+      "radiator_ua_nominal_w_per_k",
+      "eta_pack",
+      "f_closed",
+      "f_open",
+      "gamma"
+    ],
+    "numerical_rank": 5,
+    "normalized_jacobian_condition_number": 15.783842977170007,
+    "strongest_abs_pairwise_cosine": 0.983358972704131,
+    "strongest_confounded_pair": [
+      "radiator_ua_nominal_w_per_k",
+      "f_open"
+    ],
+    "weak_parameter_names": ["f_closed"],
+    "f_closed_relative_rms_to_strongest": 0.006629628182529626,
+    "simultaneous_fit_authorized": false
+  },
+  "hydraulic_open_shape": {
+    "parameter_names": ["f_open", "gamma"],
+    "numerical_rank": 2,
+    "normalized_jacobian_condition_number": 1.2444836517189637,
+    "strongest_abs_pairwise_cosine": 0.21529840401812467,
+    "weak_parameter_names": [],
+    "synthetic_mathematical_subset_authorized": true,
+    "physical_fit_authorized": false
+  },
+  "first_iteration_hydraulics": {
+    "f_closed": {
+      "value": 0.02,
+      "role": "fixed_engineering_assumption",
+      "calibratable": false
+    },
+    "f_open": {
+      "bounds": [0.85, 1.0],
+      "role": "future_stage_candidate"
+    },
+    "gamma": {
+      "bounds": [0.5, 2.0],
+      "role": "future_stage_candidate"
+    }
+  },
+  "thermostat_uncertainty_design": {
+    "opening_onset_c": 87.8,
+    "opening_onset_calibratable": false,
+    "full_open_c_design_points": [97.0, 99.5, 102.0],
+    "full_open_continuous_optimization_allowed": false,
+    "interpretation": "engineering sensitivity design, not exact Ford full-open specification"
+  },
+  "cooling_pack_transfer_policy": {
+    "eta_pack_role": "uncertainty_only_not_ect_calibration_parameter",
+    "eta_pack_design_points": [0.1, 0.25, 0.4, 0.6, 0.8, 1.0],
+    "design_points_are_probability_bounds": false,
+    "joint_ect_fit_with_radiator_ua_allowed": false,
+    "independent_airflow_evidence_required_for_physical_identification": true
+  },
+  "prohibited_initial_optimizer_combinations": [
+    ["radiator_ua_nominal_w_per_k", "f_open"],
+    ["radiator_ua_nominal_w_per_k", "eta_pack"],
+    ["radiator_ua_nominal_w_per_k", "eta_pack", "f_closed", "f_open", "gamma"]
+  ],
+  "hot_region_metric": {
+    "measured_ect_c": [96.0, 100.0],
+    "absolute_mean_residual_c_max": 3.0,
+    "minimum_comparison_samples": 30,
+    "minimum_total_time_coverage_s": 30.0,
+    "on_insufficient_coverage": "non_evaluable_not_pass"
+  },
+  "m0_primary_blind_holdout": {
+    "test_id": "71207054",
+    "mapping": "validation_configs/argonne_2012_focus_71207054_m0_blind.json",
+    "prediction_generation_authorized": false,
+    "airflow_boundary_class": "UNKNOWN"
+  },
+  "next_gate": "freeze complete M0 physical development-stage manifest before any Argonne M0 fit"
+}

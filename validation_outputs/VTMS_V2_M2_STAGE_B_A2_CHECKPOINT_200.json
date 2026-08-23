@@ -1,0 +1,155 @@
+{
+  "accelerated_rhs_path": "src/vtms_v2/m2/stage_b_accel.py",
+  "acceleration_reference_equivalence_preflight": {
+    "check_count": 7,
+    "checks": [
+      {
+        "accelerated_pass": false,
+        "dataset": "71207062",
+        "equivalent": true,
+        "global_index": 0,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": false,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": true,
+        "dataset": "71207062",
+        "equivalent": true,
+        "global_index": 3248,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": true,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": false,
+        "dataset": "71207062",
+        "equivalent": true,
+        "global_index": 3257,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": false,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": true,
+        "dataset": "71207062",
+        "equivalent": true,
+        "global_index": 3505,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": true,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": true,
+        "dataset": "71207062",
+        "equivalent": true,
+        "global_index": 3550,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": true,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": false,
+        "dataset": "71207063",
+        "equivalent": true,
+        "global_index": 3248,
+        "initial_block_offset_c": 0.0,
+        "initial_cold_offset_c": 0.0,
+        "initial_head_offset_c": 0.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": false,
+        "rms_trace_error_c": 0.0
+      },
+      {
+        "accelerated_pass": false,
+        "dataset": "71207063",
+        "equivalent": true,
+        "global_index": 3550,
+        "initial_block_offset_c": 20.0,
+        "initial_cold_offset_c": -10.0,
+        "initial_head_offset_c": 30.0,
+        "max_abs_trace_error_c": 0.0,
+        "reference_pass": false,
+        "rms_trace_error_c": 0.0
+      }
+    ],
+    "maximum_observed_abs_trace_error_c": 0.0,
+    "status": "pass",
+    "trace_atol_c": 1e-09
+  },
+  "authoritative_numerics": {
+    "adaptive_controller_shared_between_configurations": false,
+    "atol": 1e-08,
+    "compiled_rhs_role": "arithmetic acceleration only; SciPy remains integrator",
+    "max_step_s": 1.0,
+    "one_scipy_solve_ivp_per_configuration": true,
+    "output_interval_s": 1.0,
+    "parallelism": "independent process parallelism only",
+    "rtol": 1e-06,
+    "solver": "RK45"
+  },
+  "checkpoint_id": "VTMS-V2-M2-STAGE-B-A2-0-200",
+  "cold_start_pass_count": 0,
+  "cold_start_pass_indices": [],
+  "cold_survivor_details": [],
+  "conditional_joint_survivor_count": 0,
+  "conditional_joint_survivor_indices": [],
+  "configuration_count": 200,
+  "coverage": "contiguous_complete_range",
+  "execution_environment": {
+    "numpy": "2.3.5",
+    "python": "3.13.5",
+    "scipy": "1.17.0",
+    "wall_time_s": 19.691668031000518,
+    "workers": 5
+  },
+  "global_index_range": [
+    0,
+    200
+  ],
+  "governance": {
+    "dynamic_thermostat_added": false,
+    "gate_decision_authorized_from_this_partial_checkpoint": false,
+    "hidden_initial_state_fitted": false,
+    "m2_rejected": false,
+    "m3_authorized": false,
+    "parameter_optimizer_used": false,
+    "parameter_ranges_changed": false
+  },
+  "hot_start_configuration_initialization_evaluations": 0,
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "model_id": "VTMS-V2-M2",
+  "numerical_execution_amendments": [
+    "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+    "VTMS-V2-M2-NUMERICAL-EXECUTION-A2"
+  ],
+  "reserved_blind_evidence_used": false,
+  "robust_joint_survivor_count": 0,
+  "robust_joint_survivor_indices": [],
+  "runner_commit": "35c3a892a1eceaf29d6084fea132f42211f2ee73",
+  "runner_mode": "numba",
+  "runner_path": "scripts/run_m2_stage_b_independent.py",
+  "source_identity": {
+    "cold_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+    "cold_test_id": "71207062",
+    "hot_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+    "hot_test_id": "71207063"
+  },
+  "stage_b_contract_path": "src/vtms_v2/m2/stage_b.py",
+  "status": "partial_authoritative_committed_source_stage_B_checkpoint_not_a_gate_decision"
+}

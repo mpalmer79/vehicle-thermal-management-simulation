@@ -1,0 +1,52 @@
+{
+  "environment": {
+    "numpy": "2.3.5",
+    "python": "3.13.5",
+    "scipy": "1.17.0"
+  },
+  "execution_note": "Vectorized integration of 810 independent M0 grid systems with shared solve_ivp adaptive time steps; same equations, RK45 tolerances, and max_step as M0. No grid point ranked or selected. A three-point scalar-runner equivalence check reproduced pass/fail classification on both development tests, including a cold-start passing case and hot-start failures.",
+  "governance": {
+    "best_fit_parameter_set_reported": false,
+    "blind_prediction_inspected": false,
+    "grid_points_ranked": false,
+    "validation_claim": false,
+    "vehicle_specific_parameter_claim": false
+  },
+  "plan_id": "VTMS-V2-M0-FEAS-01",
+  "source_records": {
+    "71207062": {
+      "duration_s": 1365.3,
+      "retained_rows": 13638,
+      "sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09"
+    },
+    "71207063": {
+      "duration_s": 1374.0,
+      "retained_rows": 13741,
+      "sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d"
+    }
+  },
+  "status": "completed_consumed_development_feasibility_only",
+  "summary": {
+    "evaluated_grid_points": 810,
+    "failure_mode_counts": {
+      "hot_region_failure": 810,
+      "hot_region_non_evaluable": 810,
+      "whole_trace_failure": 1348
+    },
+    "feasible_parameter_ranges": {
+      "eta_pack": null,
+      "f_open": null,
+      "gamma": null,
+      "radiator_ua_nominal_w_per_k": null,
+      "thermostat_full_c": null
+    },
+    "grid_size": 810,
+    "interpretation": "zero_joint_feasible_grid_points_under_frozen_feasibility_plan",
+    "joint_feasible_count": 0,
+    "joint_feasible_fraction": 0.0,
+    "per_test_pass_counts": {
+      "71207062": 272,
+      "71207063": 0
+    }
+  }
+}

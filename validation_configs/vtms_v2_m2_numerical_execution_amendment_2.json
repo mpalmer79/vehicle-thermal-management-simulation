@@ -1,0 +1,99 @@
+{
+  "amendment_id": "VTMS-V2-M2-NUMERICAL-EXECUTION-A2",
+  "status": "frozen_after_restart_reproducibility_gap_discovery_before_further_stage_B_execution",
+  "parent_manifest": "validation_configs/vtms_v2_m2_development_manifest.json",
+  "supersedes_execution_checkpoint_authority_only": [
+    "validation_outputs/VTMS_V2_M2_STAGE_B_INDEPENDENT_RESTART_CHECKPOINT_1K.json",
+    "validation_outputs/VTMS_V2_M2_STAGE_B_INDEPENDENT_RESTART_CHECKPOINT_2K.json"
+  ],
+  "scope": "execution reproducibility and global-index semantics only",
+  "model_form_changed": false,
+  "parameter_grid_changed": false,
+  "parameter_values_changed": false,
+  "acceptance_thresholds_changed": false,
+  "source_preprocessing_changed": false,
+  "evidence_roles_changed": false,
+  "blind_evidence_opened": false,
+  "discovery": {
+    "issue": "The A1 restart checkpoints record the independent-solver contract and contiguous global-index coverage, but the local scalar execution source and the exact global-index-to-parameter decoder were not committed. The files are represented only by local artifact hashes. A later clean-room reconstruction reproduces multiple published aggregate scalar metrics within a few thousandths of a degree C but does not reproduce every 90 C first-crossing classification at threshold-edge cases. Therefore the 2K checkpoint cannot serve as a fully reproducible resume anchor.",
+    "affected_claim": "exact authoritative continuation from global index 2000",
+    "model_equation_error_found": false,
+    "raw_data_fingerprint_mismatch_found": false,
+    "parameter_range_change_required": false,
+    "interpretation": "This is a reproducibility defect in the local execution harness, not evidence for or against M2 physics."
+  },
+  "historical_checkpoint_disposition": {
+    "one_k_checkpoint_preserved": true,
+    "two_k_checkpoint_preserved": true,
+    "historical_zero_cold_pass_observation_preserved": true,
+    "historical_exact_counts_authoritative_for_final_gate": false,
+    "historical_resume_index_authoritative": false,
+    "reason": "Exact threshold-edge classification cannot be independently regenerated from committed source."
+  },
+  "new_authoritative_execution_contract": {
+    "runner_source_must_be_committed_before_physical_execution": true,
+    "global_index_decoder_must_be_committed_and_unit_tested": true,
+    "grid_order": {
+      "structural_outer": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k",
+        "hot_coolant_capacitance_fraction",
+        "wall_heat_fraction",
+        "engine_thermal_capacitance_j_per_k",
+        "engine_coolant_ua_w_per_k"
+      ],
+      "control_inner": [
+        "thermostat_full_c",
+        "eta_pack",
+        "radiator_ua_nominal_w_per_k",
+        "f_open",
+        "gamma"
+      ],
+      "ordering_rule": "Cartesian product in the listed order with the last field varying fastest. global_index = structural_index * 243 + control_index."
+    },
+    "per_configuration_solver": "one independent scipy.solve_ivp RK45 integration of the four-state M2 system",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "source_profile_interpolation": "ValidationDataset linear interpolation semantics",
+    "engine_heat_profile": "compute direct_fuel_energy_rate_w * wall_heat_fraction at source samples, then linearly interpolate the resulting engine-heat profile",
+    "adaptive_controller_shared_between_configurations": false,
+    "compiled_rhs_permitted": true,
+    "compiled_rhs_rule": "Compilation may accelerate arithmetic only. SciPy solve_ivp remains the integrator. The compiled path must be spot-checked against the committed Python/reference path before any checkpoint is promoted.",
+    "parallelism": "independent processes only"
+  },
+  "acceptance_semantics": {
+    "rmse_c_max": 5.0,
+    "mae_c_max": 4.0,
+    "abs_mean_bias_c_max": 3.0,
+    "p90_abs_error_c_max": 7.0,
+    "arrival_thresholds_c": [60.0, 80.0, 90.0],
+    "arrival_abs_error_s_max": 60.0,
+    "measured_crosses_prediction_missing": "FAIL",
+    "measured_does_not_cross": "NOT_APPLICABLE",
+    "hot_region_measured_ect_c": [96.0, 100.0],
+    "hot_region_abs_mean_residual_c_max": 3.0,
+    "hot_region_minimum_samples": 30,
+    "hot_region_minimum_coverage_s": 30.0,
+    "hot_region_if_insufficient_measured_coverage": "NOT_APPLICABLE"
+  },
+  "restart_rule": {
+    "authoritative_stage_B_restarts_at_global_index": 0,
+    "complete_cross_required": 1574640,
+    "checkpoint_ranges_must_be_contiguous": true,
+    "checkpoint_source_must_name_runner_commit": true,
+    "every_cold_survivor_must_be_hot_screened_under_all_27_frozen_initializations": true,
+    "m2_rejection_authorized_before_complete_cross": false,
+    "m3_authorized": false
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "parameter_ranges_widened": false,
+    "hidden_initial_state_fitted": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "reserved_blind_prediction_generated": false,
+    "formal_validation_claim": false
+  }
+}

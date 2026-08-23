@@ -1,0 +1,211 @@
+{
+  "freeze_id": "VTMS-V2-H1-MODEL-HIERARCHY-FREEZE",
+  "status": "passed_model_hierarchy_freeze",
+  "physical_calibration_authorized": false,
+  "purpose": "Freeze the nested VTMS-V2 model hierarchy, M0 falsification baseline, promotion rules, acceptance metrics, and blind-evidence ladder before M0 physical fitting.",
+  "model_hierarchy": [
+    {
+      "model_id": "V2-M0",
+      "states": ["T_engine", "T_coolant"],
+      "role": "corrected_control_two_state_falsification_baseline"
+    },
+    {
+      "model_id": "V2-M1",
+      "states": ["T_engine", "T_hot", "T_cold"],
+      "role": "first_structural_expansion_hot_cold_coolant_separation"
+    },
+    {
+      "model_id": "V2-M2",
+      "states": ["T_head", "T_slow", "T_hot", "T_cold"],
+      "role": "conditional_second_engine_thermal_storage_state"
+    },
+    {
+      "model_id": "V2-M3",
+      "states": ["T_head", "T_slow", "T_hot", "T_cold", "x_th"],
+      "role": "conditional_dynamic_thermostat_state"
+    }
+  ],
+  "m0": {
+    "state_count": 2,
+    "thermal_topology": "retain_v1_energy_balance_topology_for_falsification",
+    "thermostat": {
+      "component_application": {
+        "ford_part": "CP9Z-8592-G",
+        "motorcraft_part": "RT-1219",
+        "nominal_rating_f": 190.0,
+        "nominal_rating_c": 87.8
+      },
+      "opening_onset_c": 87.8,
+      "opening_onset_calibratable": false,
+      "full_open_uncertainty_c": [97.0, 102.0],
+      "full_open_status": "engineering_uncertainty_envelope_not_exact_ford_identification",
+      "dynamic_state_allowed": false,
+      "law_family": "bounded_monotonic_static"
+    },
+    "hydraulic_flow_split": {
+      "v1_identity_rejected": "radiator_flow_fraction_equals_thermostat_position",
+      "law": "f_rad = f_closed + (f_open - f_closed) * thermostat_position ** gamma",
+      "engineering_bounds": {
+        "f_closed": [0.0, 0.05],
+        "f_open": [0.85, 1.0],
+        "gamma": [0.5, 2.0]
+      },
+      "global_across_runs": true,
+      "per_run_parameters_allowed": false
+    },
+    "pump": {
+      "initial_policy": "retain_v1_rpm_based_pump_model_fixed",
+      "calibratable_in_initial_m0": false
+    },
+    "radiator": {
+      "framework": "effectiveness_ntu",
+      "initial_ua_policy": "single_global_effective_ua",
+      "flow_dependent_ua_in_m0": false
+    },
+    "engine_heat": {
+      "controlled_heat_source": "direct_fuel_rate_times_declared_lhv",
+      "wall_heat_fraction_model": "constant",
+      "operating_dependent_heat_partition_in_m0": false
+    },
+    "active_grille_shutter": {
+      "argonne_vehicle_status": "AGS_STATUS_UNRESOLVED",
+      "time_varying_command_fit_allowed": false,
+      "primary_baseline_case": "AGS_ABSENT_OR_FULL_OPEN",
+      "secondary_static_restriction_sensitivity_allowed": true
+    }
+  },
+  "airflow_boundaries": {
+    "classes": [
+      "CONSTANT_SPEED_EXTERNAL_FAN",
+      "SPEED_MATCHED_EXTERNAL_FAN",
+      "MEASURED_CORE_AIRFLOW",
+      "OTHER_DOCUMENTED_BOUNDARY",
+      "UNKNOWN"
+    ],
+    "runs": {
+      "71207062": {
+        "class": "CONSTANT_SPEED_EXTERNAL_FAN",
+        "hood": "up",
+        "external_fan_protocol_capacity_cfm": 5300.0,
+        "external_fan_protocol_capacity_m3_s": 2.50,
+        "capacity_interpretation": "protocol external fan capacity, not measured radiator core flow"
+      },
+      "71207063": {
+        "class": "CONSTANT_SPEED_EXTERNAL_FAN",
+        "hood": "up",
+        "external_fan_protocol_capacity_cfm": 5300.0,
+        "external_fan_protocol_capacity_m3_s": 2.50,
+        "capacity_interpretation": "protocol external fan capacity, not measured radiator core flow"
+      },
+      "71207052": {
+        "class": "UNKNOWN",
+        "may_identify_radiator_or_airflow_parameters": false
+      },
+      "71207057": {
+        "class": "UNKNOWN",
+        "may_identify_radiator_or_airflow_parameters": false
+      }
+    },
+    "dyno_speed_is_core_airflow": false
+  },
+  "m0_calibration_universe": {
+    "thermal_candidates": {
+      "wall_heat_fraction": [0.20, 0.50],
+      "engine_thermal_capacitance_j_per_k": [25000.0, 100000.0],
+      "engine_coolant_ua_w_per_k": [400.0, 2200.0]
+    },
+    "heat_rejection_control_candidates": [
+      "radiator_ua_nominal_w_per_k",
+      "eta_pack",
+      "f_closed",
+      "f_open",
+      "gamma"
+    ],
+    "all_candidates_simultaneously_fittable": false,
+    "synthetic_identifiability_required_before_physical_fit": true,
+    "one_global_parameter_set_required": true
+  },
+  "acceptance": {
+    "whole_trace": {
+      "rmse_c_max": 5.0,
+      "mae_c_max": 4.0,
+      "absolute_mean_bias_c_max": 3.0,
+      "p90_absolute_error_c_max": 7.0,
+      "threshold_arrival_error_s_max": 60.0
+    },
+    "hot_region": {
+      "measured_ect_c": [96.0, 100.0],
+      "absolute_mean_residual_c_max": 3.0,
+      "minimum_sample_count": null,
+      "minimum_sample_count_status": "must_be_frozen_before_blind_execution"
+    },
+    "parameter_bound_warning": {
+      "near_bound_interval_fraction": 0.01,
+      "automatic_failure": false,
+      "two_or_more_near_bounds_plus_metric_failure": "strong_model_form_warning"
+    }
+  },
+  "development_evidence": [
+    "71207062",
+    "71207057",
+    "71207063",
+    "71207052"
+  ],
+  "blind_validation_ladder": [
+    {
+      "test_id": "71207054",
+      "cycle": "1.2 UDDS ED",
+      "role": "V2_M0_PRIMARY_BLIND_HOLDOUT",
+      "sha256": "664a6ee52569fc0ca807675f5850136ef06a3f3075fc2b67c7d84143fb8db250",
+      "size_bytes": 3335603,
+      "prediction_inspected": false
+    },
+    {
+      "test_id": "71207055",
+      "cycle": "1.4 UDDS ED",
+      "role": "V2_M1_BLIND_RESERVE",
+      "sha256": "664bedb0ab6685d82b5d3823e840031dc45f86c076f249f9b2f47beaa7c97289",
+      "size_bytes": 2869287,
+      "prediction_inspected": false
+    },
+    {
+      "test_id": "71207056",
+      "cycle": "SSS 0-80-0",
+      "role": "V2_M2_BLIND_RESERVE_HIGH_SPEED_CHALLENGE",
+      "sha256": "9085b79c69cce4d9d29b5965d988a2a7e08859044e68f5524fa94f21db98d389",
+      "size_bytes": 1583034,
+      "prediction_inspected": false
+    },
+    {
+      "test_id": "71207053",
+      "cycle": "UDDS Cycle Beating",
+      "role": "V2_SECONDARY_FINAL_CHALLENGE_RESERVE",
+      "sha256": "2d2b6e3236770f499e7b1fc4d9f9272cbac06bae411708d3d408df0186685c95",
+      "size_bytes": 3977672,
+      "prediction_inspected": false
+    }
+  ],
+  "promotion_rule": {
+    "M0_to_M1": {
+      "lower_model_must_be_frozen_before_fit": true,
+      "one_global_parameter_set_required": true,
+      "known_airflow_boundaries_must_be_explicit": true,
+      "thermostat_onset_must_remain_physically_anchored": true,
+      "hydraulic_parameters_must_remain_within_frozen_bounds": true,
+      "unresolved_input_boundary_must_not_plausibly_explain_failure": true,
+      "frozen_acceptance_failure_or_reproducible_structural_residual_required": true,
+      "M1_prediction_inspected_before_promotion": false,
+      "on_M0_blind_failure": {
+        "71207054": "reclassify_as_consumed_M1_development_evidence",
+        "71207055": "becomes_primary_M1_blind_holdout"
+      }
+    }
+  },
+  "known_limitations": [
+    "No separate clean cold-start replicate is reserved in the current Argonne package.",
+    "Exact Argonne test-vehicle active grille shutter equipment status is unresolved.",
+    "Exact effective radiator-core airflow for constant external-fan tests is unresolved.",
+    "Cooling-fan setup for 71207052 and 71207057 is unresolved."
+  ],
+  "next_gate": "V2-M0 implementation and pre-fit identifiability freeze"
+}

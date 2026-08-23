@@ -1,0 +1,97 @@
+{
+  "amendment_id": "VTMS-V2-M2-NUMERICAL-EXECUTION-A3",
+  "status": "frozen_after_A2_checkpoint_internal_consistency_discovery_before_further_authoritative_stage_B_execution",
+  "parent_manifest": "validation_configs/vtms_v2_m2_development_manifest.json",
+  "parent_execution_amendments": [
+    "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+    "VTMS-V2-M2-NUMERICAL-EXECUTION-A2"
+  ],
+  "scope": "checkpoint self-identification, preflight traceability, and execution-record reproducibility only",
+  "model_form_changed": false,
+  "parameter_grid_changed": false,
+  "parameter_values_changed": false,
+  "acceptance_thresholds_changed": false,
+  "source_preprocessing_changed": false,
+  "evidence_roles_changed": false,
+  "blind_evidence_opened": false,
+  "discovery": {
+    "issue": "A clean-room postcheck reproduced the A2 checkpoint headline result of zero cold-start passes in global indices [0,200), but the A2 checkpoint's embedded cold preflight classifications at global indices 3248 and 3257 are inconsistent with a fresh execution of the current committed Stage B decoder and equations. The current committed decoder maps index 3248 to radiator_ua_nominal_w_per_k=400 and index 3257 to radiator_ua_nominal_w_per_k=1100 for the same structural case and other control values. The clean-room postcheck classified 3248 as FAIL and 3257 as PASS, whereas the A2 checkpoint recorded the opposite. This indicates that checkpoint self-identification was insufficient to prove which runtime module set generated the embedded preflight labels.",
+    "affected_claim": "A2 checkpoint promotion as fully self-verifying authoritative Stage B evidence",
+    "headline_range_result_reproduced": "zero cold-start passes for global indices [0,200)",
+    "model_equation_error_found": false,
+    "raw_data_fingerprint_mismatch_found": false,
+    "parameter_range_change_required": false,
+    "interpretation": "This is an execution-record provenance defect. It is not evidence for or against M2 physics and does not authorize changing any physical model, grid, threshold, or evidence role."
+  },
+  "historical_disposition": {
+    "a2_checkpoint_preserved": true,
+    "a2_source_audit_preserved": true,
+    "a2_zero_of_200_observation_preserved_as_historical": true,
+    "a2_checkpoint_authoritative_for_final_gate": false,
+    "a2_checkpoint_authoritative_as_resume_anchor": false,
+    "reason": "The embedded preflight classifications cannot be tied unambiguously to the current committed decoder by the checkpoint payload itself."
+  },
+  "required_checkpoint_self_identification": {
+    "runner_commit_required": true,
+    "runtime_source_sha256_required": [
+      "scripts/run_m2_stage_b_independent.py",
+      "src/vtms_v2/m2/stage_b.py",
+      "src/vtms_v2/m2/stage_b_accel.py"
+    ],
+    "runtime_source_hash_policy": "Compute SHA-256 from the actual imported/loaded source files in the executing environment immediately before preflight and include the digests in every checkpoint payload.",
+    "preflight_case_parameter_snapshot_required": true,
+    "preflight_parameter_snapshot_policy": "Every physical preflight row must include the complete StageBCase.to_dict() snapshot for the indexed case.",
+    "preflight_reference_metrics_required": [
+      "rmse_c",
+      "mae_c",
+      "bias_c",
+      "p90_abs_error_c",
+      "final_error_c",
+      "arrival_errors_s",
+      "hot_region_mean_residual_c",
+      "passed"
+    ],
+    "preflight_accelerated_metrics_required": [
+      "rmse_c",
+      "mae_c",
+      "bias_c",
+      "p90_abs_error_c",
+      "final_error_c",
+      "arrival_errors_s",
+      "hot_region_mean_residual_c",
+      "passed"
+    ],
+    "trace_equivalence_abs_tolerance_c": 1e-9,
+    "reference_and_accelerated_pass_classification_must_match": true
+  },
+  "authoritative_execution_contract": {
+    "global_index_decoder": "src/vtms_v2/m2/stage_b.py",
+    "global_index_ordering": "Cartesian product in A2 order with gamma varying fastest inside the control grid and global_index = structural_index * 243 + control_index.",
+    "per_configuration_solver": "one independent scipy.solve_ivp RK45 integration of the four-state M2 system",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "engine_heat_profile": "compute direct_fuel_energy_rate_w * wall_heat_fraction at retained source samples, then linearly interpolate the resulting engine-heat profile",
+    "compiled_rhs_permitted": true,
+    "compiled_rhs_role": "arithmetic acceleration only; SciPy solve_ivp remains the integrator and each physical configuration retains its own adaptive controller",
+    "parallelism": "independent process parallelism only"
+  },
+  "restart_rule": {
+    "authoritative_stage_B_restarts_at_global_index": 0,
+    "complete_cross_required": 1574640,
+    "checkpoint_ranges_must_be_contiguous": true,
+    "every_cold_survivor_must_be_hot_screened_under_all_27_frozen_initializations": true,
+    "checkpoint_promotion_blocked_until_A3_runner_and_tests_pass_CI": true,
+    "m2_rejection_authorized_before_complete_cross": false,
+    "m3_authorized": false
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "parameter_ranges_widened": false,
+    "hidden_initial_state_fitted": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "reserved_blind_prediction_generated": false,
+    "formal_validation_claim": false
+  }
+}

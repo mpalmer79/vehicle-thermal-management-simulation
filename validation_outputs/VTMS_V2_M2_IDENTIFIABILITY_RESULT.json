@@ -1,0 +1,183 @@
+{
+  "result_id": "VTMS-V2-M2-I1",
+  "status": "synthetic_prefit_identifiability_complete_with_stage_restrictions",
+  "model_id": "VTMS-V2-M2",
+  "equation_set": "EM-V2-M2",
+  "physical_data_used": false,
+  "reserved_blind_evidence_used": false,
+  "physical_calibration_authorized": false,
+  "synthetic_cases": [
+    "SYN-M0-WARMUP",
+    "SYN-M0-CONSTANT-FAN",
+    "SYN-M0-SPEED-MATCHED"
+  ],
+  "perturbation_fraction": 0.01,
+  "sample_count": 407,
+  "reference_parameters": {
+    "head_thermal_capacitance_fraction": 0.35,
+    "head_heat_fraction": 0.70,
+    "head_block_ua_w_per_k": 800.0,
+    "hot_coolant_capacitance_fraction": 0.50,
+    "engine_thermal_capacitance_j_per_k": 50000.0,
+    "engine_coolant_ua_w_per_k": 1000.0
+  },
+  "diagnostics": {
+    "new_topology": {
+      "parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k"
+      ],
+      "numerical_rank": 3,
+      "normalized_jacobian_condition_number": 52.97119799865468,
+      "normalized_singular_values": [
+        1.0,
+        0.38512788475082216,
+        0.018878183574881528
+      ],
+      "strongest_abs_pairwise_cosine": 0.9976033550583622,
+      "pairwise_cosine_matrix": [
+        [1.0, -0.9976033550583622, -0.7226127683943655],
+        [-0.9976033550583622, 1.0, 0.6841934518740209],
+        [-0.7226127683943655, 0.6841934518740209, 1.0]
+      ],
+      "sensitivities": {
+        "head_thermal_capacitance_fraction": {
+          "rms_fractional_sensitivity_c": 0.05976886526450693,
+          "peak_abs_fractional_sensitivity_c": 0.8838805156408114,
+          "relative_rms_to_strongest_within_stage": 1.0
+        },
+        "head_heat_fraction": {
+          "rms_fractional_sensitivity_c": 0.058890979557712574,
+          "peak_abs_fractional_sensitivity_c": 0.8417796850579862,
+          "relative_rms_to_strongest_within_stage": 0.9853119897306185
+        },
+        "head_block_ua_w_per_k": {
+          "rms_fractional_sensitivity_c": 0.0003379717752032751,
+          "peak_abs_fractional_sensitivity_c": 0.004878359512616726,
+          "relative_rms_to_strongest_within_stage": 0.005654646005199899
+        }
+      },
+      "weak_parameter_names": ["head_block_ua_w_per_k"],
+      "simultaneous_fit_authorized": false
+    },
+    "topology_plus_total_storage": {
+      "parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k",
+        "engine_thermal_capacitance_j_per_k"
+      ],
+      "numerical_rank": 4,
+      "normalized_jacobian_condition_number": 53.08279691609271,
+      "strongest_abs_pairwise_cosine": 0.9976033550583622,
+      "weak_parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k"
+      ],
+      "simultaneous_fit_authorized": false
+    },
+    "topology_plus_engine_coupling": {
+      "parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k",
+        "engine_coolant_ua_w_per_k"
+      ],
+      "numerical_rank": 4,
+      "normalized_jacobian_condition_number": 53.278810340330885,
+      "strongest_abs_pairwise_cosine": 0.9976033550583622,
+      "weak_parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k"
+      ],
+      "simultaneous_fit_authorized": false
+    },
+    "m2_core": {
+      "parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k",
+        "hot_coolant_capacitance_fraction",
+        "engine_thermal_capacitance_j_per_k",
+        "engine_coolant_ua_w_per_k"
+      ],
+      "numerical_rank": 6,
+      "normalized_jacobian_condition_number": 54.139027833788866,
+      "normalized_singular_values": [
+        1.0,
+        0.8856401236206592,
+        0.492235321572902,
+        0.37647442201394016,
+        0.19798101844909197,
+        0.01847096336990165
+      ],
+      "strongest_abs_pairwise_cosine": 0.9976033550583622,
+      "pairwise_cosine_matrix": [
+        [1.0, -0.9976033550583622, -0.7226127683943655, -0.008846447944442047, 0.06650730966486618, -0.10388544578267704],
+        [-0.9976033550583622, 1.0, 0.6841934518740209, 0.010780683478631176, -0.06242772089528471, 0.0968472568743584],
+        [-0.7226127683943655, 0.6841934518740209, 1.0, -0.0385830456239436, -0.10411174211014171, 0.17908273353525256],
+        [-0.008846447944442047, 0.010780683478631176, -0.0385830456239436, 1.0, 0.5246339249118606, -0.3964785331378523],
+        [0.06650730966486618, -0.06242772089528471, -0.10411174211014171, 0.5246339249118606, 1.0, -0.8772440354223499],
+        [-0.10388544578267704, 0.0968472568743584, 0.17908273353525256, -0.3964785331378523, -0.8772440354223499, 1.0]
+      ],
+      "sensitivities": {
+        "head_thermal_capacitance_fraction": {
+          "rms_fractional_sensitivity_c": 0.05976886526450693,
+          "peak_abs_fractional_sensitivity_c": 0.8838805156408114,
+          "relative_rms_to_strongest": 0.006592032380410732
+        },
+        "head_heat_fraction": {
+          "rms_fractional_sensitivity_c": 0.058890979557712574,
+          "peak_abs_fractional_sensitivity_c": 0.8417796850579862,
+          "relative_rms_to_strongest": 0.006495208541111164
+        },
+        "head_block_ua_w_per_k": {
+          "rms_fractional_sensitivity_c": 0.0003379717752032751,
+          "peak_abs_fractional_sensitivity_c": 0.004878359512616726,
+          "relative_rms_to_strongest": 0.00003727560956603793
+        },
+        "hot_coolant_capacitance_fraction": {
+          "rms_fractional_sensitivity_c": 1.1385414263442282,
+          "peak_abs_fractional_sensitivity_c": 4.795556755644981,
+          "relative_rms_to_strongest": 0.12557210038513333
+        },
+        "engine_thermal_capacitance_j_per_k": {
+          "rms_fractional_sensitivity_c": 9.066834295614138,
+          "peak_abs_fractional_sensitivity_c": 37.96463172966682,
+          "relative_rms_to_strongest": 1.0
+        },
+        "engine_coolant_ua_w_per_k": {
+          "rms_fractional_sensitivity_c": 4.6875617557962626,
+          "peak_abs_fractional_sensitivity_c": 7.899340482670425,
+          "relative_rms_to_strongest": 0.5170009292067638
+        }
+      },
+      "weak_parameter_names": [
+        "head_thermal_capacitance_fraction",
+        "head_heat_fraction",
+        "head_block_ua_w_per_k"
+      ],
+      "simultaneous_fit_authorized": false
+    }
+  },
+  "ci": {
+    "workflow_run_id": 32543422581,
+    "python_3_11_test_count": 126,
+    "python_3_11": "pass",
+    "python_3_12": "pass",
+    "python_3_13": "pass",
+    "api_container": "pass",
+    "web_build": "pass",
+    "web_container": "pass",
+    "m2_synthetic_preflight": "pass_execution_with_identifiability_warning"
+  },
+  "governed_interpretation": {
+    "head_storage_vs_heat_partition": "The ECT sensitivity signatures of head thermal-capacitance fraction and head heat fraction are almost perfectly opposed locally. ECT alone cannot uniquely separate these physical meanings in a continuous optimizer.",
+    "head_block_conductance": "The head/block internal conductance is extremely weakly excited in the reference synthetic ECT traces and cannot be identified from ECT alone in the initial M2 stage.",
+    "physical_optimizer": "PROHIBITED for the complete new M2 topology parameter set.",
+    "allowed_next_step": "A preregistered discrete model-form feasibility envelope may evaluate bounded topology cases without ranking or claiming vehicle-specific parameter identification. Weak/confounded M2 topology quantities must remain fixed cases or nuisance-grid dimensions, not free continuous ECT fit parameters."
+  }
+}

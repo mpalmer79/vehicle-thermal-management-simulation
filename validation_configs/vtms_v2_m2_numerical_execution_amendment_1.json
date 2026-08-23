@@ -1,0 +1,82 @@
+{
+  "amendment_id": "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+  "status": "frozen_after_numerical_coupling_discovery_before_further_gate_execution",
+  "parent_manifest": "validation_configs/vtms_v2_m2_development_manifest.json",
+  "scope": "numerical execution semantics only",
+  "model_form_changed": false,
+  "parameter_grid_changed": false,
+  "acceptance_thresholds_changed": false,
+  "evidence_roles_changed": false,
+  "blind_evidence_opened": false,
+  "discovery": {
+    "issue": "Packing many otherwise independent M2 configurations into one large solve_ivp state vector causes SciPy RK45 to use one shared adaptive error norm and one shared step sequence. The physical equations remain uncoupled, but the numerical pass/fail result can depend on shard composition near discontinuous acceptance events such as the first 90 C crossing.",
+    "first_reproduction_range": [0, 4000],
+    "single_4000_state_batch_pass_count": 289,
+    "two_2000_state_batches_combined_pass_count": 282,
+    "batch_classification_disagreement_count": 11,
+    "known_prior_historical_count_for_same_4000_index_window": 293,
+    "interpretation": "Vectorized multi-configuration solves are suitable for screening and diagnostics but are not authoritative for per-configuration acceptance classification."
+  },
+  "independent_adjudication": {
+    "disagreement_indices": [3248, 3257, 3266, 3275, 3284, 3293, 3302, 3311, 3320, 3505, 3550],
+    "scalar_pass_indices": [3248, 3293, 3320, 3550],
+    "scalar_fail_indices": [3257, 3266, 3275, 3284, 3302, 3311, 3505],
+    "common_batch_pass_count_outside_disagreements": 280,
+    "reconciled_pass_count_after_scalar_adjudicating_batch_disagreements": 284,
+    "reconciled_count_caution": "284 is not represented as a complete independent scalar enumeration of all 4000 configurations. It is the common batch classification plus independent scalar adjudication of every observed batch disagreement.",
+    "dominant_instability": "90 C arrival-time classification",
+    "example": {
+      "index": 3257,
+      "large_batch_arrival_90_error_s": -53.56093078682318,
+      "independent_scalar_arrival_90_error_s": -63.23516743658951,
+      "large_batch_classification": "pass",
+      "independent_scalar_classification": "fail"
+    },
+    "missing_crossing_example": {
+      "index": 3550,
+      "large_batch_predicted_max_ect_c": 89.98558505980773,
+      "large_batch_classification": "fail_missing_90C_crossing",
+      "independent_scalar_arrival_90_error_s": -1.016029263568555,
+      "independent_scalar_classification": "pass"
+    }
+  },
+  "authoritative_execution_rule": {
+    "per_configuration_solver": "one independent scipy.solve_ivp RK45 integration of the four-state M2 system",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "source_profile_interpolation": "unchanged authoritative ValidationDataset linear interpolation semantics",
+    "acceptance": "unchanged repository-strict criteria from VTMS-V2-M2-DEV-01",
+    "multi_configuration_vectorized_solve_role": "screening_or_diagnostic_only_not_final_acceptance",
+    "parallelism": "parallel independent processes are permitted because each process owns a separate four-state RK45 solve and adaptive controller",
+    "compiled_rhs": "A compiled implementation may accelerate RHS arithmetic only if it preserves the frozen equations and is spot-checked against the committed M2SimulationRunner. SciPy solve_ivp remains the integrator and controller."
+  },
+  "prior_checkpoint_disposition": {
+    "checkpoint": "validation_outputs/VTMS_V2_M2_STAGE_B_CHECKPOINT_116K.json",
+    "historical_file_preserved": true,
+    "previous_gate_decision_authorized": false,
+    "previous_exact_pass_counts_authoritative_for_final_gate": false,
+    "reason": "The checkpoint used shared-adaptive-controller vectorized ensembles. It remains useful as qualitative accumulating falsification evidence, but its exact counts must not be used for the final M2 gate."
+  },
+  "restart_rule": {
+    "stage_B_authoritative_execution_restarts_at_global_index": 0,
+    "complete_cross_required": 1574640,
+    "m2_rejection_authorized_before_restart_completion": false,
+    "m3_authorized": false
+  },
+  "software_environment_at_discovery": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "numba_used_only_for_local_rhs_acceleration_during_independent_adjudication": "0.65.1"
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "parameter_ranges_widened": false,
+    "hidden_initial_state_fitted": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "reserved_blind_prediction_generated": false,
+    "formal_validation_claim": false
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "audit_id": "VTMS-V2-M2-STAGE-B-NUMERICAL-AUDIT-0-4K",
+  "status": "completed_execution_method_audit_not_a_model_gate",
+  "model_id": "VTMS-V2-M2",
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "execution_amendment": "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+  "evidence_class": "consumed_physical_development_only_not_validation",
+  "reserved_blind_evidence_used": false,
+  "physical_model_changed": false,
+  "audit_reproductions": {
+    "stage_A_fixed_control_cold_screen": {
+      "configuration_count": 6480,
+      "expected_pass_count": 108,
+      "reconstructed_pass_count": 108,
+      "result": "exact_aggregate_reproduction"
+    },
+    "stage_B_global_index_0_4000": {
+      "configuration_count": 4000,
+      "one_shared_vectorized_solve_pass_count": 289,
+      "two_shared_vectorized_solves_0_2000_and_2000_4000_pass_count": 282,
+      "common_pass_indices_count": 280,
+      "classification_disagreement_count": 11,
+      "disagreement_indices": [3248, 3257, 3266, 3275, 3284, 3293, 3302, 3311, 3320, 3505, 3550]
+    }
+  },
+  "independent_scalar_adjudication": [
+    {"index": 3248, "pass": true, "rmse_c": 3.044021, "mae_c": 2.617750, "bias_c": -1.730825, "p90_abs_error_c": 4.888771, "arrival_90_error_s": -53.583687},
+    {"index": 3257, "pass": false, "rmse_c": 3.050971, "mae_c": 2.623321, "bias_c": -1.748023, "p90_abs_error_c": 4.899856, "arrival_90_error_s": -63.235167},
+    {"index": 3266, "pass": false, "rmse_c": 3.050897, "mae_c": 2.623392, "bias_c": -1.749284, "p90_abs_error_c": 4.899013, "arrival_90_error_s": -63.110337},
+    {"index": 3275, "pass": false, "rmse_c": 3.048122, "mae_c": 2.621726, "bias_c": -1.736194, "p90_abs_error_c": 4.896199, "arrival_90_error_s": -62.928693},
+    {"index": 3284, "pass": false, "rmse_c": 3.049978, "mae_c": 2.622017, "bias_c": -1.750681, "p90_abs_error_c": 4.900852, "arrival_90_error_s": -62.947303},
+    {"index": 3293, "pass": true, "rmse_c": 3.051127, "mae_c": 2.622915, "bias_c": -1.751515, "p90_abs_error_c": 4.902498, "arrival_90_error_s": -53.577051},
+    {"index": 3302, "pass": false, "rmse_c": 3.048236, "mae_c": 2.622309, "bias_c": -1.733397, "p90_abs_error_c": 4.894000, "arrival_90_error_s": -63.293307},
+    {"index": 3311, "pass": false, "rmse_c": 3.050437, "mae_c": 2.622594, "bias_c": -1.748145, "p90_abs_error_c": 4.900587, "arrival_90_error_s": -63.173753},
+    {"index": 3320, "pass": true, "rmse_c": 3.050560, "mae_c": 2.622415, "bias_c": -1.750880, "p90_abs_error_c": 4.900604, "arrival_90_error_s": -53.571635},
+    {"index": 3505, "pass": false, "rmse_c": 4.135876, "mae_c": 3.642704, "bias_c": -2.864095, "p90_abs_error_c": 6.669703, "arrival_90_error_s": null, "arrival_90_note": "prediction did not reach 90 C"},
+    {"index": 3550, "pass": true, "rmse_c": 4.136585, "mae_c": 3.643313, "bias_c": -2.866939, "p90_abs_error_c": 6.669996, "arrival_90_error_s": -1.016029}
+  ],
+  "reconciliation": {
+    "scalar_pass_count_among_11_disagreements": 4,
+    "scalar_fail_count_among_11_disagreements": 7,
+    "common_batch_pass_count_outside_disagreements": 280,
+    "common_plus_scalar_disagreement_reconciled_pass_count": 284,
+    "caution": "This 284 count is a numerical-audit reconciliation, not a complete scalar enumeration of all 4000 configurations."
+  },
+  "root_cause": {
+    "mechanism": "A large flattened solve_ivp system gives otherwise independent parameter configurations one shared RK45 error norm and adaptive step sequence. Near first-crossing acceptance events, this changes the numerical trajectory enough to alter pass/fail classification.",
+    "dominant_observed_event": "90 C arrival-time threshold",
+    "model_equation_error_found": false,
+    "data_preprocessing_error_found": false,
+    "stage_A_reproduction_supports_equation_and_preprocessing_consistency": true
+  },
+  "disposition": {
+    "old_116k_checkpoint_exact_counts_valid_for_final_gate": false,
+    "old_116k_checkpoint_preserved": true,
+    "stage_B_restart_required": true,
+    "authoritative_future_classification": "independent four-state solve_ivp RK45 per configuration",
+    "m2_rejected": false,
+    "m3_authorized": false
+  },
+  "local_execution_artifact_hashes": {
+    "reconstruction_and_batch_audit_sha256": "a96fc446ffac4d9ecc02efadef1e7dd8af2d9181429ccc88a6f0688a43c17408",
+    "compiled_scalar_rhs_benchmark_sha256": "65e10517bbddea46b7ffeba67da7deca10bfac546d29844083d4535fde378b26",
+    "scalar_metrics_runner_sha256": "dd4a21327589a93a822f243835f8ca3cefc9593986daeda5dde8ced8dafabf60"
+  }
+}

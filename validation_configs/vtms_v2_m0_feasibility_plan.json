@@ -1,0 +1,100 @@
+{
+  "plan_id": "VTMS-V2-M0-FEAS-01",
+  "status": "frozen_before_execution",
+  "purpose": "Test whether the corrected-control two-state M0 model has any joint feasible configuration across consumed cold-start and hot-start development evidence without identifying or selecting a physical parameter set.",
+  "evidence_role": "consumed_development_only_not_validation",
+  "development_feasibility_execution_authorized": true,
+  "physical_parameter_identification_authorized": false,
+  "reserved_blind_prediction_authorized": false,
+  "development_tests": [
+    {
+      "test_id": "71207062",
+      "role": "consumed_cold_start_development",
+      "mapping": "validation_configs/argonne_2012_focus_71207062_calibration.json",
+      "source_sha256": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+      "airflow_boundary_class": "CONSTANT_SPEED_EXTERNAL_FAN",
+      "hood": "up"
+    },
+    {
+      "test_id": "71207063",
+      "role": "consumed_hot_start_development",
+      "mapping": "validation_configs/argonne_2012_focus_71207063_holdout.json",
+      "source_sha256": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d",
+      "airflow_boundary_class": "CONSTANT_SPEED_EXTERNAL_FAN",
+      "hood": "up"
+    }
+  ],
+  "excluded_from_feasibility_identification": [
+    {
+      "test_id": "71207052",
+      "reason": "test-specific cooling-air boundary unresolved"
+    },
+    {
+      "test_id": "71207057",
+      "reason": "test-specific cooling-air boundary unresolved"
+    }
+  ],
+  "fixed_thermal_snapshot": {
+    "source": "validation_outputs/ARGONNE_CAL_01_FORMAL_RESULT.json",
+    "role": "inherited_consumed_v1_development_snapshot_not_new_identification",
+    "wall_heat_fraction": 0.4999228432666162,
+    "engine_thermal_capacitance_j_per_k": 52393.90776670539,
+    "engine_coolant_ua_w_per_k": 2198.432642517506,
+    "boundary_warning_preserved": true,
+    "thermal_parameters_refitted_in_feas_01": false
+  },
+  "fixed_m0_terms": {
+    "thermostat_open_c": 87.8,
+    "f_closed": 0.02,
+    "pump_model": "V1_RPM_BASED_FIXED",
+    "ags_primary_case": "ABSENT_OR_FULL_OPEN",
+    "external_fan_capacity_m3_s": 2.50
+  },
+  "non_optimized_design_grid": {
+    "thermostat_full_c": [97.0, 99.5, 102.0],
+    "eta_pack": [0.10, 0.25, 0.40, 0.60, 0.80, 1.00],
+    "radiator_ua_nominal_w_per_k": [400.0, 700.0, 1100.0, 1600.0, 2200.0],
+    "f_open": [0.85, 0.925, 1.00],
+    "gamma": [0.50, 1.00, 2.00]
+  },
+  "grid_size": 810,
+  "global_parameter_rule": "Each grid point uses one global configuration for both development tests. Per-run parameters are prohibited.",
+  "selection_rule": "No best-fit configuration may be selected or reported as physically identified. The output is feasibility classification and aggregate coverage of the frozen grid only.",
+  "feasibility_rule": {
+    "joint_feasible_configuration": "A single frozen grid point must satisfy all evaluable whole-trace criteria on both 71207062 and 71207063 and the hot-region criterion wherever evaluable.",
+    "whole_trace": {
+      "rmse_c_max": 5.0,
+      "mae_c_max": 4.0,
+      "absolute_mean_bias_c_max": 3.0,
+      "p90_absolute_error_c_max": 7.0,
+      "threshold_arrival_error_s_max": 60.0
+    },
+    "hot_region": {
+      "measured_ect_c": [96.0, 100.0],
+      "absolute_mean_residual_c_max": 3.0,
+      "minimum_comparison_samples": 30,
+      "minimum_total_time_coverage_s": 30.0
+    }
+  },
+  "interpretation": {
+    "zero_joint_feasible_grid_points": "M0 corrected-control feasibility fails under the inherited V1 thermal snapshot and frozen uncertainty grid. This is strong development evidence but does not by itself prove every possible two-state thermal formulation impossible.",
+    "one_or_more_joint_feasible_grid_points": "M0 remains structurally viable. Passing grid points are not physical parameter estimates and additional independent constraints are required before blind execution.",
+    "passing_grid_points_may_be_ranked": false,
+    "passing_grid_points_may_be_promoted_as_calibration": false
+  },
+  "outputs_allowed": [
+    "number_of_joint_feasible_grid_points",
+    "fraction_of_grid_joint_feasible",
+    "parameter-wise min/max among feasible grid points without ranking",
+    "per-test pass/fail counts",
+    "failure-mode counts by frozen criterion"
+  ],
+  "outputs_prohibited": [
+    "best fit parameter set",
+    "minimum RMSE parameter set",
+    "posterior probability over grid points",
+    "vehicle-specific parameter claim",
+    "blind validation claim"
+  ],
+  "next_action_after_execution": "Review FEAS-01 result before authorizing any M0 physical identification stage or M1 promotion."
+}

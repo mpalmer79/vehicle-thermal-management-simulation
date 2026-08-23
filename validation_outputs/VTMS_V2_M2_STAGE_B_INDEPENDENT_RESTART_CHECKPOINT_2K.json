@@ -1,0 +1,65 @@
+{
+  "checkpoint_id": "VTMS-V2-M2-STAGE-B-INDEPENDENT-RESTART-2K",
+  "status": "partial_authoritative_stage_B_restart_checkpoint_not_a_gate_decision",
+  "model_id": "VTMS-V2-M2",
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "numerical_execution_amendment": "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
+  "evidence_class": "consumed_physical_development_only_not_validation",
+  "reserved_blind_evidence_used": false,
+  "blind_prediction_inspected": false,
+  "gate_decision_authorized_from_this_checkpoint": false,
+  "stage_B_complete_cross_required": 1574640,
+  "cold_screen": {
+    "global_index_range": [0, 2000],
+    "coverage": "contiguous_complete_prefix",
+    "configuration_count": 2000,
+    "cold_start_pass_count": 0,
+    "cold_start_pass_fraction": 0.0,
+    "acceptance_semantics": "repository-strict acceptance including failure when measured threshold crosses but prediction does not"
+  },
+  "hot_screen": {
+    "cold_survivor_count_requiring_hot_evaluation": 0,
+    "hidden_state_initialization_case_count": 27,
+    "configuration_initialization_evaluations": 0,
+    "conditional_joint_survivor_count": 0,
+    "robust_joint_survivor_count": 0
+  },
+  "authoritative_numerics": {
+    "one_scipy_solve_ivp_integration_per_configuration": true,
+    "state_dimension_per_integration": 4,
+    "solver": "scipy.solve_ivp RK45",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0,
+    "source_profile_interpolation": "authoritative ValidationDataset linear interpolation semantics retained",
+    "adaptive_controller_shared_between_configurations": false,
+    "parallelism": "independent process parallelism only",
+    "compiled_rhs_role": "arithmetic acceleration only after exact spot-check equivalence; SciPy remains the integrator"
+  },
+  "local_execution": {
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "numba": "0.65.1",
+    "configuration_count": 2000,
+    "sum_worker_batch_wall_time_s": 188.5303440093994,
+    "checkpoint_file_count": 18,
+    "checkpoint_files_verified_for_complete_contiguous_coverage": true
+  },
+  "prior_checkpoint_disposition": {
+    "previous_independent_checkpoint": "validation_outputs/VTMS_V2_M2_STAGE_B_INDEPENDENT_RESTART_CHECKPOINT_1K.json",
+    "superseded_historical_vectorized_checkpoint": "validation_outputs/VTMS_V2_M2_STAGE_B_CHECKPOINT_116K.json",
+    "historical_vectorized_checkpoint_exact_counts_used_here": false
+  },
+  "governance": {
+    "parameter_optimizer_used": false,
+    "configuration_ranking_performed": false,
+    "hidden_initial_state_fitted_per_run": false,
+    "parameter_ranges_widened_after_result": false,
+    "dynamic_thermostat_added_inside_M2": false,
+    "m2_rejected": false,
+    "m3_authorized": false,
+    "next_required_action": "continue_independent_stage_B_from_global_index_2000_and hot-screen every future cold survivor across all 27 frozen initializations"
+  }
+}
