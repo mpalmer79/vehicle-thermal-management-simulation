@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ProcessPoolExecutor
+import hashlib
 import json
 from pathlib import Path
 import platform
@@ -11,6 +12,8 @@ import time
 import numpy as np
 import scipy
 
+import vtms_v2.m2.stage_b as stage_b_module
+import vtms_v2.m2.stage_b_accel as stage_b_accel_module
 from vtms_validation.adapters.argonne import ArgonneD3Adapter, ArgonneSignalMap
 from vtms_v2.m2.stage_b import (
     GLOBAL_CASE_COUNT,
@@ -19,7 +22,6 @@ from vtms_v2.m2.stage_b import (
     run_stage_b_case_reference,
 )
 from vtms_v2.m2.stage_b_accel import (
-    compare_stage_b_acceleration,
     numba_available,
     run_stage_b_case_accelerated,
 )
@@ -39,6 +41,26 @@ ACCELERATION_HOT_ANCHORS = (
 _COLD_DATASET = None
 _HOT_DATASET = None
 _RUNNER_MODE = "reference"
+
+
+def _sha256_file(path: str | Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _runtime_source_sha256() -> dict[str, str]:
+    if stage_b_module.__file__ is None or stage_b_accel_module.__file__ is None:
+        raise RuntimeError("Stage B runtime modules must have filesystem source paths")
+    return {
+        "scripts/run_m2_stage_b_independent.py": _sha256_file(Path(__file__).resolve()),
+        "src/vtms_v2/m2/stage_b.py": _sha256_file(Path(stage_b_module.__file__).resolve()),
+        "src/vtms_v2/m2/stage_b_accel.py": _sha256_file(
+            Path(stage_b_accel_module.__file__).resolve()
+        ),
+    }
 
 
 def _load_dataset(source: Path, mapping_path: Path, expected_sha256: str):
@@ -129,6 +151,7 @@ def _evaluate_index(global_index: int) -> dict[str, object]:
 
     return {
         "global_index": global_index,
+        "case_parameters": case.to_dict(),
         "cold_pass": True,
         "cold_metrics": _compact_metrics(cold),
         "hot_evaluations": len(HOT_INITIALIZATION_GRID),
@@ -136,6 +159,35 @@ def _evaluate_index(global_index: int) -> dict[str, object]:
         "hot_passes": hot_passes,
         "conditional_joint_survivor": len(hot_passes) > 0,
         "robust_joint_survivor": len(hot_passes) == len(HOT_INITIALIZATION_GRID),
+    }
+
+
+def _compare_anchor(dataset, case, offsets) -> dict[str, object]:
+    head_offset_c, block_offset_c, cold_offset_c = offsets
+    kwargs = {
+        "initial_head_offset_c": head_offset_c,
+        "initial_block_offset_c": block_offset_c,
+        "initial_cold_offset_c": cold_offset_c,
+    }
+    reference = run_stage_b_case_reference(dataset, case, **kwargs)
+    accelerated = run_stage_b_case_accelerated(dataset, case, **kwargs)
+    delta = accelerated.predicted_c - reference.predicted_c
+    max_abs = float(np.max(np.abs(delta)))
+    rms = float(np.sqrt(np.mean(delta**2)))
+    pass_match = reference.acceptance.passed == accelerated.acceptance.passed
+    return {
+        "global_index": case.global_index,
+        "case_parameters": case.to_dict(),
+        "initial_head_offset_c": head_offset_c,
+        "initial_block_offset_c": block_offset_c,
+        "initial_cold_offset_c": cold_offset_c,
+        "max_abs_trace_error_c": max_abs,
+        "rms_trace_error_c": rms,
+        "reference_pass": reference.acceptance.passed,
+        "accelerated_pass": accelerated.acceptance.passed,
+        "reference_metrics": _compact_metrics(reference),
+        "accelerated_metrics": _compact_metrics(accelerated),
+        "equivalent": bool(max_abs <= ACCELERATION_TRACE_ATOL_C and pass_match),
     }
 
 
@@ -147,26 +199,20 @@ def _acceleration_preflight(cold_dataset, hot_dataset) -> dict[str, object]:
 
     checks: list[dict[str, object]] = []
     for global_index in ACCELERATION_COLD_ANCHOR_INDICES:
-        comparison = compare_stage_b_acceleration(
+        row = _compare_anchor(
             cold_dataset,
             case_from_global_index(global_index),
-            trace_atol_c=ACCELERATION_TRACE_ATOL_C,
+            (0.0, 0.0, 0.0),
         )
-        row = comparison.to_dict()
         row["dataset"] = "71207062"
         checks.append(row)
 
     for global_index, offsets in ACCELERATION_HOT_ANCHORS:
-        head_offset_c, block_offset_c, cold_offset_c = offsets
-        comparison = compare_stage_b_acceleration(
+        row = _compare_anchor(
             hot_dataset,
             case_from_global_index(global_index),
-            initial_head_offset_c=head_offset_c,
-            initial_block_offset_c=block_offset_c,
-            initial_cold_offset_c=cold_offset_c,
-            trace_atol_c=ACCELERATION_TRACE_ATOL_C,
+            offsets,
         )
-        row = comparison.to_dict()
         row["dataset"] = "71207063"
         checks.append(row)
 
@@ -217,7 +263,8 @@ def main() -> int:
     if args.workers < 1:
         raise ValueError("workers must be >= 1")
 
-    # Verify source identity once in the parent before any process is launched.
+    runtime_source_sha256 = _runtime_source_sha256()
+
     cold = _load_dataset(args.cold_source, COLD_MAP, EXPECTED_COLD_SHA256)
     hot = _load_dataset(args.hot_source, HOT_MAP, EXPECTED_HOT_SHA256)
     acceleration_preflight = (
@@ -247,13 +294,14 @@ def main() -> int:
     hot_evaluations = int(sum(int(row["hot_evaluations"]) for row in rows))
 
     payload = {
-        "checkpoint_id": f"VTMS-V2-M2-STAGE-B-A2-{args.start}-{args.stop}",
-        "status": "partial_authoritative_committed_source_stage_B_checkpoint_not_a_gate_decision",
+        "checkpoint_id": f"VTMS-V2-M2-STAGE-B-A3-{args.start}-{args.stop}",
+        "status": "partial_authoritative_A3_committed_source_stage_B_checkpoint_not_a_gate_decision",
         "model_id": "VTMS-V2-M2",
         "manifest_id": "VTMS-V2-M2-DEV-01",
         "numerical_execution_amendments": [
             "VTMS-V2-M2-NUMERICAL-EXECUTION-A1",
             "VTMS-V2-M2-NUMERICAL-EXECUTION-A2",
+            "VTMS-V2-M2-NUMERICAL-EXECUTION-A3",
         ],
         "runner_commit": args.runner_commit,
         "runner_path": "scripts/run_m2_stage_b_independent.py",
@@ -263,6 +311,7 @@ def main() -> int:
             if args.runner == "numba"
             else None
         ),
+        "runtime_source_sha256": runtime_source_sha256,
         "runner_mode": args.runner,
         "acceleration_reference_equivalence_preflight": acceleration_preflight,
         "reserved_blind_evidence_used": False,
