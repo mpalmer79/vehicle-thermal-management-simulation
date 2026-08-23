@@ -47,6 +47,22 @@ def test_stage_b_global_index_decoder_is_stable() -> None:
     assert audit_case.f_open == 1.0
     assert audit_case.gamma == 2.0
 
+    adjacent_audit_case = case_from_global_index(3257)
+    assert adjacent_audit_case.structural_index == 13
+    assert adjacent_audit_case.control_index == 98
+    assert adjacent_audit_case.head_thermal_capacitance_fraction == 0.15
+    assert adjacent_audit_case.head_heat_fraction == 0.50
+    assert adjacent_audit_case.head_block_ua_w_per_k == 100.0
+    assert adjacent_audit_case.hot_coolant_capacitance_fraction == 0.20
+    assert adjacent_audit_case.wall_heat_fraction == 0.35
+    assert adjacent_audit_case.engine_thermal_capacitance_j_per_k == 25000.0
+    assert adjacent_audit_case.engine_coolant_ua_w_per_k == 1000.0
+    assert adjacent_audit_case.thermostat_full_c == 99.5
+    assert adjacent_audit_case.eta_pack == 0.25
+    assert adjacent_audit_case.radiator_ua_nominal_w_per_k == 1100.0
+    assert adjacent_audit_case.f_open == 1.0
+    assert adjacent_audit_case.gamma == 2.0
+
     last = case_from_global_index(GLOBAL_CASE_COUNT - 1)
     assert last.structural_index == 6479
     assert last.control_index == 242
