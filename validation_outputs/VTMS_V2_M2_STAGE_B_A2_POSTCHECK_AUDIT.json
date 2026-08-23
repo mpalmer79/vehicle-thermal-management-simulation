@@ -1,0 +1,168 @@
+{
+  "audit_id": "VTMS-V2-M2-STAGE-B-A2-POSTCHECK",
+  "status": "completed_execution_record_consistency_audit_not_a_model_gate",
+  "model_id": "VTMS-V2-M2",
+  "manifest_id": "VTMS-V2-M2-DEV-01",
+  "trigger": "Post-promotion clean-room reproduction of the first A2 checkpoint",
+  "reserved_blind_evidence_used": false,
+  "raw_source_sha256": {
+    "71207062": "4065b06eedefa5728ac6b8cb7c268f5f354021cf8bd98bf204dbdfcd74985e09",
+    "71207063": "8a1953112752e35ade720ab9a64201b05b37c70d172839234f12504e68f2aa8d"
+  },
+  "clean_room_runner": {
+    "role": "postcheck_only_not_authoritative_checkpoint_generator",
+    "sha256": "102cf7cd651e1562c22728a7b1fdb7d8598faa3e9a9b026a5414abcc983ad4d0",
+    "python": "3.13.5",
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "numba": "0.65.1",
+    "solver": "one independent scipy.solve_ivp RK45 per configuration",
+    "rtol": 1e-6,
+    "atol": 1e-8,
+    "max_step_s": 1.0,
+    "output_interval_s": 1.0
+  },
+  "range_reproduction": {
+    "global_index_range": [0, 200],
+    "configuration_count": 200,
+    "a2_checkpoint_cold_pass_count": 0,
+    "postcheck_cold_pass_count": 0,
+    "headline_range_result_reproduced": true,
+    "postcheck_wall_time_s": 17.45282483100891
+  },
+  "current_decoder_anchor_postcheck": [
+    {
+      "dataset": "71207062",
+      "global_index": 0,
+      "case": {
+        "structural_index": 0,
+        "control_index": 0,
+        "head_thermal_capacitance_fraction": 0.15,
+        "head_heat_fraction": 0.50,
+        "head_block_ua_w_per_k": 100.0,
+        "hot_coolant_capacitance_fraction": 0.20,
+        "wall_heat_fraction": 0.20,
+        "engine_thermal_capacitance_j_per_k": 25000.0,
+        "engine_coolant_ua_w_per_k": 400.0,
+        "thermostat_full_c": 97.0,
+        "eta_pack": 0.25,
+        "radiator_ua_nominal_w_per_k": 400.0,
+        "f_open": 0.85,
+        "gamma": 0.50
+      },
+      "passed": false,
+      "rmse_c": 17.665729725068037,
+      "mae_c": 16.505895394798124,
+      "bias_c": -16.5054864988496,
+      "p90_abs_error_c": 25.102295800611145,
+      "arrival_errors_s": {"60C": 197.76503882098024, "80C": 684.4227131881755, "90C": null}
+    },
+    {
+      "dataset": "71207062",
+      "global_index": 3248,
+      "case": {
+        "structural_index": 13,
+        "control_index": 89,
+        "head_thermal_capacitance_fraction": 0.15,
+        "head_heat_fraction": 0.50,
+        "head_block_ua_w_per_k": 100.0,
+        "hot_coolant_capacitance_fraction": 0.20,
+        "wall_heat_fraction": 0.35,
+        "engine_thermal_capacitance_j_per_k": 25000.0,
+        "engine_coolant_ua_w_per_k": 1000.0,
+        "thermostat_full_c": 99.5,
+        "eta_pack": 0.25,
+        "radiator_ua_nominal_w_per_k": 400.0,
+        "f_open": 1.0,
+        "gamma": 2.0
+      },
+      "passed": false,
+      "rmse_c": 3.04741057115244,
+      "mae_c": 2.621816253235724,
+      "bias_c": -1.7282274854191608,
+      "p90_abs_error_c": 4.890534760082086,
+      "arrival_errors_s": {"60C": 9.807452490549906, "80C": -4.228743140263134, "90C": -63.46836399227334}
+    },
+    {
+      "dataset": "71207062",
+      "global_index": 3257,
+      "case": {
+        "structural_index": 13,
+        "control_index": 98,
+        "head_thermal_capacitance_fraction": 0.15,
+        "head_heat_fraction": 0.50,
+        "head_block_ua_w_per_k": 100.0,
+        "hot_coolant_capacitance_fraction": 0.20,
+        "wall_heat_fraction": 0.35,
+        "engine_thermal_capacitance_j_per_k": 25000.0,
+        "engine_coolant_ua_w_per_k": 1000.0,
+        "thermostat_full_c": 99.5,
+        "eta_pack": 0.25,
+        "radiator_ua_nominal_w_per_k": 1100.0,
+        "f_open": 1.0,
+        "gamma": 2.0
+      },
+      "passed": true,
+      "rmse_c": 3.050603366323009,
+      "mae_c": 2.622075001435902,
+      "bias_c": -1.75142703157033,
+      "p90_abs_error_c": 4.901583244654164,
+      "arrival_errors_s": {"60C": 9.826141601004139, "80C": -4.080762170724256, "90C": -53.57071582594875}
+    },
+    {
+      "dataset": "71207062",
+      "global_index": 3505,
+      "passed": true,
+      "rmse_c": 4.136507072636169,
+      "mae_c": 3.643167609095104,
+      "bias_c": -2.8678443700350402,
+      "p90_abs_error_c": 6.668504136552347,
+      "arrival_errors_s": {"60C": 5.314931468688712, "80C": -12.87919619733833, "90C": -0.9383387904803158}
+    },
+    {
+      "dataset": "71207062",
+      "global_index": 3550,
+      "passed": true,
+      "rmse_c": 4.137469654558283,
+      "mae_c": 3.6448458006237066,
+      "bias_c": -2.8665422455832674,
+      "p90_abs_error_c": 6.668653984900789,
+      "arrival_errors_s": {"60C": 5.317555739403247, "80C": -12.919085618979238, "90C": -0.93910011834339}
+    },
+    {
+      "dataset": "71207063",
+      "global_index": 3248,
+      "initial_offsets_c": {"head": 0.0, "block": 0.0, "cold": 0.0},
+      "passed": false,
+      "rmse_c": 7.864632989857134,
+      "bias_c": -7.284490642278789,
+      "hot_region_mean_residual_c": -8.548861608236834
+    },
+    {
+      "dataset": "71207063",
+      "global_index": 3550,
+      "initial_offsets_c": {"head": 30.0, "block": 20.0, "cold": -10.0},
+      "passed": false,
+      "rmse_c": 9.755578680863774,
+      "bias_c": -9.185767777845873,
+      "hot_region_mean_residual_c": -10.536715386124705
+    }
+  ],
+  "discrepancy": {
+    "a2_checkpoint_3248_cold_pass": true,
+    "postcheck_3248_cold_pass": false,
+    "a2_checkpoint_3257_cold_pass": false,
+    "postcheck_3257_cold_pass": true,
+    "current_committed_decoder_3248_radiator_ua_w_per_k": 400.0,
+    "current_committed_decoder_3257_radiator_ua_w_per_k": 1100.0,
+    "conclusion": "The A2 checkpoint's embedded preflight labels are not sufficiently self-identifying to remain authoritative. The [0,200) zero-pass headline is reproducible but is retained as historical only under A3."
+  },
+  "disposition": {
+    "m2_rejected": false,
+    "m3_authorized": false,
+    "a3_required_before_further_checkpoint_promotion": true,
+    "physical_model_changed": false,
+    "parameter_grid_changed": false,
+    "acceptance_thresholds_changed": false
+  }
+}
