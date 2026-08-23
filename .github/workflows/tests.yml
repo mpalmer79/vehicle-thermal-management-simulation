@@ -35,6 +35,24 @@ jobs:
         if: matrix.python-version == '3.13'
         run: python -m pytest tests/test_vtms_v2_m2_stage_b_accel.py
 
+      - name: Upload M2 Stage B tested source snapshot
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2-stage-b-source-${{ github.sha }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            src/
+            scripts/run_m2_stage_b_independent.py
+            validation_configs/argonne_2012_focus_71207062_calibration.json
+            validation_configs/argonne_2012_focus_71207063_holdout.json
+            validation_configs/vtms_v2_m2_development_manifest.json
+            validation_configs/vtms_v2_m2_numerical_execution_amendment_1.json
+            validation_configs/vtms_v2_m2_numerical_execution_amendment_2.json
+            validation_configs/vtms_v2_m2_numerical_execution_amendment_3.json
+            pyproject.toml
+
       - name: Run pre-Argonne identifiability preflight
         if: matrix.python-version == '3.11'
         run: python run_identifiability_preflight.py
